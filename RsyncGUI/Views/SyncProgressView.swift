@@ -127,6 +127,15 @@ struct SyncProgressView: View {
         )
     }
 
+    // Safe percentage that handles NaN and infinity
+    private var safePercentage: Double {
+        let percentage = executor.progress?.percentage ?? 0
+        guard percentage.isFinite && !percentage.isNaN else {
+            return 0
+        }
+        return min(max(percentage, 0), 100) // Clamp between 0-100
+    }
+
     private var mainProgressCircle: some View {
         ZStack {
             // Background circle
@@ -136,7 +145,7 @@ struct SyncProgressView: View {
 
             // Progress circle
             Circle()
-                .trim(from: 0, to: CGFloat((executor.progress?.percentage ?? 0) / 100))
+                .trim(from: 0, to: CGFloat(safePercentage / 100))
                 .stroke(
                     AngularGradient(
                         colors: [.blue, .purple, .blue],
@@ -146,11 +155,11 @@ struct SyncProgressView: View {
                 )
                 .frame(width: 200, height: 200)
                 .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.5), value: executor.progress?.percentage)
+                .animation(.easeInOut(duration: 0.5), value: safePercentage)
 
             // Percentage text
             VStack(spacing: 4) {
-                Text("\(Int(executor.progress?.percentage ?? 0))%")
+                Text("\(Int(safePercentage))%")
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(.blue.gradient)
 
