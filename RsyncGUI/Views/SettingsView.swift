@@ -174,12 +174,17 @@ struct AdvancedSettings: View {
     private func exportJobs() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.json]
-        panel.nameFieldStringValue = "rsyncgui-jobs.json"
+        panel.nameFieldStringValue = "rsyncgui-jobs-\(Date().formatted(date: .numeric, time: .omitted)).json"
 
         if panel.runModal() == .OK, let url = panel.url {
             let jobs = JobManager.shared.jobs
             if let data = try? JSONEncoder().encode(jobs) {
-                try? data.write(to: url)
+                do {
+                    try data.write(to: url, options: .atomic)
+                    showAlert(title: "Export Successful", message: "Exported \(jobs.count) job(s) to \(url.lastPathComponent)")
+                } catch {
+                    showAlert(title: "Export Failed", message: "Error: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -190,13 +195,45 @@ struct AdvancedSettings: View {
         panel.allowedContentTypes = [.json]
 
         if panel.runModal() == .OK, let url = panel.url {
-            if let data = try? Data(contentsOf: url),
-               let jobs = try? JSONDecoder().decode([SyncJob].self, from: data) {
-                for job in jobs {
-                    JobManager.shared.jobs.append(job)
+            do {
+                let data = try Data(contentsOf: url)
+                let jobs = try JSONDecoder().decode([SyncJob].self, from: data)
+
+                // Validate jobs
+                guard !jobs.isEmpty else {
+                    showAlert(title: "Import Failed", message: "No jobs found in file")
+                    return
                 }
+
+                // Check for duplicate job IDs
+                let existingIds = Set(JobManager.shared.jobs.map { $0.id })
+                var imported = 0
+                var skipped = 0
+
+                for var job in jobs {
+                    if existingIds.contains(job.id) {
+                        // Generate new ID for duplicates
+                        job.id = UUID()
+                        job.name = job.name + " (Imported)"
+                    }
+                    JobManager.shared.jobs.append(job)
+                    imported += 1
+                }
+
                 JobManager.shared.saveJobs()
+                showAlert(title: "Import Successful", message: "Imported \(imported) job(s)")
+            } catch {
+                showAlert(title: "Import Failed", message: "Error: \(error.localizedDescription)")
             }
         }
+    }
+
+    private func showAlert(title: String, message: String) {
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = message
+        alert.alertStyle = title.contains("Failed") ? .warning : .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 }

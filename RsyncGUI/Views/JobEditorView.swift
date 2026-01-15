@@ -13,6 +13,8 @@ struct JobEditorView: View {
     @Binding var isPresented: Bool
 
     @State private var selectedTab: EditorTab = .basic
+    @State private var showingTestResult = false
+    @State private var testResult: TestConnectionResult?
 
     enum EditorTab: String, CaseIterable {
         case basic = "Basic"
@@ -49,6 +51,21 @@ struct JobEditorView: View {
             footer
         }
         .frame(width: 900, height: 700)
+        .alert("Connection Test", isPresented: $showingTestResult, presenting: testResult) { result in
+            Button("OK") {
+                showingTestResult = false
+            }
+        } message: { result in
+            VStack(alignment: .leading, spacing: 8) {
+                Text(result.overallSuccess ? "✅ All checks passed!" : "⚠️ Some checks failed")
+                    .font(.headline)
+
+                ForEach(result.checks) { check in
+                    Text(check.message)
+                        .font(.caption)
+                }
+            }
+        }
     }
 
     // MARK: - Header
@@ -897,8 +914,98 @@ struct JobEditorView: View {
     }
 
     private func testConnection() {
-        // Test rsync connection
-        print("Testing connection...")
+        Task {
+            showingTestResult = false
+            let result = await performConnectionTest()
+            await MainActor.run {
+                testResult = result
+                showingTestResult = true
+            }
+        }
+    }
+
+    private func performConnectionTest() async -> TestConnectionResult {
+        var checks: [ConnectionCheck] = []
+
+        // 1. Check source path
+        let sourcePath = job.source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+        let sourceExists = FileManager.default.fileExists(atPath: sourcePath)
+        checks.append(ConnectionCheck(
+            name: "Source Path",
+            passed: sourceExists,
+            message: sourceExists ? "✅ \(sourcePath)" : "❌ Path not found: \(sourcePath)"
+        ))
+
+        // 2. Check destination path (if local)
+        if !job.isRemote {
+            let destPath = job.destination.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+            let destExists = FileManager.default.fileExists(atPath: destPath)
+            checks.append(ConnectionCheck(
+                name: "Destination Path",
+                passed: destExists,
+                message: destExists ? "✅ \(destPath)" : "⚠️  Path not found (will be created): \(destPath)"
+            ))
+        }
+
+        // 3. Test SSH connection if remote
+        if job.isRemote, let host = job.remoteHost, let user = job.remoteUser {
+            let sshResult = await testSSHConnection(user: user, host: host, keyPath: job.sshKeyPath)
+            checks.append(sshResult)
+        }
+
+        // 4. Check rsync is installed
+        let rsyncExists = FileManager.default.fileExists(atPath: "/usr/bin/rsync")
+        checks.append(ConnectionCheck(
+            name: "rsync Binary",
+            passed: rsyncExists,
+            message: rsyncExists ? "✅ /usr/bin/rsync" : "❌ rsync not found at /usr/bin/rsync"
+        ))
+
+        let allPassed = checks.allSatisfy { $0.passed }
+        return TestConnectionResult(checks: checks, overallSuccess: allPassed)
+    }
+
+    private func testSSHConnection(user: String, host: String, keyPath: String?) async -> ConnectionCheck {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/ssh")
+
+        var args = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+        if let key = keyPath {
+            args.append(contentsOf: ["-i", key])
+        }
+        args.append("\(user)@\(host)")
+        args.append("echo 'Connection successful'")
+
+        process.arguments = args
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+
+            if process.terminationStatus == 0 {
+                return ConnectionCheck(
+                    name: "SSH Connection",
+                    passed: true,
+                    message: "✅ Connected to \(user)@\(host)"
+                )
+            } else {
+                return ConnectionCheck(
+                    name: "SSH Connection",
+                    passed: false,
+                    message: "❌ Failed to connect to \(user)@\(host)"
+                )
+            }
+        } catch {
+            return ConnectionCheck(
+                name: "SSH Connection",
+                passed: false,
+                message: "❌ SSH error: \(error.localizedDescription)"
+            )
+        }
     }
 
     private func selectFolder(for keyPath: WritableKeyPath<SyncJob, String>) {

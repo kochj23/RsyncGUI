@@ -12,6 +12,9 @@ struct JobDetailView: View {
     let onRun: (Bool) -> Void
     let onEdit: () -> Void
 
+    @State private var showingDeltaReport = false
+    @State private var showingHistory = false
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -148,23 +151,57 @@ struct JobDetailView: View {
     // MARK: - Actions Card
 
     private var actionsCard: some View {
-        HStack(spacing: 16) {
-            Button(action: { onRun(true) }) {
-                Label("Dry Run", systemImage: "eye.fill")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
+        VStack(spacing: 12) {
+            HStack(spacing: 16) {
+                Button(action: { onRun(true) }) {
+                    Label("Dry Run", systemImage: "eye.fill")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
 
-            Button(action: { onRun(false) }) {
-                Label("Run Now", systemImage: "play.circle.fill")
-                    .frame(maxWidth: .infinity)
-                    .padding()
+                Button(action: { onRun(false) }) {
+                    Label("Run Now", systemImage: "play.circle.fill")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.blue)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.blue)
+
+            HStack(spacing: 16) {
+                if job.lastDeltaReport != nil {
+                    Button(action: { showingDeltaReport = true }) {
+                        Label("View Delta Report", systemImage: "chart.bar.doc.horizontal")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .tint(.green)
+                }
+
+                if job.totalRuns > 0 {
+                    Button(action: { showingHistory = true }) {
+                        Label("Execution History", systemImage: "clock.arrow.circlepath")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .tint(.purple)
+                }
+            }
+        }
+        .sheet(isPresented: $showingDeltaReport) {
+            if let report = job.lastDeltaReport {
+                DeltaReportView(report: report)
+            }
+        }
+        .sheet(isPresented: $showingHistory) {
+            ExecutionHistoryView(jobId: job.id)
         }
     }
 

@@ -107,6 +107,9 @@ class JobManager: ObservableObject {
 
         updateJob(mutableJob)
 
+        // Save to execution history
+        ExecutionHistoryManager.shared.addExecution(result, jobName: job.name)
+
         return result
     }
 

@@ -67,7 +67,9 @@ class RsyncExecutor: ObservableObject {
     // MARK: - Command Building
 
     private func buildCommand(for job: SyncJob, dryRun: Bool) -> [String] {
-        var args = ["/usr/bin/rsync"]
+        // Get rsync path from settings
+        let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
+        var args = [rsyncPath]
 
         // Add rsync options
         var options = job.options
