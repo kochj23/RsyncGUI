@@ -12,7 +12,6 @@ struct SyncProgressView: View {
     let job: SyncJob
     @StateObject private var executor = RsyncExecutor()
     @Environment(\.dismiss) private var dismiss
-    @State private var progress: RsyncProgress?
     @State private var hasStarted = false
     @State private var hasCompleted = false
     @State private var result: ExecutionResult?
@@ -135,7 +134,7 @@ struct SyncProgressView: View {
 
             // Progress circle
             Circle()
-                .trim(from: 0, to: CGFloat((progress?.percentage ?? 0) / 100))
+                .trim(from: 0, to: CGFloat((executor.progress?.percentage ?? 0) / 100))
                 .stroke(
                     AngularGradient(
                         colors: [.blue, .purple, .blue],
@@ -145,11 +144,11 @@ struct SyncProgressView: View {
                 )
                 .frame(width: 200, height: 200)
                 .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.5), value: progress?.percentage)
+                .animation(.easeInOut(duration: 0.5), value: executor.progress?.percentage)
 
             // Percentage text
             VStack(spacing: 4) {
-                Text("\(Int(progress?.percentage ?? 0))%")
+                Text("\(Int(executor.progress?.percentage ?? 0))%")
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(.blue.gradient)
 
@@ -168,28 +167,28 @@ struct SyncProgressView: View {
             StatCard(
                 icon: "doc.fill",
                 title: "Files Transferred",
-                value: "\(progress?.filesTransferred ?? 0)",
+                value: "\(executor.progress?.filesTransferred ?? 0)",
                 color: .blue
             )
 
             StatCard(
                 icon: "arrow.down.circle.fill",
                 title: "Data Transferred",
-                value: progress?.bytesTransferredFormatted ?? "0 B",
+                value: executor.progress?.bytesTransferredFormatted ?? "0 B",
                 color: .green
             )
 
             StatCard(
                 icon: "gauge.high",
                 title: "Transfer Speed",
-                value: progress?.speedFormatted ?? "0 B/s",
+                value: executor.progress?.speedFormatted ?? "0 B/s",
                 color: .orange
             )
 
             StatCard(
                 icon: "clock.fill",
                 title: "Time Remaining",
-                value: progress?.timeRemainingFormatted ?? "—",
+                value: executor.progress?.timeRemainingFormatted ?? "—",
                 color: .purple
             )
         }
@@ -205,7 +204,7 @@ struct SyncProgressView: View {
                 Image(systemName: "arrow.right.circle.fill")
                     .foregroundColor(.blue)
 
-                Text(progress?.currentFile ?? "Preparing...")
+                Text(executor.progress?.currentFile ?? "Preparing...")
                     .font(.system(.body, design: .monospaced))
                     .lineLimit(2)
                     .truncationMode(.middle)
@@ -225,7 +224,7 @@ struct SyncProgressView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text(progress?.speedFormatted ?? "Calculating...")
+                Text(executor.progress?.speedFormatted ?? "Calculating...")
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.blue.gradient)
@@ -238,7 +237,7 @@ struct SyncProgressView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Text(progress?.timeRemainingFormatted ?? "Calculating...")
+                Text(executor.progress?.timeRemainingFormatted ?? "Calculating...")
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.purple.gradient)
@@ -335,7 +334,6 @@ struct SyncProgressView: View {
             let syncResult = try await executor.execute(job: job, dryRun: false)
             await MainActor.run {
                 result = syncResult
-                progress = executor.progress
                 hasCompleted = true
             }
         } catch {
