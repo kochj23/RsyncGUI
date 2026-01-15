@@ -142,8 +142,17 @@ struct SyncProgressView: View {
         )
     }
 
-    // Safe percentage that handles NaN and infinity
-    private var safePercentage: Double {
+    // Safe overall percentage (calculated from files done/total)
+    private var safeOverallPercentage: Double {
+        let percentage = executor.progress?.overallPercentage ?? 0
+        guard percentage.isFinite && !percentage.isNaN else {
+            return 0
+        }
+        return min(max(percentage, 0), 100) // Clamp between 0-100
+    }
+
+    // Safe current file percentage
+    private var safeCurrentFilePercentage: Double {
         let percentage = executor.progress?.percentage ?? 0
         guard percentage.isFinite && !percentage.isNaN else {
             return 0
@@ -151,7 +160,7 @@ struct SyncProgressView: View {
         return min(max(percentage, 0), 100) // Clamp between 0-100
     }
 
-    // Current file progress (indeterminate - rsync doesn't provide per-file percentage)
+    // Current file progress dial (shows individual file transfer %)
     private var currentFileProgressCircle: some View {
         ZStack {
             // Background circle
@@ -159,9 +168,9 @@ struct SyncProgressView: View {
                 .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
                 .frame(width: 200, height: 200)
 
-            // Animated progress indicator (indeterminate)
+            // Current file progress circle
             Circle()
-                .trim(from: 0, to: 0.3)
+                .trim(from: 0, to: CGFloat(safeCurrentFilePercentage / 100))
                 .stroke(
                     AngularGradient(
                         colors: [.orange, .red, .orange],
@@ -170,16 +179,16 @@ struct SyncProgressView: View {
                     style: StrokeStyle(lineWidth: 20, lineCap: .round)
                 )
                 .frame(width: 200, height: 200)
-                .rotationEffect(.degrees(executor.isRunning ? 360 : 0))
-                .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: executor.isRunning)
+                .rotationEffect(.degrees(-90))
+                .animation(.easeInOut(duration: 0.3), value: safeCurrentFilePercentage)
 
-            // File icon
+            // Percentage text
             VStack(spacing: 4) {
-                Image(systemName: "doc.fill")
-                    .font(.system(size: 48))
+                Text("\(Int(safeCurrentFilePercentage))%")
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(.orange.gradient)
 
-                Text("Active")
+                Text("File")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -193,9 +202,9 @@ struct SyncProgressView: View {
                 .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
                 .frame(width: 200, height: 200)
 
-            // Progress circle
+            // Overall progress circle
             Circle()
-                .trim(from: 0, to: CGFloat(safePercentage / 100))
+                .trim(from: 0, to: CGFloat(safeOverallPercentage / 100))
                 .stroke(
                     AngularGradient(
                         colors: [.blue, .purple, .blue],
@@ -205,15 +214,15 @@ struct SyncProgressView: View {
                 )
                 .frame(width: 200, height: 200)
                 .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.5), value: safePercentage)
+                .animation(.easeInOut(duration: 0.5), value: safeOverallPercentage)
 
             // Percentage text
             VStack(spacing: 4) {
-                Text("\(Int(safePercentage))%")
+                Text("\(Int(safeOverallPercentage))%")
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(.blue.gradient)
 
-                Text("Complete")
+                Text("Overall")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -228,7 +237,7 @@ struct SyncProgressView: View {
             StatCard(
                 icon: "doc.fill",
                 title: "Files Transferred",
-                value: "\(executor.progress?.filesTransferred ?? 0)",
+                value: "\(executor.progress?.filesTransferred ?? 0) / \(executor.progress?.totalFiles ?? 0)",
                 color: .blue
             )
 

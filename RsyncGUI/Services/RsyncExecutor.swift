@@ -219,41 +219,62 @@ class RsyncExecutor: ObservableObject {
     }
 
     private func parseProgressLine(_ line: String) {
-        // Example: "  1,234,567  56%  123.45MB/s    0:01:23"
+        // Example: "  648 100%  2.55MB/s  00:00:00 (xfer#323, to-check=6988/42255)"
         let components = line.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
 
         guard components.count >= 4 else { return }
 
-        // Extract percentage
+        // Extract current file percentage
+        var currentFilePercentage: Double = 0
         if let percentString = components.first(where: { $0.hasSuffix("%") }),
            let percentValue = Double(percentString.replacingOccurrences(of: "%", with: "")) {
-
-            // Extract speed
-            let speedString = components.first { $0.contains("B/s") } ?? "0B/s"
-            let speed = parseSpeed(speedString)
-
-            // Extract time remaining
-            let timeString = components.last ?? "0:00:00"
-            let timeRemaining = parseTime(timeString)
-
-            let progress = RsyncProgress(
-                currentFile: "",
-                filesTransferred: 0,
-                totalFiles: 0,
-                bytesTransferred: 0,
-                totalBytes: 0,
-                percentage: percentValue,
-                speed: speed,
-                timeRemaining: timeRemaining
-            )
-
-            Task { @MainActor [weak self] in
-                guard let self = self else { return }
-                self.progress = progress
-            }
-
-            progressUpdateSubject.send(progress)
+            currentFilePercentage = percentValue
         }
+
+        // Extract overall progress from "to-check=X/Y"
+        var overallPercentage: Double = 0
+        var filesCompleted = 0
+        var totalFiles = 0
+
+        if let toCheckPart = line.range(of: "to-check=") {
+            let toCheckString = String(line[toCheckPart.upperBound...])
+            let toCheckComponents = toCheckString.components(separatedBy: "/")
+            if toCheckComponents.count >= 2 {
+                let remaining = Int(toCheckComponents[0]) ?? 0
+                totalFiles = Int(toCheckComponents[1].components(separatedBy: ")").first ?? "0") ?? 0
+                filesCompleted = totalFiles - remaining
+                if totalFiles > 0 {
+                    overallPercentage = Double(filesCompleted) / Double(totalFiles) * 100.0
+                }
+            }
+        }
+
+        // Extract speed
+        let speedString = components.first { $0.contains("B/s") } ?? "0B/s"
+        let speed = parseSpeed(speedString)
+
+        // Extract time remaining
+        let timeString = components.first { $0.contains(":") && $0.count <= 8 } ?? "0:00:00"
+        let timeRemaining = parseTime(timeString)
+
+        let progress = RsyncProgress(
+            currentFile: self.progress?.currentFile ?? "",
+            filesTransferred: filesCompleted,
+            totalFiles: totalFiles,
+            bytesTransferred: self.progress?.bytesTransferred ?? 0,
+            totalBytes: self.progress?.totalBytes ?? 0,
+            percentage: currentFilePercentage,
+            overallPercentage: overallPercentage,
+            speed: speed,
+            timeRemaining: timeRemaining
+        )
+
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.progress = progress
+        }
+
+        progressUpdateSubject.send(progress)
     }
 
     private func parseFileTransferLine(_ line: String) {
@@ -373,7 +394,8 @@ struct RsyncProgress {
     var totalFiles: Int
     var bytesTransferred: Int64
     var totalBytes: Int64
-    var percentage: Double
+    var percentage: Double // Current file percentage (from rsync per-file output)
+    var overallPercentage: Double // Overall sync percentage (calculated from files done/total)
     var speed: Double // bytes per second
     var timeRemaining: TimeInterval
 
