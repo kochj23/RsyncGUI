@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct ContentView: View {
     @EnvironmentObject var jobManager: JobManager
@@ -13,6 +14,7 @@ struct ContentView: View {
     @State private var showingJobEditor = false
     @State private var showingProgress = false
     @State private var runningJobId: UUID?
+    @State private var progressWindow: NSWindow?
 
     var body: some View {
         NavigationSplitView {
@@ -45,15 +47,32 @@ struct ContentView: View {
         .sheet(isPresented: $showingProgress) {
             if let jobId = runningJobId,
                let job = jobManager.jobs.first(where: { $0.id == jobId }) {
-                SyncProgressView(job: job)
+                TestProgressView(job: job)
             }
         }
     }
 
     private func runJob(_ job: SyncJob, dryRun: Bool) {
         runningJobId = job.id
-        showingProgress = true
 
+        // Open in separate window instead of sheet
+        openProgressWindow(for: job, dryRun: dryRun)
+    }
+
+    private func openProgressWindow(for job: SyncJob, dryRun: Bool) {
+        let progressView = SyncProgressView(job: job)
+        let hostingController = NSHostingController(rootView: progressView)
+
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = "Sync Progress - \(job.name)"
+        window.setContentSize(NSSize(width: 800, height: 600))
+        window.styleMask = [.titled, .closable, .miniaturizable]
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+
+        progressWindow = window
+
+        // Start the sync
         Task {
             do {
                 _ = try await jobManager.executeJob(job, dryRun: dryRun)

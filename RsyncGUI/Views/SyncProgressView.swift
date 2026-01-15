@@ -34,7 +34,9 @@ struct SyncProgressView: View {
                 activeProgressView
             }
         }
-        .frame(width: 800, height: 600)
+        .frame(minWidth: 800, idealWidth: 800, maxWidth: 800,
+               minHeight: 600, idealHeight: 600, maxHeight: 600)
+        .fixedSize()
         .task {
             await runSync()
         }
