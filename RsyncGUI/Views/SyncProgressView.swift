@@ -54,9 +54,9 @@ struct SyncProgressView: View {
                     .font(.headline)
 
                 HStack(spacing: 12) {
-                    Label(job.source, systemImage: "folder.fill")
+                    HStack { Image(systemName: "folder.fill"); Text(job.source) }
                     Image(systemName: "arrow.right")
-                    Label(job.destination, systemImage: "folder.badge.plus")
+                    HStack { Image(systemName: "folder.badge.plus"); Text(job.destination) }
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -197,7 +197,7 @@ struct SyncProgressView: View {
 
     private var currentFileSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Current File", systemImage: "doc.text.fill")
+            HStack { Image(systemName: "doc.text.fill"); Text("Current File") }
                 .font(.headline)
                 .foregroundColor(.secondary)
 
@@ -302,7 +302,7 @@ struct SyncProgressView: View {
 
             if !result.errors.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Errors", systemImage: "exclamationmark.triangle.fill")
+                    HStack { Image(systemName: "exclamationmark.triangle.fill"); Text("Errors") }
                         .font(.headline)
                         .foregroundColor(.red)
 
