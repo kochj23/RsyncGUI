@@ -65,8 +65,10 @@ struct ContentView: View {
 
         let window = NSWindow(contentViewController: hostingController)
         window.title = "Sync Progress - \(job.name)"
-        window.setContentSize(NSSize(width: 800, height: 600))
-        window.styleMask = [.titled, .closable, .miniaturizable]
+        window.setContentSize(NSSize(width: 1000, height: 700))
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.minSize = NSSize(width: 800, height: 600)
+        window.maxSize = NSSize(width: 2000, height: 1400)
         window.center()
         window.makeKeyAndOrderFront(nil)
 

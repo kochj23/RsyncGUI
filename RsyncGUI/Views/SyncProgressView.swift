@@ -34,9 +34,8 @@ struct SyncProgressView: View {
                 activeProgressView
             }
         }
-        .frame(minWidth: 800, idealWidth: 800, maxWidth: 800,
-               minHeight: 600, idealHeight: 600, maxHeight: 600)
-        .fixedSize()
+        .frame(minWidth: 800, idealWidth: 1000, maxWidth: .infinity,
+               minHeight: 600, idealHeight: 700, maxHeight: .infinity)
         .task {
             await runSync()
         }
@@ -101,8 +100,24 @@ struct SyncProgressView: View {
     private var activeProgressView: some View {
         ScrollView {
             VStack(spacing: 30) {
-                // Main progress circle
-                mainProgressCircle
+                // Dual progress circles
+                HStack(spacing: 60) {
+                    // Overall progress
+                    VStack(spacing: 12) {
+                        mainProgressCircle
+                        Text("Overall Progress")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+
+                    // Current file progress (placeholder for now)
+                    VStack(spacing: 12) {
+                        currentFileProgressCircle
+                        Text("Current File")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                }
 
                 // Statistics grid
                 statisticsGrid
@@ -134,6 +149,41 @@ struct SyncProgressView: View {
             return 0
         }
         return min(max(percentage, 0), 100) // Clamp between 0-100
+    }
+
+    // Current file progress (indeterminate - rsync doesn't provide per-file percentage)
+    private var currentFileProgressCircle: some View {
+        ZStack {
+            // Background circle
+            Circle()
+                .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
+                .frame(width: 200, height: 200)
+
+            // Animated progress indicator (indeterminate)
+            Circle()
+                .trim(from: 0, to: 0.3)
+                .stroke(
+                    AngularGradient(
+                        colors: [.orange, .red, .orange],
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
+                )
+                .frame(width: 200, height: 200)
+                .rotationEffect(.degrees(executor.isRunning ? 360 : 0))
+                .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: executor.isRunning)
+
+            // File icon
+            VStack(spacing: 4) {
+                Image(systemName: "doc.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.orange.gradient)
+
+                Text("Active")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 
     private var mainProgressCircle: some View {
