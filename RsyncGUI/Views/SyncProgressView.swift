@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Beautiful real-time progress visualization for huge syncs
-struct ProgressView: View {
+struct SyncProgressView: View {
     let job: SyncJob
     @StateObject private var executor = RsyncExecutor()
     @Environment(\.dismiss) private var dismiss

@@ -45,7 +45,7 @@ struct ContentView: View {
         .sheet(isPresented: $showingProgress) {
             if let jobId = runningJobId,
                let job = jobManager.jobs.first(where: { $0.id == jobId }) {
-                ProgressView(job: job)
+                SyncProgressView(job: job)
             }
         }
     }
