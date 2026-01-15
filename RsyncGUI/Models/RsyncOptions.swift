@@ -116,6 +116,46 @@ struct RsyncOptions: Codable {
     var omitDirTimes: Bool = false        // -O: omit directories from --times
     var omitLinkTimes: Bool = false       // -J: omit symlinks from --times
 
+    // MARK: - Additional Transfer Options
+    var oneFileSystem: Bool = false        // -x: don't cross filesystem boundaries
+    var sparse: Bool = false               // -S: handle sparse files efficiently
+    var append: Bool = false               // --append: append data onto shorter files
+    var appendVerify: Bool = false         // --append-verify: like --append, but with checksums
+    var filesFrom: String? = nil           // --files-from=FILE: read list of source files from FILE
+    var from0: Bool = false                // --from0: all file lists are delimited by nulls
+    var readBatch: String? = nil           // --read-batch=FILE: read batch update from FILE
+    var writeBatch: String? = nil          // --write-batch=FILE: write batch update to FILE
+
+    // MARK: - Network & Connection Options
+    var contimeout: Int? = nil             // --contimeout=SECONDS: set connection timeout
+    var address: String? = nil             // --address=ADDRESS: bind address for outgoing socket to daemon
+    var ipv4: Bool = false                 // -4: prefer IPv4
+    var ipv6: Bool = false                 // -6: prefer IPv6
+    var sockopts: String? = nil            // --sockopts=OPTIONS: specify custom TCP options
+
+    // MARK: - Advanced I/O Options
+    var noImpliedDirs: Bool = false        // --no-implied-dirs: don't send implied dirs with --relative
+    var directIO: Bool = false             // --direct-io: use O_DIRECT for file I/O (Linux)
+    var noBlockingSIO: Bool = false        // --no-blocking-io: use non-blocking I/O
+    var outbuf: String? = nil              // --outbuf=TYPE: set output buffering (none, line, block)
+
+    // MARK: - Checksum Options
+    var checksumChoice: String? = nil      // --checksum-choice=ALGORITHM: choose checksum algorithm
+    var sumFileList: Bool = false          // --sum-file-list: verify file list checksums
+
+    // MARK: - Logging & Debug Options
+    var logFile: String? = nil             // --log-file=FILE: log what we're doing to specified FILE
+    var logFileFormat: String? = nil       // --log-file-format=FORMAT: log updates using specified format
+    var info: String? = nil                // --info=FLAGS: fine-grained informational verbosity
+    var debug: String? = nil               // --debug=FLAGS: fine-grained debug verbosity
+
+    // MARK: - Character Conversion
+    var iconv: String? = nil               // --iconv=CONVERT: request charset conversion of filenames
+
+    // MARK: - Skip Options
+    var skipCompress: String? = nil        // --skip-compress=LIST: skip compressing files with suffix in LIST
+    var noMTimeCache: Bool = false         // --no-mtime-cache: don't cache file mtimes
+
     // MARK: - Helper Methods
 
     /// Generate rsync command line arguments from options
@@ -290,6 +330,74 @@ struct RsyncOptions: Codable {
         if openNoatime { args.append("--open-noatime") }
         if omitDirTimes { args.append("-O") }
         if omitLinkTimes { args.append("-J") }
+
+        // Additional Transfer Options
+        if oneFileSystem { args.append("-x") }
+        if sparse { args.append("-S") }
+        if append { args.append("--append") }
+        if appendVerify { args.append("--append-verify") }
+        if let filesFromFile = filesFrom {
+            args.append("--files-from=\(filesFromFile)")
+        }
+        if from0 { args.append("--from0") }
+        if let readBatchFile = readBatch {
+            args.append("--read-batch=\(readBatchFile)")
+        }
+        if let writeBatchFile = writeBatch {
+            args.append("--write-batch=\(writeBatchFile)")
+        }
+
+        // Network & Connection Options
+        if let connTimeout = contimeout {
+            args.append("--contimeout=\(connTimeout)")
+        }
+        if let bindAddress = address {
+            args.append("--address=\(bindAddress)")
+        }
+        if ipv4 { args.append("-4") }
+        if ipv6 { args.append("-6") }
+        if let sockOptions = sockopts {
+            args.append("--sockopts=\(sockOptions)")
+        }
+
+        // Advanced I/O Options
+        if noImpliedDirs { args.append("--no-implied-dirs") }
+        if directIO { args.append("--direct-io") }
+        if noBlockingSIO { args.append("--no-blocking-io") }
+        if let outputBuf = outbuf {
+            args.append("--outbuf=\(outputBuf)")
+        }
+
+        // Checksum Options
+        if let checksumAlg = checksumChoice {
+            args.append("--checksum-choice=\(checksumAlg)")
+        }
+        if sumFileList { args.append("--sum-file-list") }
+
+        // Logging & Debug Options
+        if let logFilePath = logFile {
+            args.append("--log-file=\(logFilePath)")
+        }
+        if let logFormat = logFileFormat {
+            args.append("--log-file-format=\(logFormat)")
+        }
+        if let infoFlags = info {
+            args.append("--info=\(infoFlags)")
+        }
+        if let debugFlags = debug {
+            args.append("--debug=\(debugFlags)")
+        }
+
+        // Character Conversion
+        if let iconvSpec = iconv {
+            args.append("--iconv=\(iconvSpec)")
+        }
+
+        // Skip Options
+        if let skipList = skipCompress {
+            args.append("--skip-compress=\(skipList)")
+        }
+        if noMTimeCache { args.append("--no-mtime-cache") }
 
         return args
     }

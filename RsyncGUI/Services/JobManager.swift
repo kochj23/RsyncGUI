@@ -84,8 +84,12 @@ class JobManager: ObservableObject {
         var mutableJob = job
         mutableJob.totalRuns += 1
 
-        let executor = RsyncExecutor()
-        let result = try await executor.execute(job: job, dryRun: dryRun)
+        // Use advanced execution service for dependencies, conditional execution, and delta reporting
+        let result = try await AdvancedExecutionService.shared.executeWithDependencies(
+            job: job,
+            allJobs: jobs,
+            dryRun: dryRun
+        )
 
         // Update job statistics
         if result.status == .success {
@@ -95,6 +99,11 @@ class JobManager: ObservableObject {
         }
         mutableJob.lastRun = result.startTime
         mutableJob.lastStatus = result.status
+
+        // Update source checksum if conditional execution and successful
+        if job.runOnlyIfChanged && result.status == .success {
+            await AdvancedExecutionService.shared.updateSourceChecksum(for: &mutableJob)
+        }
 
         updateJob(mutableJob)
 

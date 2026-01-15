@@ -21,6 +21,14 @@ struct SyncJob: Identifiable, Codable {
     // Rsync options
     var options: RsyncOptions
 
+    // Parallelism for tiny files
+    var parallelism: ParallelismConfig?
+
+    // Job dependencies
+    var dependencies: [UUID] // Job IDs that must complete successfully before this job runs
+    var runOnlyIfChanged: Bool // Only run if source has changed since last run
+    var lastSourceChecksum: String? // Checksum of source for change detection
+
     // Scheduling
     var schedule: ScheduleConfig?
     var isEnabled: Bool
@@ -29,6 +37,7 @@ struct SyncJob: Identifiable, Codable {
     var created: Date
     var lastRun: Date?
     var lastStatus: ExecutionStatus?
+    var lastDeltaReport: DeltaReport?
 
     // Statistics
     var totalRuns: Int
@@ -42,6 +51,8 @@ struct SyncJob: Identifiable, Codable {
         self.destination = destination
         self.isRemote = false
         self.options = RsyncOptions()
+        self.dependencies = []
+        self.runOnlyIfChanged = false
         self.isEnabled = true
         self.created = Date()
         self.totalRuns = 0

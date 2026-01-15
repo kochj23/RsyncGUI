@@ -20,6 +20,8 @@ struct JobEditorView: View {
         case preserve = "Preserve"
         case filters = "Filters"
         case advanced = "Advanced"
+        case parallelism = "Parallelism"
+        case dependencies = "Dependencies"
         case schedule = "Schedule"
     }
 
@@ -112,6 +114,10 @@ struct JobEditorView: View {
             filtersTab
         case .advanced:
             advancedTab
+        case .parallelism:
+            parallelismTab
+        case .dependencies:
+            dependenciesTab
         case .schedule:
             scheduleTab
         }
@@ -608,6 +614,235 @@ struct JobEditorView: View {
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity)
                         .padding()
+                }
+            }
+        }
+    }
+
+    // MARK: - Parallelism Tab
+
+    private var parallelismTab: some View {
+        VStack(spacing: 24) {
+            FormSection(title: "Parallel Execution") {
+                Toggle("Enable parallelism (for tons of tiny files)", isOn: Binding(
+                    get: { job.parallelism?.isEnabled ?? false },
+                    set: { enabled in
+                        if job.parallelism == nil {
+                            job.parallelism = ParallelismConfig()
+                        }
+                        job.parallelism?.isEnabled = enabled
+                    }
+                ))
+
+                if let parallelConfig = job.parallelism, parallelConfig.isEnabled {
+                    VStack(spacing: 16) {
+                        Stepper("Number of parallel threads: \(job.parallelism?.numberOfThreads ?? 4)", value: Binding(
+                            get: { job.parallelism?.numberOfThreads ?? 4 },
+                            set: { job.parallelism?.numberOfThreads = $0 }
+                        ), in: 2...16)
+
+                        Picker("Split Strategy", selection: Binding(
+                            get: { job.parallelism?.strategy ?? .automatic },
+                            set: { job.parallelism?.strategy = $0 }
+                        )) {
+                            ForEach(ParallelStrategy.allCases, id: \.self) { strategy in
+                                VStack(alignment: .leading) {
+                                    Text(strategy.rawValue)
+                                    Text(strategy.description)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .tag(strategy)
+                            }
+                        }
+
+                        Text("⚡ Best for: Thousands of small files (< 1MB each)")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.orange.opacity(0.1))
+                            .cornerRadius(8)
+                    }
+                    .padding(.leading, 20)
+                }
+            }
+
+            FormSection(title: "How Parallelism Works") {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "1.circle.fill")
+                            .foregroundColor(.blue)
+                        VStack(alignment: .leading) {
+                            Text("Analyze Source")
+                                .fontWeight(.semibold)
+                            Text("Scan source directory and list all files")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "2.circle.fill")
+                            .foregroundColor(.blue)
+                        VStack(alignment: .leading) {
+                            Text("Split Work")
+                                .fontWeight(.semibold)
+                            Text("Divide files across \(job.parallelism?.numberOfThreads ?? 4) threads based on strategy")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "3.circle.fill")
+                            .foregroundColor(.blue)
+                        VStack(alignment: .leading) {
+                            Text("Execute in Parallel")
+                                .fontWeight(.semibold)
+                            Text("Run \(job.parallelism?.numberOfThreads ?? 4) rsync processes simultaneously")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "4.circle.fill")
+                            .foregroundColor(.blue)
+                        VStack(alignment: .leading) {
+                            Text("Combine Results")
+                                .fontWeight(.semibold)
+                            Text("Merge statistics from all threads")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color.blue.opacity(0.05))
+                .cornerRadius(8)
+            }
+        }
+    }
+
+    // MARK: - Dependencies Tab
+
+    private var dependenciesTab: some View {
+        VStack(spacing: 24) {
+            FormSection(title: "Job Dependencies") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("This job will only run after these jobs complete successfully:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    ForEach(job.dependencies, id: \.self) { depId in
+                        if let depJob = jobManager.jobs.first(where: { $0.id == depId }) {
+                            HStack {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .foregroundColor(.blue)
+                                Text(depJob.name)
+                                    .font(.body)
+                                Spacer()
+                                Button(action: {
+                                    job.dependencies.removeAll { $0 == depId }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding()
+                            .background(Color.secondary.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                    }
+
+                    if job.dependencies.isEmpty {
+                        Text("No dependencies configured")
+                            .foregroundColor(.secondary)
+                            .italic()
+                    }
+
+                    Menu {
+                        ForEach(jobManager.jobs.filter { $0.id != job.id }) { availableJob in
+                            Button(availableJob.name) {
+                                if !job.dependencies.contains(availableJob.id) {
+                                    job.dependencies.append(availableJob.id)
+                                }
+                            }
+                        }
+                    } label: {
+                        Label("Add Dependency", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            FormSection(title: "Conditional Execution") {
+                Toggle("Only run if source has changed", isOn: $job.runOnlyIfChanged)
+
+                if job.runOnlyIfChanged {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Smart execution enabled")
+                                .fontWeight(.semibold)
+                        }
+
+                        Text("RsyncGUI will calculate a checksum of your source directory (file list + modification times) before each scheduled run. If nothing changed, the sync will be skipped.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Text("💡 Perfect for scheduled backups where source rarely changes")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                    .padding()
+                    .background(Color.green.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+
+            FormSection(title: "Delta Reporting") {
+                Toggle("Enable itemized changes (--itemize-changes)", isOn: $job.options.itemize)
+
+                if job.options.itemize {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("When enabled, RsyncGUI will generate a detailed report showing:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        HStack(spacing: 20) {
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("Files Added")
+                                }
+                                HStack {
+                                    Image(systemName: "pencil.circle.fill")
+                                        .foregroundColor(.orange)
+                                    Text("Files Modified")
+                                }
+                                HStack {
+                                    Image(systemName: "trash.circle.fill")
+                                        .foregroundColor(.red)
+                                    Text("Files Deleted")
+                                }
+                            }
+                            .font(.caption)
+
+                            Spacer()
+                        }
+
+                        Text("View delta reports in job history after each sync")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                    .padding()
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(8)
                 }
             }
         }
