@@ -7,173 +7,164 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		017ECB471B7BDD02A16B9F07 /* SyncProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCEA26CB4C0CE73C597CBB9 /* SyncProgressView.swift */; };
-		0D880800EE0F51CDCF20BFB7 /* ScheduleConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763B8B660406A318887DAABA /* ScheduleConfig.swift */; };
-		16A1051ED8E0F97CF7A5DE34 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D659AB72E103733CB3200180 /* ParallelismConfig.swift */; };
-		1702CF08677B59D4F5C055E3 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23040635C7B4946CFC34EA88 /* DeltaReport.swift */; };
-		2AA019A6A6B4CBD7F95FDD18 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E088D46036452420D0A4B03 /* SettingsView.swift */; };
-		2CB6FDA0793E675B3937756D /* TestProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BD430A41BE768DC43E2B02 /* TestProgressView.swift */; };
-		3E55575FA177C8C85B42CFDC /* RsyncGUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B1BF0D5535B321255A82D1 /* RsyncGUIApp.swift */; };
-		4999725765FDE678A84D78F9 /* RsyncOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1952AD361A6869DB42FC1E5 /* RsyncOptions.swift */; };
-		50F0673B8056AB8C023B74F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4B39CA3E7200B2E3C3DE7C /* ContentView.swift */; };
-		5E1AB03FC7E853FB266FD08A /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC8E2C803CD17B49278F124 /* ScheduleManager.swift */; };
-		6AF09FAD4BEF394A35F51497 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B862334583B57773CA8D06EF /* ParallelismConfig.swift */; };
-		82D427A143D47AD23056CF8C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0606D9BC96EA938701BD12D /* Cocoa.framework */; };
-		84C14FEA2DB415075B85F1D9 /* RsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269FB54959EEF3FD8794C873 /* RsyncExecutor.swift */; };
-		897BE13C4C0914F81F323F76 /* JobManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA539A3B88383A9E8EDC2EC /* JobManager.swift */; };
-		99923C654166D8F83C2F1415 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC04D2AF4CCCDBD9A113B75C /* AdvancedExecutionService.swift */; };
-		A4FFBCD1B282D1C42B1A1D28 /* JobEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C016C19FA88C678D1DFC9BD /* JobEditorView.swift */; };
-		B54EF5086ABC93CF29DCA9C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E63C267864DADE1AC531619B /* Assets.xcassets */; };
-		CE21CD156D88907616BEC533 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B6B1C151E1610ECB1D0A31 /* JobDetailView.swift */; };
-		D78B744B0316B72071DEC050 /* SyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83E286F82D2F01FCFDDD49F /* SyncJob.swift */; };
-		E50A5FE982D66BE18A461584 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102C0D404459EE1A32563DFD /* DeltaReport.swift */; };
-		F63002CC9E88FDA69AD2B7C7 /* JobListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013898C752CFDDAFB3A8BF74 /* JobListView.swift */; };
-		FC355F1261FED53C52BAFD71 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF568CC5B0068BB4DC1D00D6 /* AdvancedExecutionService.swift */; };
+		004BBD4258FE662FCA52E8CD /* JobEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */; };
+		175534DBF96B78AB0F1703DF /* RsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */; };
+		181767815121D85A3CF5822A /* JobListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5684BBFA718F2AA2DC46E26E /* JobListView.swift */; };
+		1E4F73C26D4A268D3D14C625 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 474C574974A0174A24BE137E /* Assets.xcassets */; };
+		21C7A54F29AFE39FC9E322A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE96445DCFA962CFEDC89752 /* SettingsView.swift */; };
+		3FE115350A50F4D98973C3C8 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D1802D8536B5B6528FB488 /* ParallelismConfig.swift */; };
+		408EF7ED937BB7A1B936420C /* RsyncOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */; };
+		40C92BF2B05D618ED2249847 /* TestProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */; };
+		6E0C8C86B83F7F2EE612B401 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */; };
+		70BA57198CF4F528DB810EA3 /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D721D714FA57020723CD52D /* ScheduleManager.swift */; };
+		790AAE398CDD10387674C2A1 /* SyncProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7983A4352014B71334462268 /* SyncProgressView.swift */; };
+		7F09C9D80AC5578621C7F3D3 /* SyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5B2B02DFC13B7EA918212F /* SyncJob.swift */; };
+		891346F74C8330BE33025CFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D18D90307EA5D1AAE8FC075E /* Cocoa.framework */; };
+		9578D6DFA6D15BCE1D192C26 /* ScheduleConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */; };
+		96782321F1B31169E6D6A399 /* JobManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7983F3BBEEF19FF95292426B /* JobManager.swift */; };
+		AA4CFE293EFB6914FFCE58B4 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB4C812EF164CF579B8723D /* DeltaReport.swift */; };
+		DF2F410F530768F92DF369D8 /* RsyncGUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */; };
+		F141B1DEB3D4853C823634E1 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */; };
+		F4722847DD83FDB3735896A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A0D38A87F482DE72217C85 /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		013898C752CFDDAFB3A8BF74 /* JobListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobListView.swift; path = RsyncGUI/Views/JobListView.swift; sourceTree = "<group>"; };
-		102C0D404459EE1A32563DFD /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
-		21BD430A41BE768DC43E2B02 /* TestProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestProgressView.swift; path = RsyncGUI/Views/TestProgressView.swift; sourceTree = "<group>"; };
-		23040635C7B4946CFC34EA88 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
-		269FB54959EEF3FD8794C873 /* RsyncExecutor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncExecutor.swift; path = RsyncGUI/Services/RsyncExecutor.swift; sourceTree = "<group>"; };
-		2C4B39CA3E7200B2E3C3DE7C /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = RsyncGUI/Views/ContentView.swift; sourceTree = "<group>"; };
-		2DA539A3B88383A9E8EDC2EC /* JobManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobManager.swift; path = RsyncGUI/Services/JobManager.swift; sourceTree = "<group>"; };
-		2F007C16492567A46DB97AAE /* RsyncGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RsyncGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		2FC0BF6A0C4778CC23DA1B64 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = RsyncGUI/Info.plist; sourceTree = "<group>"; };
-		3C016C19FA88C678D1DFC9BD /* JobEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobEditorView.swift; path = RsyncGUI/Views/JobEditorView.swift; sourceTree = "<group>"; };
-		4AC8E2C803CD17B49278F124 /* ScheduleManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = RsyncGUI/Services/ScheduleManager.swift; sourceTree = "<group>"; };
-		5E088D46036452420D0A4B03 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = RsyncGUI/Views/SettingsView.swift; sourceTree = "<group>"; };
-		763B8B660406A318887DAABA /* ScheduleConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleConfig.swift; path = RsyncGUI/Models/ScheduleConfig.swift; sourceTree = "<group>"; };
-		7DCEA26CB4C0CE73C597CBB9 /* SyncProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncProgressView.swift; path = RsyncGUI/Views/SyncProgressView.swift; sourceTree = "<group>"; };
-		A1952AD361A6869DB42FC1E5 /* RsyncOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncOptions.swift; path = RsyncGUI/Models/RsyncOptions.swift; sourceTree = "<group>"; };
-		B83E286F82D2F01FCFDDD49F /* SyncJob.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncJob.swift; path = RsyncGUI/Models/SyncJob.swift; sourceTree = "<group>"; };
-		B862334583B57773CA8D06EF /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
-		D659AB72E103733CB3200180 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
-		E63C267864DADE1AC531619B /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = RsyncGUI/Resources/Assets.xcassets; sourceTree = "<group>"; };
-		EC04D2AF4CCCDBD9A113B75C /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
-		F0606D9BC96EA938701BD12D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		F4B1BF0D5535B321255A82D1 /* RsyncGUIApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncGUIApp.swift; path = RsyncGUI/RsyncGUIApp.swift; sourceTree = "<group>"; };
-		F7B6B1C151E1610ECB1D0A31 /* JobDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobDetailView.swift; path = RsyncGUI/Views/JobDetailView.swift; sourceTree = "<group>"; };
-		FF568CC5B0068BB4DC1D00D6 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
+		0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleConfig.swift; path = RsyncGUI/Models/ScheduleConfig.swift; sourceTree = "<group>"; };
+		0D721D714FA57020723CD52D /* ScheduleManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = RsyncGUI/Services/ScheduleManager.swift; sourceTree = "<group>"; };
+		34D1802D8536B5B6528FB488 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
+		39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncOptions.swift; path = RsyncGUI/Models/RsyncOptions.swift; sourceTree = "<group>"; };
+		41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncGUIApp.swift; path = RsyncGUI/RsyncGUIApp.swift; sourceTree = "<group>"; };
+		474C574974A0174A24BE137E /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = RsyncGUI/Resources/Assets.xcassets; sourceTree = "<group>"; };
+		47A0D38A87F482DE72217C85 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = RsyncGUI/Views/ContentView.swift; sourceTree = "<group>"; };
+		4CB4C812EF164CF579B8723D /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
+		5684BBFA718F2AA2DC46E26E /* JobListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobListView.swift; path = RsyncGUI/Views/JobListView.swift; sourceTree = "<group>"; };
+		7983A4352014B71334462268 /* SyncProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncProgressView.swift; path = RsyncGUI/Views/SyncProgressView.swift; sourceTree = "<group>"; };
+		7983F3BBEEF19FF95292426B /* JobManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobManager.swift; path = RsyncGUI/Services/JobManager.swift; sourceTree = "<group>"; };
+		7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestProgressView.swift; path = RsyncGUI/Views/TestProgressView.swift; sourceTree = "<group>"; };
+		8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobEditorView.swift; path = RsyncGUI/Views/JobEditorView.swift; sourceTree = "<group>"; };
+		BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncExecutor.swift; path = RsyncGUI/Services/RsyncExecutor.swift; sourceTree = "<group>"; };
+		C0524EE8D6032F69C5D3B81B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = RsyncGUI/Info.plist; sourceTree = "<group>"; };
+		C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
+		D18D90307EA5D1AAE8FC075E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobDetailView.swift; path = RsyncGUI/Views/JobDetailView.swift; sourceTree = "<group>"; };
+		EE96445DCFA962CFEDC89752 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = RsyncGUI/Views/SettingsView.swift; sourceTree = "<group>"; };
+		F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RsyncGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB5B2B02DFC13B7EA918212F /* SyncJob.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncJob.swift; path = RsyncGUI/Models/SyncJob.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		97A01096B7D43D48222B8C05 /* Frameworks */ = {
+		512B96EB1EB76090C269BAC3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				82D427A143D47AD23056CF8C /* Cocoa.framework in Frameworks */,
+				891346F74C8330BE33025CFC /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		05AAB18670E6072F2FC34521 /* Models */ = {
+		073FA3605380ECC10E28567A /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				23040635C7B4946CFC34EA88 /* DeltaReport.swift */,
-				A1952AD361A6869DB42FC1E5 /* RsyncOptions.swift */,
-				D659AB72E103733CB3200180 /* ParallelismConfig.swift */,
-				763B8B660406A318887DAABA /* ScheduleConfig.swift */,
-				B83E286F82D2F01FCFDDD49F /* SyncJob.swift */,
-				B862334583B57773CA8D06EF /* ParallelismConfig.swift */,
-				102C0D404459EE1A32563DFD /* DeltaReport.swift */,
+				4CB4C812EF164CF579B8723D /* DeltaReport.swift */,
+				39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */,
+				34D1802D8536B5B6528FB488 /* ParallelismConfig.swift */,
+				0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */,
+				FB5B2B02DFC13B7EA918212F /* SyncJob.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
 		};
-		082FC7DDE80F235CE823B39A /* Products */ = {
+		4DB92FFE778FE500DD025EB3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2F007C16492567A46DB97AAE /* RsyncGUI.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		0EB546F44C21259CCD7EFF26 = {
-			isa = PBXGroup;
-			children = (
-				082FC7DDE80F235CE823B39A /* Products */,
-				BC4BF61037DF21F97CE90AA4 /* Frameworks */,
-				C86178F8C930A47F61BE23B9 /* RsyncGUI */,
-			);
-			sourceTree = "<group>";
-		};
-		2A16FFAE499F929927CD50BE /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				7DCEA26CB4C0CE73C597CBB9 /* SyncProgressView.swift */,
-				5E088D46036452420D0A4B03 /* SettingsView.swift */,
-				F7B6B1C151E1610ECB1D0A31 /* JobDetailView.swift */,
-				3C016C19FA88C678D1DFC9BD /* JobEditorView.swift */,
-				21BD430A41BE768DC43E2B02 /* TestProgressView.swift */,
-				013898C752CFDDAFB3A8BF74 /* JobListView.swift */,
-				2C4B39CA3E7200B2E3C3DE7C /* ContentView.swift */,
-			);
-			name = Views;
-			sourceTree = "<group>";
-		};
-		8EC58E5DF035FC62CAD7F55B /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				FF568CC5B0068BB4DC1D00D6 /* AdvancedExecutionService.swift */,
-				2DA539A3B88383A9E8EDC2EC /* JobManager.swift */,
-				269FB54959EEF3FD8794C873 /* RsyncExecutor.swift */,
-				4AC8E2C803CD17B49278F124 /* ScheduleManager.swift */,
-				EC04D2AF4CCCDBD9A113B75C /* AdvancedExecutionService.swift */,
-			);
-			name = Services;
-			sourceTree = "<group>";
-		};
-		BC4BF61037DF21F97CE90AA4 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				D8D3992DD4FC2058A2FF322D /* OS X */,
+				C5C252ED6219E207524497E6 /* OS X */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C86178F8C930A47F61BE23B9 /* RsyncGUI */ = {
+		626C9A52082D52EA5B2B3696 = {
 			isa = PBXGroup;
 			children = (
-				05AAB18670E6072F2FC34521 /* Models */,
-				2A16FFAE499F929927CD50BE /* Views */,
-				8EC58E5DF035FC62CAD7F55B /* Services */,
-				F16082DE8218842FF5806BE0 /* Resources */,
-				F4B1BF0D5535B321255A82D1 /* RsyncGUIApp.swift */,
-				2FC0BF6A0C4778CC23DA1B64 /* Info.plist */,
+				A03A1AFE3B105549A17FBBDE /* Products */,
+				4DB92FFE778FE500DD025EB3 /* Frameworks */,
+				72D9D24DA7A88F524D219F40 /* RsyncGUI */,
+			);
+			sourceTree = "<group>";
+		};
+		72D9D24DA7A88F524D219F40 /* RsyncGUI */ = {
+			isa = PBXGroup;
+			children = (
+				073FA3605380ECC10E28567A /* Models */,
+				AD6DBF556A09BF6BAC173956 /* Views */,
+				8393FF564518FB9DDFC92FFB /* Services */,
+				A27A04A1EAB82340839DAD26 /* Resources */,
+				41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */,
+				C0524EE8D6032F69C5D3B81B /* Info.plist */,
 			);
 			name = RsyncGUI;
 			sourceTree = "<group>";
 		};
-		D8D3992DD4FC2058A2FF322D /* OS X */ = {
+		8393FF564518FB9DDFC92FFB /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				F0606D9BC96EA938701BD12D /* Cocoa.framework */,
+				C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */,
+				7983F3BBEEF19FF95292426B /* JobManager.swift */,
+				BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */,
+				0D721D714FA57020723CD52D /* ScheduleManager.swift */,
 			);
-			name = "OS X";
+			name = Services;
 			sourceTree = "<group>";
 		};
-		F16082DE8218842FF5806BE0 /* Resources */ = {
+		A03A1AFE3B105549A17FBBDE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E63C267864DADE1AC531619B /* Assets.xcassets */,
+				F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A27A04A1EAB82340839DAD26 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				474C574974A0174A24BE137E /* Assets.xcassets */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		AD6DBF556A09BF6BAC173956 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7983A4352014B71334462268 /* SyncProgressView.swift */,
+				EE96445DCFA962CFEDC89752 /* SettingsView.swift */,
+				EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */,
+				8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */,
+				7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */,
+				5684BBFA718F2AA2DC46E26E /* JobListView.swift */,
+				47A0D38A87F482DE72217C85 /* ContentView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		C5C252ED6219E207524497E6 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				D18D90307EA5D1AAE8FC075E /* Cocoa.framework */,
+			);
+			name = "OS X";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		35ABE62BAED98C5435F88552 /* RsyncGUI */ = {
+		C22F3AD2D0714F91840F3A65 /* RsyncGUI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8F53A35EE421466A3C3F9EFE /* Build configuration list for PBXNativeTarget "RsyncGUI" */;
+			buildConfigurationList = EF7B6F5564B739B5B423693E /* Build configuration list for PBXNativeTarget "RsyncGUI" */;
 			buildPhases = (
-				B0A91424BAB7844B3083CCA0 /* Sources */,
-				97A01096B7D43D48222B8C05 /* Frameworks */,
-				2B6C0D624BCCE36D2B6986FE /* Resources */,
+				74104B8FD8EFDAB7A696F088 /* Sources */,
+				512B96EB1EB76090C269BAC3 /* Frameworks */,
+				B4EEB024FE188F3D47176B86 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -181,19 +172,19 @@
 			);
 			name = RsyncGUI;
 			productName = RsyncGUI;
-			productReference = 2F007C16492567A46DB97AAE /* RsyncGUI.app */;
+			productReference = F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		7FA9B536A91EF8D17EBA96F3 /* Project object */ = {
+		7E36AB7EAB6EF6BF0006B836 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 			};
-			buildConfigurationList = EAB3687BD33A9A80A32C815A /* Build configuration list for PBXProject "RsyncGUI" */;
+			buildConfigurationList = EE6600F5C24C71DEE02529AD /* Build configuration list for PBXProject "RsyncGUI" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -201,115 +192,58 @@
 				en,
 				Base,
 			);
-			mainGroup = 0EB546F44C21259CCD7EFF26;
+			mainGroup = 626C9A52082D52EA5B2B3696;
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 082FC7DDE80F235CE823B39A /* Products */;
+			productRefGroup = A03A1AFE3B105549A17FBBDE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				35ABE62BAED98C5435F88552 /* RsyncGUI */,
+				C22F3AD2D0714F91840F3A65 /* RsyncGUI */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2B6C0D624BCCE36D2B6986FE /* Resources */ = {
+		B4EEB024FE188F3D47176B86 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B54EF5086ABC93CF29DCA9C3 /* Assets.xcassets in Resources */,
+				1E4F73C26D4A268D3D14C625 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B0A91424BAB7844B3083CCA0 /* Sources */ = {
+		74104B8FD8EFDAB7A696F088 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1702CF08677B59D4F5C055E3 /* DeltaReport.swift in Sources */,
-				4999725765FDE678A84D78F9 /* RsyncOptions.swift in Sources */,
-				16A1051ED8E0F97CF7A5DE34 /* ParallelismConfig.swift in Sources */,
-				0D880800EE0F51CDCF20BFB7 /* ScheduleConfig.swift in Sources */,
-				D78B744B0316B72071DEC050 /* SyncJob.swift in Sources */,
-				3E55575FA177C8C85B42CFDC /* RsyncGUIApp.swift in Sources */,
-				017ECB471B7BDD02A16B9F07 /* SyncProgressView.swift in Sources */,
-				2AA019A6A6B4CBD7F95FDD18 /* SettingsView.swift in Sources */,
-				CE21CD156D88907616BEC533 /* JobDetailView.swift in Sources */,
-				A4FFBCD1B282D1C42B1A1D28 /* JobEditorView.swift in Sources */,
-				2CB6FDA0793E675B3937756D /* TestProgressView.swift in Sources */,
-				F63002CC9E88FDA69AD2B7C7 /* JobListView.swift in Sources */,
-				50F0673B8056AB8C023B74F6 /* ContentView.swift in Sources */,
-				FC355F1261FED53C52BAFD71 /* AdvancedExecutionService.swift in Sources */,
-				897BE13C4C0914F81F323F76 /* JobManager.swift in Sources */,
-				84C14FEA2DB415075B85F1D9 /* RsyncExecutor.swift in Sources */,
-				5E1AB03FC7E853FB266FD08A /* ScheduleManager.swift in Sources */,
-				6AF09FAD4BEF394A35F51497 /* ParallelismConfig.swift in Sources */,
-				E50A5FE982D66BE18A461584 /* DeltaReport.swift in Sources */,
-				99923C654166D8F83C2F1415 /* AdvancedExecutionService.swift in Sources */,
+				AA4CFE293EFB6914FFCE58B4 /* DeltaReport.swift in Sources */,
+				408EF7ED937BB7A1B936420C /* RsyncOptions.swift in Sources */,
+				3FE115350A50F4D98973C3C8 /* ParallelismConfig.swift in Sources */,
+				9578D6DFA6D15BCE1D192C26 /* ScheduleConfig.swift in Sources */,
+				7F09C9D80AC5578621C7F3D3 /* SyncJob.swift in Sources */,
+				DF2F410F530768F92DF369D8 /* RsyncGUIApp.swift in Sources */,
+				790AAE398CDD10387674C2A1 /* SyncProgressView.swift in Sources */,
+				21C7A54F29AFE39FC9E322A2 /* SettingsView.swift in Sources */,
+				F141B1DEB3D4853C823634E1 /* JobDetailView.swift in Sources */,
+				004BBD4258FE662FCA52E8CD /* JobEditorView.swift in Sources */,
+				40C92BF2B05D618ED2249847 /* TestProgressView.swift in Sources */,
+				181767815121D85A3CF5822A /* JobListView.swift in Sources */,
+				F4722847DD83FDB3735896A7 /* ContentView.swift in Sources */,
+				6E0C8C86B83F7F2EE612B401 /* AdvancedExecutionService.swift in Sources */,
+				96782321F1B31169E6D6A399 /* JobManager.swift in Sources */,
+				175534DBF96B78AB0F1703DF /* RsyncExecutor.swift in Sources */,
+				70BA57198CF4F528DB810EA3 /* ScheduleManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		3CC6C5F8C3C16EC4B40D8F04 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		3F5C0DBF2F1E502D72CFD410 /* Debug */ = {
+		46FB08B385E4DACC589F4B75 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -328,7 +262,7 @@
 			};
 			name = Debug;
 		};
-		7A11CAC0ACDB76F4D1BDA1CD /* Release */ = {
+		6B821780AD9F33110F644F32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -347,7 +281,7 @@
 			};
 			name = Release;
 		};
-		E44640F81499C5994C41138D /* Debug */ = {
+		78ACC4FC497767D437136CA1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -408,28 +342,82 @@
 			};
 			name = Debug;
 		};
+		C19E098FBC2853F22DAF17AD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8F53A35EE421466A3C3F9EFE /* Build configuration list for PBXNativeTarget "RsyncGUI" */ = {
+		EE6600F5C24C71DEE02529AD /* Build configuration list for PBXProject "RsyncGUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7A11CAC0ACDB76F4D1BDA1CD /* Release */,
-				3F5C0DBF2F1E502D72CFD410 /* Debug */,
+				78ACC4FC497767D437136CA1 /* Debug */,
+				C19E098FBC2853F22DAF17AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EAB3687BD33A9A80A32C815A /* Build configuration list for PBXProject "RsyncGUI" */ = {
+		EF7B6F5564B739B5B423693E /* Build configuration list for PBXNativeTarget "RsyncGUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E44640F81499C5994C41138D /* Debug */,
-				3CC6C5F8C3C16EC4B40D8F04 /* Release */,
+				6B821780AD9F33110F644F32 /* Release */,
+				46FB08B385E4DACC589F4B75 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 7FA9B536A91EF8D17EBA96F3 /* Project object */;
+	rootObject = 7E36AB7EAB6EF6BF0006B836 /* Project object */;
 }

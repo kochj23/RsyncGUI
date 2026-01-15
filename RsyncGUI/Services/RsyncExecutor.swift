@@ -125,6 +125,8 @@ class RsyncExecutor: ObservableObject {
             process.standardOutput = outputPipe
             process.standardError = errorPipe
 
+            // Thread-safe data accumulation using NSLock
+            let dataLock = NSLock()
             var outputData = Data()
             var errorData = Data()
 
@@ -134,7 +136,10 @@ class RsyncExecutor: ObservableObject {
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
 
+                // Thread-safe append
+                dataLock.lock()
                 outputData.append(data)
+                dataLock.unlock()
 
                 if let output = String(data: data, encoding: .utf8) {
                     // Parse progress from output
@@ -146,7 +151,11 @@ class RsyncExecutor: ObservableObject {
                 guard let self = self else { return }
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
+
+                // Thread-safe append
+                dataLock.lock()
                 errorData.append(data)
+                dataLock.unlock()
             }
 
             process.terminationHandler = { [weak self] process in
@@ -160,7 +169,13 @@ class RsyncExecutor: ObservableObject {
 
                 mutableResult.endTime = Date()
 
-                if let output = String(data: outputData, encoding: .utf8) {
+                // Thread-safe read of accumulated data
+                dataLock.lock()
+                let finalOutputData = outputData
+                let finalErrorData = errorData
+                dataLock.unlock()
+
+                if let output = String(data: finalOutputData, encoding: .utf8) {
                     mutableResult.output = output
 
                     // Parse final statistics
@@ -169,7 +184,7 @@ class RsyncExecutor: ObservableObject {
                     mutableResult.bytesTransferred = stats.bytesTransferred
                 }
 
-                if let errorOutput = String(data: errorData, encoding: .utf8), !errorOutput.isEmpty {
+                if let errorOutput = String(data: finalErrorData, encoding: .utf8), !errorOutput.isEmpty {
                     mutableResult.errors.append(errorOutput)
                 }
 
@@ -278,16 +293,22 @@ class RsyncExecutor: ObservableObject {
     }
 
     private func parseFileTransferLine(_ line: String) {
+        // Safety: Limit line length to prevent memory issues
+        guard line.count < 10000 else { return }
+
         // Extract current file being transferred
         let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-        if !trimmed.isEmpty && !trimmed.hasPrefix("sending") {
-            Task { @MainActor [weak self] in
-                guard let self = self else { return }
-                if var currentProgress = self.progress {
-                    currentProgress.currentFile = trimmed
-                    self.progress = currentProgress
-                }
+        // Safety: Validate trimmed string is reasonable
+        guard !trimmed.isEmpty && trimmed.count < 5000 && !trimmed.hasPrefix("sending") else {
+            return
+        }
+
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            if var currentProgress = self.progress {
+                currentProgress.currentFile = trimmed
+                self.progress = currentProgress
             }
         }
     }
