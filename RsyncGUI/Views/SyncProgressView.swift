@@ -98,48 +98,54 @@ struct SyncProgressView: View {
     // MARK: - Active Progress
 
     private var activeProgressView: some View {
-        ScrollView {
-            VStack(spacing: 30) {
-                // Dual progress circles
-                HStack(spacing: 60) {
-                    // Overall progress
-                    VStack(spacing: 12) {
-                        mainProgressCircle
-                        Text("Overall Progress")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
+        ZStack {
+            GlassmorphicBackground()
+
+            ScrollView {
+                VStack(spacing: 30) {
+                    // Dual progress circles
+                    HStack(spacing: 60) {
+                        // Overall progress
+                        VStack(spacing: 12) {
+                            CircularGauge(
+                                value: safeOverallPercentage,
+                                color: ModernColors.cyan,
+                                size: 200,
+                                lineWidth: 20,
+                                label: "%"
+                            )
+                            Text("Overall Progress")
+                                .font(.headline)
+                                .foregroundColor(ModernColors.textSecondary)
+                        }
+
+                        // Current file progress
+                        VStack(spacing: 12) {
+                            CircularGauge(
+                                value: safeCurrentFilePercentage,
+                                color: ModernColors.orange,
+                                size: 200,
+                                lineWidth: 20,
+                                label: "%"
+                            )
+                            Text("Current File")
+                                .font(.headline)
+                                .foregroundColor(ModernColors.textSecondary)
+                        }
                     }
 
-                    // Current file progress (placeholder for now)
-                    VStack(spacing: 12) {
-                        currentFileProgressCircle
-                        Text("Current File")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                    }
+                    // Statistics grid
+                    statisticsGrid
+
+                    // Current file
+                    currentFileSection
+
+                    // Speed and time
+                    speedTimeSection
                 }
-
-                // Statistics grid
-                statisticsGrid
-
-                // Current file
-                currentFileSection
-
-                // Speed and time
-                speedTimeSection
+                .padding(40)
             }
-            .padding(40)
         }
-        .background(
-            LinearGradient(
-                colors: [
-                    Color.blue.opacity(0.05),
-                    Color.purple.opacity(0.05)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
     }
 
     // Safe overall percentage (calculated from files done/total)
@@ -160,75 +166,6 @@ struct SyncProgressView: View {
         return min(max(percentage, 0), 100) // Clamp between 0-100
     }
 
-    // Current file progress dial (shows individual file transfer %)
-    private var currentFileProgressCircle: some View {
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
-                .frame(width: 200, height: 200)
-
-            // Current file progress circle
-            Circle()
-                .trim(from: 0, to: CGFloat(safeCurrentFilePercentage / 100))
-                .stroke(
-                    AngularGradient(
-                        colors: [.orange, .red, .orange],
-                        center: .center
-                    ),
-                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                )
-                .frame(width: 200, height: 200)
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.3), value: safeCurrentFilePercentage)
-
-            // Percentage text
-            VStack(spacing: 4) {
-                Text("\(Int(safeCurrentFilePercentage))%")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(.orange.gradient)
-
-                Text("File")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-
-    private var mainProgressCircle: some View {
-        ZStack {
-            // Background circle
-            Circle()
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
-                .frame(width: 200, height: 200)
-
-            // Overall progress circle
-            Circle()
-                .trim(from: 0, to: CGFloat(safeOverallPercentage / 100))
-                .stroke(
-                    AngularGradient(
-                        colors: [.blue, .purple, .blue],
-                        center: .center
-                    ),
-                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
-                )
-                .frame(width: 200, height: 200)
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.5), value: safeOverallPercentage)
-
-            // Percentage text
-            VStack(spacing: 4) {
-                Text("\(Int(safeOverallPercentage))%")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(.blue.gradient)
-
-                Text("Overall")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-
     private var statisticsGrid: some View {
         LazyVGrid(columns: [
             GridItem(.flexible()),
@@ -238,158 +175,178 @@ struct SyncProgressView: View {
                 icon: "doc.fill",
                 title: "Files Transferred",
                 value: "\(executor.progress?.filesTransferred ?? 0) / \(executor.progress?.totalFiles ?? 0)",
-                color: .blue
+                color: ModernColors.cyan
             )
 
             StatCard(
                 icon: "arrow.down.circle.fill",
                 title: "Data Transferred",
                 value: executor.progress?.bytesTransferredFormatted ?? "0 B",
-                color: .green
+                color: ModernColors.accentGreen
             )
 
             StatCard(
                 icon: "gauge.high",
                 title: "Transfer Speed",
                 value: executor.progress?.speedFormatted ?? "0 B/s",
-                color: .orange
+                color: ModernColors.orange
             )
 
             StatCard(
                 icon: "clock.fill",
                 title: "Time Remaining",
                 value: executor.progress?.timeRemainingFormatted ?? "—",
-                color: .purple
+                color: ModernColors.purple
             )
         }
     }
 
     private var currentFileSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack { Image(systemName: "doc.text.fill"); Text("Current File") }
-                .font(.headline)
-                .foregroundColor(.secondary)
+            HStack {
+                Image(systemName: "doc.text.fill")
+                    .foregroundColor(ModernColors.cyan)
+                Text("Current File")
+                    .foregroundColor(ModernColors.textPrimary)
+            }
+            .font(.headline)
 
             HStack {
                 Image(systemName: "arrow.right.circle.fill")
-                    .foregroundColor(.blue)
+                    .foregroundColor(ModernColors.cyan)
 
                 Text(executor.progress?.currentFile ?? "Preparing...")
                     .font(.system(.body, design: .monospaced))
+                    .foregroundColor(ModernColors.textSecondary)
                     .lineLimit(2)
                     .truncationMode(.middle)
 
                 Spacer()
             }
             .padding()
-            .background(Color.secondary.opacity(0.1))
-            .cornerRadius(8)
+            .glassCard()
         }
     }
 
     private var speedTimeSection: some View {
         HStack(spacing: 40) {
             VStack(alignment: .leading, spacing: 8) {
-                HStack { Image(systemName: "speedometer"); Text("Average Speed") }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Image(systemName: "speedometer")
+                        .foregroundColor(ModernColors.cyan)
+                    Text("Average Speed")
+                        .foregroundColor(ModernColors.textSecondary)
+                }
+                .font(.caption)
 
                 Text(executor.progress?.speedFormatted ?? "Calculating...")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundColor(ModernColors.cyan)
             }
 
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                HStack { Image(systemName: "hourglass"); Text("Estimated Time") }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Image(systemName: "hourglass")
+                        .foregroundColor(ModernColors.purple)
+                    Text("Estimated Time")
+                        .foregroundColor(ModernColors.textSecondary)
+                }
+                .font(.caption)
 
                 Text(executor.progress?.timeRemainingFormatted ?? "Calculating...")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.purple.gradient)
+                    .foregroundColor(ModernColors.purple)
             }
 
             Spacer()
         }
         .padding()
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(12)
+        .glassCard()
     }
 
     // MARK: - Completion View
 
     private func completionView(result: ExecutionResult) -> some View {
-        VStack(spacing: 30) {
-            // Success/failure icon
-            Image(systemName: result.status == .success ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .font(.system(size: 80))
-                .foregroundStyle(result.status == .success ? Color.green.gradient : Color.red.gradient)
+        ZStack {
+            GlassmorphicBackground()
 
-            VStack(spacing: 12) {
-                Text(result.status == .success ? "Sync Completed Successfully" : "Sync Failed")
-                    .font(.title)
-                    .fontWeight(.bold)
+            VStack(spacing: 30) {
+                // Success/failure icon
+                Image(systemName: result.status == .success ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(result.status == .success ? ModernColors.accentGreen : ModernColors.statusCritical)
+                    .shadow(color: result.status == .success ? ModernColors.accentGreen.opacity(0.6) : ModernColors.statusCritical.opacity(0.6), radius: 20)
 
-                Text(completionMessage(result: result))
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+                VStack(spacing: 12) {
+                    Text(result.status == .success ? "Sync Completed Successfully" : "Sync Failed")
+                        .modernHeader(size: .large)
 
-            // Final statistics
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 20) {
-                CompletionStatCard(
-                    icon: "doc.fill",
-                    title: "Files",
-                    value: "\(result.filesTransferred)",
-                    color: .blue
-                )
-
-                CompletionStatCard(
-                    icon: "arrow.down.circle.fill",
-                    title: "Data",
-                    value: ByteCountFormatter.string(fromByteCount: result.bytesTransferred, countStyle: .binary),
-                    color: .green
-                )
-
-                CompletionStatCard(
-                    icon: "clock.fill",
-                    title: "Duration",
-                    value: formatDuration(result.duration),
-                    color: .purple
-                )
-            }
-            .padding()
-
-            if !result.errors.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack { Image(systemName: "exclamationmark.triangle.fill"); Text("Errors") }
-                        .font(.headline)
-                        .foregroundColor(.red)
-
-                    ScrollView {
-                        Text(result.errors.joined(separator: "\n"))
-                            .font(.system(.caption, design: .monospaced))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(8)
-                    }
-                    .frame(maxHeight: 150)
+                    Text(completionMessage(result: result))
+                        .font(.title3)
+                        .foregroundColor(ModernColors.textSecondary)
+                        .multilineTextAlignment(.center)
                 }
-                .padding(.horizontal)
+
+                // Final statistics
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ], spacing: 20) {
+                    CompletionStatCard(
+                        icon: "doc.fill",
+                        title: "Files",
+                        value: "\(result.filesTransferred)",
+                        color: ModernColors.cyan
+                    )
+
+                    CompletionStatCard(
+                        icon: "arrow.down.circle.fill",
+                        title: "Data",
+                        value: ByteCountFormatter.string(fromByteCount: result.bytesTransferred, countStyle: .binary),
+                        color: ModernColors.accentGreen
+                    )
+
+                    CompletionStatCard(
+                        icon: "clock.fill",
+                        title: "Duration",
+                        value: formatDuration(result.duration),
+                        color: ModernColors.purple
+                    )
+                }
+                .padding()
+
+                if !result.errors.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(ModernColors.statusCritical)
+                            Text("Errors")
+                                .foregroundColor(ModernColors.textPrimary)
+                        }
+                        .font(.headline)
+
+                        ScrollView {
+                            Text(result.errors.joined(separator: "\n"))
+                                .font(.system(.caption, design: .monospaced))
+                                .foregroundColor(ModernColors.textSecondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(ModernColors.statusCritical.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                        .frame(maxHeight: 150)
+                    }
+                    .padding(.horizontal)
+                }
             }
+            .padding(40)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(40)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Execution
@@ -466,22 +423,22 @@ struct StatCard: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundColor(color)
+                .shadow(color: color.opacity(0.6), radius: 8)
 
             VStack(spacing: 4) {
                 Text(value)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(color.gradient)
+                    .foregroundColor(color)
 
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ModernColors.textSecondary)
             }
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(12)
+        .glassCard()
     }
 }
 
@@ -496,18 +453,19 @@ struct CompletionStatCard: View {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundColor(color)
+                .shadow(color: color.opacity(0.5), radius: 5)
 
             Text(value)
                 .font(.title3)
                 .fontWeight(.semibold)
+                .foregroundColor(ModernColors.textPrimary)
 
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(ModernColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(8)
+        .glassCard()
     }
 }

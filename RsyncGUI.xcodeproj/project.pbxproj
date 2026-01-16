@@ -10,36 +10,56 @@
 		004BBD4258FE662FCA52E8CD /* JobEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */; };
 		175534DBF96B78AB0F1703DF /* RsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */; };
 		181767815121D85A3CF5822A /* JobListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5684BBFA718F2AA2DC46E26E /* JobListView.swift */; };
+		1C4174733EE1125C60A08A32 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20DC9E75D93D4C2D009EEF26 /* ParallelismConfig.swift */; };
 		1E4F73C26D4A268D3D14C625 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 474C574974A0174A24BE137E /* Assets.xcassets */; };
 		21C7A54F29AFE39FC9E322A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE96445DCFA962CFEDC89752 /* SettingsView.swift */; };
 		2899CD054C674179B69E26C5 /* DeltaReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */; };
+		2AE96AE8A481411721F09BB3 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5067F2BEBEAA5779941D567 /* DeltaReport.swift */; };
 		32BF2466EA616BF63BF798D7 /* ConnectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB5A4475246EFD82B180AB5 /* ConnectionTest.swift */; };
+		3BDB8643D6E226F717FA803B /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E8A1AE99F3EACFC3CC47B69 /* DeltaReport.swift */; };
+		3FBADD43FDF765FBF792BCEE /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10229A94336A068307F0C3 /* AdvancedExecutionService.swift */; };
 		3FE115350A50F4D98973C3C8 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D1802D8536B5B6528FB488 /* ParallelismConfig.swift */; };
 		408EF7ED937BB7A1B936420C /* RsyncOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */; };
 		40C92BF2B05D618ED2249847 /* TestProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */; };
+		434BCD83B00775511482BD8F /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCA479BCB8F0B84C983B855 /* ParallelismConfig.swift */; };
+		47C85294675D34EDC15B6F40 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED57700688F58994CEA4617A /* ParallelismConfig.swift */; };
 		5E98C2AC7F6DD59C43578023 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD27E9A4ED32D87494FBBF3 /* ParallelismConfig.swift */; };
+		6AA43CAC7F0E8113188A91EE /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEA6D7E7862F46B26E6722F1 /* DeltaReport.swift */; };
 		6E0C8C86B83F7F2EE612B401 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */; };
 		70BA57198CF4F528DB810EA3 /* ScheduleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D721D714FA57020723CD52D /* ScheduleManager.swift */; };
 		74CE539FE55405EFCB873ACD /* ExecutionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F670173A93CD07D603A51D71 /* ExecutionHistoryView.swift */; };
 		790AAE398CDD10387674C2A1 /* SyncProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7983A4352014B71334462268 /* SyncProgressView.swift */; };
 		7F09C9D80AC5578621C7F3D3 /* SyncJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5B2B02DFC13B7EA918212F /* SyncJob.swift */; };
 		891346F74C8330BE33025CFC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D18D90307EA5D1AAE8FC075E /* Cocoa.framework */; };
+		8A718F0FDE5CE8FFF20EFA92 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091D7566717F30B42B708E65 /* AdvancedExecutionService.swift */; };
+		94678A6B39B29BE9B0DB924D /* ModernDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67BF5F2A34C332BBEF401524 /* ModernDesign.swift */; };
 		9578D6DFA6D15BCE1D192C26 /* ScheduleConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */; };
 		96782321F1B31169E6D6A399 /* JobManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7983F3BBEEF19FF95292426B /* JobManager.swift */; };
+		9CBB5767AE7FECE6D6F329BB /* MenuBarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0501948699D7168C7FAFCDDC /* MenuBarManager.swift */; };
 		A52F055BEBA2E918EF4D527D /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CD8089214161B648943F1DF /* AdvancedExecutionService.swift */; };
 		AA4CFE293EFB6914FFCE58B4 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB4C812EF164CF579B8723D /* DeltaReport.swift */; };
 		D7F6F164F155BC99408EE1C9 /* ExecutionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6078B9C270C3DFB1F180CA3F /* ExecutionHistory.swift */; };
+		D88FCC8C344ABCD1B90445F9 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5744708F69C706A68084B8E9 /* DeltaReport.swift */; };
+		D99F78C5421936B9F496F34D /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CE09039D73FDF7E7A3DA7F /* AdvancedExecutionService.swift */; };
 		DF2F410F530768F92DF369D8 /* RsyncGUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */; };
 		E5B9D863B549D7CEA7BDE109 /* DeltaReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC80D3221335FB35F12CF5D /* DeltaReport.swift */; };
+		EC15AAD13EDE7128A3BE1B28 /* AdvancedExecutionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D079C7927FF3B198DE3A5C /* AdvancedExecutionService.swift */; };
 		F141B1DEB3D4853C823634E1 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */; };
 		F4722847DD83FDB3735896A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A0D38A87F482DE72217C85 /* ContentView.swift */; };
+		F9BFC0E780A9956CED223966 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6E1E23DC090E2905E0EAF6 /* ParallelismConfig.swift */; };
+		FDDE835B001D402D0C0C5245 /* MenuBarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDA366E5893A51EB9DF8C15 /* MenuBarManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0501948699D7168C7FAFCDDC /* MenuBarManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MenuBarManager.swift; path = RsyncGUI/Services/MenuBarManager.swift; sourceTree = "<group>"; };
+		091D7566717F30B42B708E65 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
 		0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleConfig.swift; path = RsyncGUI/Models/ScheduleConfig.swift; sourceTree = "<group>"; };
 		0D721D714FA57020723CD52D /* ScheduleManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = RsyncGUI/Services/ScheduleManager.swift; sourceTree = "<group>"; };
+		20DC9E75D93D4C2D009EEF26 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
+		27D079C7927FF3B198DE3A5C /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
 		34D1802D8536B5B6528FB488 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
 		39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncOptions.swift; path = RsyncGUI/Models/RsyncOptions.swift; sourceTree = "<group>"; };
+		3E8A1AE99F3EACFC3CC47B69 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 		41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReportView.swift; path = RsyncGUI/Views/DeltaReportView.swift; sourceTree = "<group>"; };
 		41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncGUIApp.swift; path = RsyncGUI/RsyncGUIApp.swift; sourceTree = "<group>"; };
 		474C574974A0174A24BE137E /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = RsyncGUI/Resources/Assets.xcassets; sourceTree = "<group>"; };
@@ -48,22 +68,32 @@
 		4CB4C812EF164CF579B8723D /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 		4EC80D3221335FB35F12CF5D /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 		5684BBFA718F2AA2DC46E26E /* JobListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobListView.swift; path = RsyncGUI/Views/JobListView.swift; sourceTree = "<group>"; };
+		5744708F69C706A68084B8E9 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 		5BD27E9A4ED32D87494FBBF3 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
 		6078B9C270C3DFB1F180CA3F /* ExecutionHistory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExecutionHistory.swift; path = RsyncGUI/Models/ExecutionHistory.swift; sourceTree = "<group>"; };
+		67BF5F2A34C332BBEF401524 /* ModernDesign.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModernDesign.swift; path = RsyncGUI/Design/ModernDesign.swift; sourceTree = "<group>"; };
 		7983A4352014B71334462268 /* SyncProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncProgressView.swift; path = RsyncGUI/Views/SyncProgressView.swift; sourceTree = "<group>"; };
 		7983F3BBEEF19FF95292426B /* JobManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobManager.swift; path = RsyncGUI/Services/JobManager.swift; sourceTree = "<group>"; };
 		7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestProgressView.swift; path = RsyncGUI/Views/TestProgressView.swift; sourceTree = "<group>"; };
 		8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobEditorView.swift; path = RsyncGUI/Views/JobEditorView.swift; sourceTree = "<group>"; };
 		9CD8089214161B648943F1DF /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
+		9D6E1E23DC090E2905E0EAF6 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
+		A5067F2BEBEAA5779941D567 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
+		A7CE09039D73FDF7E7A3DA7F /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
+		AB10229A94336A068307F0C3 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
+		AEDA366E5893A51EB9DF8C15 /* MenuBarManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MenuBarManager.swift; path = RsyncGUI/Services/MenuBarManager.swift; sourceTree = "<group>"; };
 		BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncExecutor.swift; path = RsyncGUI/Services/RsyncExecutor.swift; sourceTree = "<group>"; };
 		C0524EE8D6032F69C5D3B81B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = RsyncGUI/Info.plist; sourceTree = "<group>"; };
 		C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
 		D18D90307EA5D1AAE8FC075E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		ED57700688F58994CEA4617A /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
 		EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobDetailView.swift; path = RsyncGUI/Views/JobDetailView.swift; sourceTree = "<group>"; };
 		EE96445DCFA962CFEDC89752 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = RsyncGUI/Views/SettingsView.swift; sourceTree = "<group>"; };
 		F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RsyncGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F670173A93CD07D603A51D71 /* ExecutionHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExecutionHistoryView.swift; path = RsyncGUI/Views/ExecutionHistoryView.swift; sourceTree = "<group>"; };
 		FB5B2B02DFC13B7EA918212F /* SyncJob.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncJob.swift; path = RsyncGUI/Models/SyncJob.swift; sourceTree = "<group>"; };
+		FBCA479BCB8F0B84C983B855 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
+		FEA6D7E7862F46B26E6722F1 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +120,14 @@
 				4EC80D3221335FB35F12CF5D /* DeltaReport.swift */,
 				4AB5A4475246EFD82B180AB5 /* ConnectionTest.swift */,
 				6078B9C270C3DFB1F180CA3F /* ExecutionHistory.swift */,
+				9D6E1E23DC090E2905E0EAF6 /* ParallelismConfig.swift */,
+				3E8A1AE99F3EACFC3CC47B69 /* DeltaReport.swift */,
+				20DC9E75D93D4C2D009EEF26 /* ParallelismConfig.swift */,
+				FEA6D7E7862F46B26E6722F1 /* DeltaReport.swift */,
+				ED57700688F58994CEA4617A /* ParallelismConfig.swift */,
+				A5067F2BEBEAA5779941D567 /* DeltaReport.swift */,
+				FBCA479BCB8F0B84C983B855 /* ParallelismConfig.swift */,
+				5744708F69C706A68084B8E9 /* DeltaReport.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -111,6 +149,14 @@
 			);
 			sourceTree = "<group>";
 		};
+		6393691BD18D9AC6F3B30133 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				67BF5F2A34C332BBEF401524 /* ModernDesign.swift */,
+			);
+			name = Design;
+			sourceTree = "<group>";
+		};
 		72D9D24DA7A88F524D219F40 /* RsyncGUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -120,6 +166,7 @@
 				A27A04A1EAB82340839DAD26 /* Resources */,
 				41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */,
 				C0524EE8D6032F69C5D3B81B /* Info.plist */,
+				6393691BD18D9AC6F3B30133 /* Design */,
 			);
 			name = RsyncGUI;
 			sourceTree = "<group>";
@@ -132,6 +179,12 @@
 				BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */,
 				0D721D714FA57020723CD52D /* ScheduleManager.swift */,
 				9CD8089214161B648943F1DF /* AdvancedExecutionService.swift */,
+				27D079C7927FF3B198DE3A5C /* AdvancedExecutionService.swift */,
+				091D7566717F30B42B708E65 /* AdvancedExecutionService.swift */,
+				AB10229A94336A068307F0C3 /* AdvancedExecutionService.swift */,
+				AEDA366E5893A51EB9DF8C15 /* MenuBarManager.swift */,
+				A7CE09039D73FDF7E7A3DA7F /* AdvancedExecutionService.swift */,
+				0501948699D7168C7FAFCDDC /* MenuBarManager.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -265,6 +318,21 @@
 				D7F6F164F155BC99408EE1C9 /* ExecutionHistory.swift in Sources */,
 				2899CD054C674179B69E26C5 /* DeltaReportView.swift in Sources */,
 				74CE539FE55405EFCB873ACD /* ExecutionHistoryView.swift in Sources */,
+				F9BFC0E780A9956CED223966 /* ParallelismConfig.swift in Sources */,
+				3BDB8643D6E226F717FA803B /* DeltaReport.swift in Sources */,
+				EC15AAD13EDE7128A3BE1B28 /* AdvancedExecutionService.swift in Sources */,
+				1C4174733EE1125C60A08A32 /* ParallelismConfig.swift in Sources */,
+				6AA43CAC7F0E8113188A91EE /* DeltaReport.swift in Sources */,
+				8A718F0FDE5CE8FFF20EFA92 /* AdvancedExecutionService.swift in Sources */,
+				47C85294675D34EDC15B6F40 /* ParallelismConfig.swift in Sources */,
+				2AE96AE8A481411721F09BB3 /* DeltaReport.swift in Sources */,
+				3FBADD43FDF765FBF792BCEE /* AdvancedExecutionService.swift in Sources */,
+				FDDE835B001D402D0C0C5245 /* MenuBarManager.swift in Sources */,
+				434BCD83B00775511482BD8F /* ParallelismConfig.swift in Sources */,
+				D88FCC8C344ABCD1B90445F9 /* DeltaReport.swift in Sources */,
+				D99F78C5421936B9F496F34D /* AdvancedExecutionService.swift in Sources */,
+				9CBB5767AE7FECE6D6F329BB /* MenuBarManager.swift in Sources */,
+				94678A6B39B29BE9B0DB924D /* ModernDesign.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

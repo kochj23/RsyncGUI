@@ -16,34 +16,37 @@ struct JobDetailView: View {
     @State private var showingHistory = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header card
-                headerCard
+        ZStack {
+            GlassmorphicBackground()
 
-                // Source and Destination
-                pathsCard
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header card
+                    headerCard
 
-                // Quick actions
-                actionsCard
+                    // Source and Destination
+                    pathsCard
 
-                // Statistics
-                if job.totalRuns > 0 {
-                    statisticsCard
+                    // Quick actions
+                    actionsCard
+
+                    // Statistics
+                    if job.totalRuns > 0 {
+                        statisticsCard
+                    }
+
+                    // Options summary
+                    optionsSummaryCard
+
+                    // Schedule info
+                    if let schedule = job.schedule, schedule.isEnabled {
+                        scheduleCard(schedule: schedule)
+                    }
                 }
-
-                // Options summary
-                optionsSummaryCard
-
-                // Schedule info
-                if let schedule = job.schedule, schedule.isEnabled {
-                    scheduleCard(schedule: schedule)
-                }
+                .padding()
             }
-            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .textBackgroundColor))
     }
 
     // MARK: - Header Card
@@ -53,23 +56,23 @@ struct JobDetailView: View {
             HStack {
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                     .font(.system(size: 60))
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundColor(ModernColors.cyan)
+                    .shadow(color: ModernColors.cyan.opacity(0.5), radius: 15)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(job.name)
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .modernHeader(size: .medium)
 
                     HStack(spacing: 16) {
                         Label(job.isEnabled ? "Enabled" : "Disabled", systemImage: job.isEnabled ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(job.isEnabled ? .green : .gray)
+                            .foregroundColor(job.isEnabled ? ModernColors.accentGreen : ModernColors.textTertiary)
 
                         if job.isRemote {
                             Label("Remote", systemImage: "network")
-                                .foregroundColor(.blue)
+                                .foregroundColor(ModernColors.cyan)
                         } else {
                             Label("Local", systemImage: "internaldrive")
-                                .foregroundColor(.purple)
+                                .foregroundColor(ModernColors.purple)
                         }
                     }
                     .font(.caption)
@@ -81,14 +84,11 @@ struct JobDetailView: View {
                     Label("Edit", systemImage: "pencil.circle.fill")
                         .font(.title3)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(ModernButtonStyle(color: ModernColors.cyan, style: .filled))
             }
         }
         .padding(24)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.secondary.opacity(0.1))
-        )
+        .glassCard(prominent: true)
     }
 
     // MARK: - Paths Card
@@ -99,7 +99,7 @@ struct JobDetailView: View {
                 title: "Source",
                 path: job.source,
                 icon: "folder.fill",
-                color: .blue
+                color: ModernColors.cyan
             )
 
             Divider()
@@ -108,7 +108,7 @@ struct JobDetailView: View {
                 title: "Destination",
                 path: job.destination,
                 icon: "folder.badge.plus",
-                color: .green
+                color: ModernColors.accentGreen
             )
 
             if job.isRemote, let host = job.remoteHost {
@@ -116,16 +116,17 @@ struct JobDetailView: View {
 
                 HStack {
                     Image(systemName: "server.rack")
-                        .foregroundColor(.orange)
+                        .foregroundColor(ModernColors.orange)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Remote Host")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ModernColors.textSecondary)
 
                         Text("\(job.remoteUser ?? "user")@\(host)")
                             .font(.body)
                             .fontWeight(.medium)
+                            .foregroundColor(ModernColors.textPrimary)
                     }
 
                     Spacer()
@@ -133,19 +134,17 @@ struct JobDetailView: View {
                     if let keyPath = job.sshKeyPath {
                         HStack(spacing: 4) {
                             Image(systemName: "key.fill")
+                                .foregroundColor(ModernColors.purple)
                             Text("SSH Key")
+                                .foregroundColor(ModernColors.purple)
                         }
                         .font(.caption)
-                        .foregroundColor(.purple)
                     }
                 }
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.secondary.opacity(0.05))
-        )
+        .glassCard()
     }
 
     // MARK: - Actions Card
@@ -158,17 +157,14 @@ struct JobDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                .buttonStyle(ModernButtonStyle(color: ModernColors.purple, style: .outlined))
 
                 Button(action: { onRun(false) }) {
                     Label("Run Now", systemImage: "play.circle.fill")
                         .frame(maxWidth: .infinity)
                         .padding()
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .tint(.blue)
+                .buttonStyle(ModernButtonStyle(color: ModernColors.cyan, style: .filled))
             }
 
             HStack(spacing: 16) {
@@ -178,9 +174,7 @@ struct JobDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .tint(.green)
+                    .buttonStyle(ModernButtonStyle(color: ModernColors.accentGreen, style: .outlined))
                 }
 
                 if job.totalRuns > 0 {
@@ -189,9 +183,7 @@ struct JobDetailView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .tint(.purple)
+                    .buttonStyle(ModernButtonStyle(color: ModernColors.purple, style: .outlined))
                 }
             }
         }
@@ -211,53 +203,76 @@ struct JobDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Text("Statistics")
-                    .font(.headline)
+                    .modernHeader(size: .small)
                 Spacer()
             }
 
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 16) {
-                MiniStatCard(
-                    icon: "play.circle.fill",
-                    title: "Total Runs",
-                    value: "\(job.totalRuns)",
-                    color: .blue
-                )
+            HStack(spacing: 30) {
+                VStack(spacing: 8) {
+                    CircularGauge(
+                        value: Double(job.successfulRuns) / max(Double(job.totalRuns), 1.0) * 100,
+                        color: ModernColors.accentGreen,
+                        size: 80,
+                        lineWidth: 8,
+                        showValue: false
+                    )
+                    Text("\(job.successfulRuns)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ModernColors.accentGreen)
+                    Text("Successful")
+                        .font(.caption)
+                        .foregroundColor(ModernColors.textSecondary)
+                }
 
-                MiniStatCard(
-                    icon: "checkmark.circle.fill",
-                    title: "Successful",
-                    value: "\(job.successfulRuns)",
-                    color: .green
-                )
+                VStack(spacing: 8) {
+                    CircularGauge(
+                        value: 100,
+                        color: ModernColors.cyan,
+                        size: 80,
+                        lineWidth: 8,
+                        showValue: false
+                    )
+                    Text("\(job.totalRuns)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ModernColors.cyan)
+                    Text("Total Runs")
+                        .font(.caption)
+                        .foregroundColor(ModernColors.textSecondary)
+                }
 
-                MiniStatCard(
-                    icon: "xmark.circle.fill",
-                    title: "Failed",
-                    value: "\(job.failedRuns)",
-                    color: .red
-                )
+                VStack(spacing: 8) {
+                    CircularGauge(
+                        value: Double(job.failedRuns) / max(Double(job.totalRuns), 1.0) * 100,
+                        color: ModernColors.statusCritical,
+                        size: 80,
+                        lineWidth: 8,
+                        showValue: false
+                    )
+                    Text("\(job.failedRuns)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ModernColors.statusCritical)
+                    Text("Failed")
+                        .font(.caption)
+                        .foregroundColor(ModernColors.textSecondary)
+                }
             }
 
             if let lastRun = job.lastRun {
                 HStack {
                     Image(systemName: "clock.fill")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ModernColors.purple)
                     Text("Last run: \(lastRun.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ModernColors.textSecondary)
                     Spacer()
                 }
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.secondary.opacity(0.05))
-        )
+        .glassCard()
     }
 
     // MARK: - Options Summary
@@ -266,11 +281,11 @@ struct JobDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Text("Rsync Options")
-                    .font(.headline)
+                    .modernHeader(size: .small)
                 Spacer()
                 Text("\(enabledOptionsCount) enabled")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ModernColors.textSecondary)
             }
 
             FlowLayout(spacing: 8) {
@@ -280,10 +295,7 @@ struct JobDetailView: View {
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.secondary.opacity(0.05))
-        )
+        .glassCard()
     }
 
     private var enabledOptions: [String] {
@@ -325,38 +337,38 @@ struct JobDetailView: View {
             HStack {
                 Image(systemName: "calendar.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(.purple.gradient)
+                    .foregroundColor(ModernColors.purple)
+                    .shadow(color: ModernColors.purple.opacity(0.5), radius: 8)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Scheduled")
                         .font(.headline)
+                        .foregroundColor(ModernColors.textPrimary)
 
                     Text(schedule.frequency.description)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ModernColors.textSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
+                    .foregroundColor(ModernColors.accentGreen)
             }
 
             if schedule.runAtStartup {
                 HStack {
                     Image(systemName: "power.circle")
-                        .foregroundColor(.orange)
+                        .foregroundColor(ModernColors.orange)
                     Text("Runs at system startup")
                         .font(.caption)
+                        .foregroundColor(ModernColors.textSecondary)
                     Spacer()
                 }
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.purple.opacity(0.1))
-        )
+        .glassCard(prominent: true)
     }
 }
 
@@ -374,14 +386,16 @@ struct PathRow: View {
                 .font(.title3)
                 .foregroundColor(color)
                 .frame(width: 24)
+                .shadow(color: color.opacity(0.5), radius: 5)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ModernColors.textSecondary)
 
                 Text(path)
                     .font(.system(.body, design: .monospaced))
+                    .foregroundColor(ModernColors.textPrimary)
                     .textSelection(.enabled)
             }
 
@@ -400,19 +414,20 @@ struct MiniStatCard: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .foregroundColor(color)
+                .shadow(color: color.opacity(0.5), radius: 5)
 
             Text(value)
                 .font(.title3)
                 .fontWeight(.bold)
+                .foregroundColor(ModernColors.textPrimary)
 
             Text(title)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(ModernColors.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(8)
+        .glassCard()
     }
 }
 
@@ -424,9 +439,10 @@ struct OptionBadge: View {
             .font(.caption)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
-            .background(Color.blue.opacity(0.1))
-            .foregroundColor(.blue)
+            .background(ModernColors.cyan.opacity(0.2))
+            .foregroundColor(ModernColors.cyan)
             .cornerRadius(6)
+            .shadow(color: ModernColors.cyan.opacity(0.3), radius: 3)
     }
 }
 

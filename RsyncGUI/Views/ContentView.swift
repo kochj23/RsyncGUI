@@ -17,37 +17,41 @@ struct ContentView: View {
     @State private var progressWindow: NSWindow?
 
     var body: some View {
-        NavigationSplitView {
-            // Sidebar - Job List
-            JobListView(selectedJobId: $selectedJobId)
-                .navigationSplitViewColumnWidth(min: 250, ideal: 300)
-        } detail: {
-            // Detail - Job Details or Welcome
-            if let jobId = selectedJobId,
-               let job = jobManager.jobs.first(where: { $0.id == jobId }) {
-                JobDetailView(
-                    job: job,
-                    onRun: { dryRun in
-                        runJob(job, dryRun: dryRun)
-                    },
-                    onEdit: {
-                        jobManager.selectedJob = job
-                        showingJobEditor = true
-                    }
-                )
-            } else {
-                WelcomeView()
+        ZStack {
+            GlassmorphicBackground()
+
+            NavigationSplitView {
+                // Sidebar - Job List
+                JobListView(selectedJobId: $selectedJobId)
+                    .navigationSplitViewColumnWidth(min: 250, ideal: 300)
+            } detail: {
+                // Detail - Job Details or Welcome
+                if let jobId = selectedJobId,
+                   let job = jobManager.jobs.first(where: { $0.id == jobId }) {
+                    JobDetailView(
+                        job: job,
+                        onRun: { dryRun in
+                            runJob(job, dryRun: dryRun)
+                        },
+                        onEdit: {
+                            jobManager.selectedJob = job
+                            showingJobEditor = true
+                        }
+                    )
+                } else {
+                    WelcomeView()
+                }
             }
-        }
-        .sheet(isPresented: $showingJobEditor) {
-            if let job = jobManager.selectedJob {
-                JobEditorView(job: job, isPresented: $showingJobEditor)
+            .sheet(isPresented: $showingJobEditor) {
+                if let job = jobManager.selectedJob {
+                    JobEditorView(job: job, isPresented: $showingJobEditor)
+                }
             }
-        }
-        .sheet(isPresented: $showingProgress) {
-            if let jobId = runningJobId,
-               let job = jobManager.jobs.first(where: { $0.id == jobId }) {
-                TestProgressView(job: job)
+            .sheet(isPresented: $showingProgress) {
+                if let jobId = runningJobId,
+                   let job = jobManager.jobs.first(where: { $0.id == jobId }) {
+                    TestProgressView(job: job)
+                }
             }
         }
     }
@@ -94,27 +98,26 @@ struct WelcomeView: View {
         VStack(spacing: 30) {
             Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                 .font(.system(size: 80))
-                .foregroundStyle(.blue.gradient)
+                .foregroundColor(ModernColors.cyan)
+                .shadow(color: ModernColors.cyan.opacity(0.5), radius: 20)
 
             VStack(spacing: 12) {
                 Text("Welcome to RsyncGUI")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .modernHeader(size: .large)
 
                 Text("Professional rsync management for macOS")
                     .font(.title3)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ModernColors.textSecondary)
             }
 
             VStack(alignment: .leading, spacing: 16) {
-                FeatureRow(icon: "checkmark.circle.fill", title: "All rsync options", description: "100+ options organized by category")
-                FeatureRow(icon: "clock.fill", title: "Scheduled syncs", description: "Set it and forget it with launchd integration")
-                FeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Real-time progress", description: "Beautiful visualization for huge syncs")
-                FeatureRow(icon: "key.fill", title: "SSH support", description: "Secure remote synchronization")
+                FeatureRow(icon: "checkmark.circle.fill", title: "All rsync options", description: "100+ options organized by category", color: ModernColors.accentGreen)
+                FeatureRow(icon: "clock.fill", title: "Scheduled syncs", description: "Set it and forget it with launchd integration", color: ModernColors.purple)
+                FeatureRow(icon: "chart.line.uptrend.xyaxis", title: "Real-time progress", description: "Beautiful visualization for huge syncs", color: ModernColors.cyan)
+                FeatureRow(icon: "key.fill", title: "SSH support", description: "Secure remote synchronization", color: ModernColors.orange)
             }
             .padding()
-            .background(Color.secondary.opacity(0.1))
-            .cornerRadius(12)
+            .glassCard()
 
             Button(action: {
                 jobManager.createNewJob()
@@ -124,8 +127,7 @@ struct WelcomeView: View {
                     .padding()
                     .frame(maxWidth: 300)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(ModernButtonStyle(color: ModernColors.cyan, style: .filled))
         }
         .padding(40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -136,20 +138,23 @@ struct FeatureRow: View {
     let icon: String
     let title: String
     let description: String
+    let color: Color
 
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundColor(color)
                 .frame(width: 32)
+                .shadow(color: color.opacity(0.5), radius: 5)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .foregroundColor(ModernColors.textPrimary)
                 Text(description)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ModernColors.textSecondary)
             }
 
             Spacer()
