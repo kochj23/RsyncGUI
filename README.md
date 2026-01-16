@@ -8,6 +8,8 @@
 
 **Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization.
 
+![RsyncGUI Interface](Screenshots/interface.png)
+
 ---
 
 ## ✨ Features
