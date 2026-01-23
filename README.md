@@ -351,3 +351,8 @@ If you find RsyncGUI useful, please:
 ---
 
 **Built with ❤️ by Jordan Koch**
+
+---
+
+**Last Updated:** January 22, 2026
+**Status:** ✅ Production Ready
