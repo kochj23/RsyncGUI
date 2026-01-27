@@ -184,9 +184,9 @@ struct JobEditorView: View {
 
                     if job.effectiveDestinationType == .iCloudDrive {
                         Button("iCloud Drive") {
-                            job.destination = SyncJob.iCloudDrivePath
+                            selectiCloudDrive()
                         }
-                        .help("Set to iCloud Drive root folder")
+                        .help("Select iCloud Drive folder (grants permission)")
                     }
                 }
 
@@ -195,9 +195,14 @@ struct JobEditorView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
 
-                    Text("Note: Ensure iCloud Drive is enabled in System Settings → Apple ID → iCloud")
+                    Text("⚠️ Important: Click 'iCloud Drive' button to grant folder access permission")
                         .font(.caption)
                         .foregroundColor(.orange)
+                        .fontWeight(.semibold)
+
+                    Text("Or use 'Browse' to select any folder within iCloud Drive")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
 
                 if job.effectiveDestinationType == .remoteSSH {
@@ -1042,6 +1047,28 @@ struct JobEditorView: View {
 
         if panel.runModal() == .OK, let url = panel.url {
             job[keyPath: keyPath] = url.path
+        }
+    }
+
+    private func selectiCloudDrive() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Select iCloud Drive folder"
+        panel.prompt = "Select"
+
+        // Try to navigate to iCloud Drive automatically
+        let iCloudPath = SyncJob.iCloudDrivePath
+        if FileManager.default.fileExists(atPath: iCloudPath) {
+            panel.directoryURL = URL(fileURLWithPath: iCloudPath)
+        }
+
+        if panel.runModal() == .OK, let url = panel.url {
+            // User selected folder - app now has permission to access it
+            job.destination = url.path
+            NSLog("[JobEditor] ✅ iCloud Drive folder selected: %@", url.path)
+            NSLog("[JobEditor] App now has permission to access this folder")
         }
     }
 
