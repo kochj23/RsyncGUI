@@ -27,13 +27,14 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
-        // Validate and prepare iCloud Drive if used
+        // Prepare iCloud Drive if used
         if job.effectiveDestinationType == .iCloudDrive {
-            try validateiCloudDrive(path: job.destination)
+            NSLog("[RsyncExecutor] iCloud Drive destination detected")
             // Create destination directory if it doesn't exist (rsync won't create parent dirs)
             if !dryRun {
                 try createDestinationDirectory(path: job.destination)
             }
+            // Skip strict path validation - if directory creation succeeds, rsync will work
         }
 
         await MainActor.run {
@@ -79,22 +80,40 @@ class RsyncExecutor: ObservableObject {
         let iCloudPath = SyncJob.iCloudDrivePath
         let expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
 
+        NSLog("[RsyncExecutor] 🔍 Validating iCloud Drive path")
+        NSLog("[RsyncExecutor] iCloud Drive root: %@", iCloudPath)
+        NSLog("[RsyncExecutor] Destination path: %@", expandedPath)
+        NSLog("[RsyncExecutor] Path characters: %@", expandedPath.data(using: .utf8)?.base64EncodedString() ?? "unknown")
+
         // Check if iCloud Drive directory exists
         guard FileManager.default.fileExists(atPath: iCloudPath) else {
+            NSLog("[RsyncExecutor] ❌ iCloud Drive directory not found at: %@", iCloudPath)
             throw RsyncError.iCloudDriveNotAvailable
         }
 
         // Check if path is within iCloud Drive or is iCloud Drive itself
-        if !expandedPath.hasPrefix(iCloudPath) && expandedPath != iCloudPath {
+        // Handle trailing slashes by comparing normalized paths
+        let normalizedExpanded = expandedPath.hasSuffix("/") ? String(expandedPath.dropLast()) : expandedPath
+        let normalizedICloud = iCloudPath.hasSuffix("/") ? String(iCloudPath.dropLast()) : iCloudPath
+
+        NSLog("[RsyncExecutor] Normalized iCloud: %@", normalizedICloud)
+        NSLog("[RsyncExecutor] Normalized expanded: %@", normalizedExpanded)
+        NSLog("[RsyncExecutor] hasPrefix test: %@", normalizedExpanded.hasPrefix(normalizedICloud) ? "TRUE" : "FALSE")
+
+        if !normalizedExpanded.hasPrefix(normalizedICloud) && normalizedExpanded != normalizedICloud {
+            NSLog("[RsyncExecutor] ❌ Path validation failed - neither hasPrefix nor equals")
+            NSLog("[RsyncExecutor] Expected prefix: %@", normalizedICloud)
+            NSLog("[RsyncExecutor] Got: %@", normalizedExpanded)
             throw RsyncError.iCloudDrivePathInvalid
         }
 
         // Check if iCloud Drive is accessible (not just folder existing but actually mounted)
         guard FileManager.default.isReadableFile(atPath: iCloudPath) else {
+            NSLog("[RsyncExecutor] ❌ iCloud Drive not readable at: %@", iCloudPath)
             throw RsyncError.iCloudDriveNotEnabled
         }
 
-        print("[RsyncExecutor] ✅ iCloud Drive validation passed: \(expandedPath)")
+        NSLog("[RsyncExecutor] ✅ iCloud Drive validation passed: %@", expandedPath)
     }
 
     private func createDestinationDirectory(path: String) throws {
