@@ -27,14 +27,42 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
-        // Prepare iCloud Drive if used
+        // Restore security-scoped resource access for iCloud Drive
+        var destinationURL: URL?
+        var accessGranted = false
+
         if job.effectiveDestinationType == .iCloudDrive {
             NSLog("[RsyncExecutor] iCloud Drive destination detected")
-            // Create destination directory if it doesn't exist (rsync won't create parent dirs)
+
+            // Restore bookmark to regain permission
+            if let bookmarkData = job.destinationBookmark {
+                do {
+                    var isStale = false
+                    destinationURL = try URL(
+                        resolvingBookmarkData: bookmarkData,
+                        options: [.withSecurityScope, .withoutUI],
+                        relativeTo: nil,
+                        bookmarkDataIsStale: &isStale
+                    )
+
+                    if let url = destinationURL {
+                        accessGranted = url.startAccessingSecurityScopedResource()
+                        NSLog("[RsyncExecutor] ✅ Security-scoped access granted to: %@", url.path)
+                        NSLog("[RsyncExecutor] Bookmark stale: %@", isStale ? "YES" : "NO")
+                    }
+                } catch {
+                    NSLog("[RsyncExecutor] ⚠️ Failed to restore bookmark: %@", error.localizedDescription)
+                    throw RsyncError.iCloudDriveNotAvailable
+                }
+            } else {
+                NSLog("[RsyncExecutor] ⚠️ No security bookmark found - user must click 'iCloud Drive' button to grant permission")
+                throw RsyncError.iCloudDriveNotEnabled
+            }
+
+            // Create destination directory if it doesn't exist
             if !dryRun {
                 try createDestinationDirectory(path: job.destination)
             }
-            // Skip strict path validation - if directory creation succeeds, rsync will work
         }
 
         await MainActor.run {
@@ -42,6 +70,12 @@ class RsyncExecutor: ObservableObject {
         }
 
         defer {
+            // Release security-scoped resource
+            if accessGranted, let url = destinationURL {
+                url.stopAccessingSecurityScopedResource()
+                NSLog("[RsyncExecutor] ✅ Released security-scoped access")
+            }
+
             Task { @MainActor in
                 isRunning = false
             }
@@ -581,7 +615,7 @@ enum RsyncError: LocalizedError {
         case .iCloudDriveNotAvailable:
             return "iCloud Drive is not available. Check that iCloud Drive is enabled in System Settings → Apple ID → iCloud."
         case .iCloudDriveNotEnabled:
-            return "iCloud Drive is not enabled. Enable it in System Settings → Apple ID → iCloud → iCloud Drive."
+            return "Permission not granted. Click the 'iCloud Drive' button in job editor and select the folder to grant RsyncGUI access permission."
         case .iCloudDrivePathInvalid:
             return "Invalid iCloud Drive path. The path must be within iCloud Drive folder."
         }

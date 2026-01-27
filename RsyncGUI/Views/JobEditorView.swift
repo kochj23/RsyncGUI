@@ -1055,8 +1055,8 @@ struct JobEditorView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.message = "Select iCloud Drive folder"
-        panel.prompt = "Select"
+        panel.message = "Select iCloud Drive folder to grant RsyncGUI access permission"
+        panel.prompt = "Grant Access"
 
         // Try to navigate to iCloud Drive automatically
         let iCloudPath = SyncJob.iCloudDrivePath
@@ -1067,8 +1067,21 @@ struct JobEditorView: View {
         if panel.runModal() == .OK, let url = panel.url {
             // User selected folder - app now has permission to access it
             job.destination = url.path
-            NSLog("[JobEditor] ✅ iCloud Drive folder selected: %@", url.path)
-            NSLog("[JobEditor] App now has permission to access this folder")
+
+            // Create and save security-scoped bookmark to persist permission
+            do {
+                let bookmark = try url.bookmarkData(
+                    options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                    includingResourceValuesForKeys: nil,
+                    relativeTo: nil
+                )
+                job.destinationBookmark = bookmark
+                NSLog("[JobEditor] ✅ iCloud Drive folder selected: %@", url.path)
+                NSLog("[JobEditor] ✅ Security-scoped bookmark created - permission will persist")
+            } catch {
+                NSLog("[JobEditor] ⚠️ Failed to create bookmark: %@", error.localizedDescription)
+                NSLog("[JobEditor] Permission granted for this session only")
+            }
         }
     }
 

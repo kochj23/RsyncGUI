@@ -26,6 +26,9 @@ struct SyncJob: Identifiable, Codable {
     var remoteUser: String?
     var sshKeyPath: String?
 
+    // Security-scoped bookmark for sandbox permission persistence
+    var destinationBookmark: Data?
+
     // Computed property for safe destination type access (handles migration)
     var effectiveDestinationType: DestinationType {
         get {
