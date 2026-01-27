@@ -27,9 +27,13 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
-        // Validate iCloud Drive if used
+        // Validate and prepare iCloud Drive if used
         if job.effectiveDestinationType == .iCloudDrive {
             try validateiCloudDrive(path: job.destination)
+            // Create destination directory if it doesn't exist (rsync won't create parent dirs)
+            if !dryRun {
+                try createDestinationDirectory(path: job.destination)
+            }
         }
 
         await MainActor.run {
@@ -93,6 +97,52 @@ class RsyncExecutor: ObservableObject {
         print("[RsyncExecutor] ✅ iCloud Drive validation passed: \(expandedPath)")
     }
 
+    private func createDestinationDirectory(path: String) throws {
+        var expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+
+        // Remove trailing slash for directory operations
+        if expandedPath.hasSuffix("/") {
+            expandedPath = String(expandedPath.dropLast())
+        }
+
+        // Check if directory already exists
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(atPath: expandedPath, isDirectory: &isDirectory) {
+            if isDirectory.boolValue {
+                print("[RsyncExecutor] ✅ Destination directory exists: \(expandedPath)")
+                return
+            } else {
+                print("[RsyncExecutor] ⚠️ Path exists but is a file, not directory: \(expandedPath)")
+                throw RsyncError.invalidConfiguration // Path exists but is a file, not directory
+            }
+        }
+
+        // For iCloud Drive, verify parent (iCloud Drive root) exists first
+        let iCloudRoot = SyncJob.iCloudDrivePath
+        if expandedPath.hasPrefix(iCloudRoot) && expandedPath != iCloudRoot {
+            var isDir: ObjCBool = false
+            if !FileManager.default.fileExists(atPath: iCloudRoot, isDirectory: &isDir) || !isDir.boolValue {
+                print("[RsyncExecutor] ❌ iCloud Drive root not accessible: \(iCloudRoot)")
+                throw RsyncError.iCloudDriveNotAvailable
+            }
+        }
+
+        // Create directory with intermediate directories
+        do {
+            try FileManager.default.createDirectory(atPath: expandedPath, withIntermediateDirectories: true, attributes: nil)
+            print("[RsyncExecutor] ✅ Created destination directory: \(expandedPath)")
+
+            // For iCloud Drive, wait a moment for iCloud to recognize the new folder
+            if expandedPath.contains("com~apple~CloudDocs") {
+                Thread.sleep(forTimeInterval: 0.5)
+            }
+        } catch {
+            print("[RsyncExecutor] ❌ Failed to create directory: \(error.localizedDescription)")
+            print("[RsyncExecutor] Path: \(expandedPath)")
+            throw RsyncError.executionFailed(error)
+        }
+    }
+
     // MARK: - Command Building
 
     private func buildCommand(for job: SyncJob, dryRun: Bool) -> [String] {
@@ -132,10 +182,19 @@ class RsyncExecutor: ObservableObject {
         } else {
             // Expand ~ to home directory
             let expandedSource = job.source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
-            let expandedDest = job.destination.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+            var expandedDest = job.destination.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+
+            // For iCloud Drive or local directories, ensure trailing slash if source ends with slash
+            // This tells rsync to sync contents into the directory rather than creating a subdirectory
+            if (destType == .iCloudDrive || destType == .local) && job.source.hasSuffix("/") && !expandedDest.hasSuffix("/") {
+                expandedDest += "/"
+            }
 
             args.append(expandedSource)
             args.append(expandedDest)
+
+            print("[RsyncExecutor] Source: \(expandedSource)")
+            print("[RsyncExecutor] Destination: \(expandedDest)")
         }
 
         return args
