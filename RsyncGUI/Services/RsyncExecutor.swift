@@ -27,6 +27,11 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
+        // Validate iCloud Drive if used
+        if job.effectiveDestinationType == .iCloudDrive {
+            try validateiCloudDrive(path: job.destination)
+        }
+
         await MainActor.run {
             isRunning = true
         }
@@ -64,6 +69,30 @@ class RsyncExecutor: ObservableObject {
         }
     }
 
+    // MARK: - iCloud Drive Validation
+
+    private func validateiCloudDrive(path: String) throws {
+        let iCloudPath = SyncJob.iCloudDrivePath
+        let expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+
+        // Check if iCloud Drive directory exists
+        guard FileManager.default.fileExists(atPath: iCloudPath) else {
+            throw RsyncError.iCloudDriveNotAvailable
+        }
+
+        // Check if path is within iCloud Drive or is iCloud Drive itself
+        if !expandedPath.hasPrefix(iCloudPath) && expandedPath != iCloudPath {
+            throw RsyncError.iCloudDrivePathInvalid
+        }
+
+        // Check if iCloud Drive is accessible (not just folder existing but actually mounted)
+        guard FileManager.default.isReadableFile(atPath: iCloudPath) else {
+            throw RsyncError.iCloudDriveNotEnabled
+        }
+
+        print("[RsyncExecutor] ✅ iCloud Drive validation passed: \(expandedPath)")
+    }
+
     // MARK: - Command Building
 
     private func buildCommand(for job: SyncJob, dryRun: Bool) -> [String] {
@@ -78,8 +107,11 @@ class RsyncExecutor: ObservableObject {
         }
         args.append(contentsOf: options.toArguments())
 
-        // Handle remote connections
-        if job.isRemote, let host = job.remoteHost, let user = job.remoteUser {
+        // Handle destination type
+        let destType = job.effectiveDestinationType
+
+        // Handle remote SSH connections
+        if destType == .remoteSSH, let host = job.remoteHost, let user = job.remoteUser {
             // SSH options
             var sshCommand = "ssh"
             if let keyPath = job.sshKeyPath {
@@ -454,6 +486,9 @@ enum RsyncError: LocalizedError {
     case executionFailed(Error)
     case invalidConfiguration
     case cancelled
+    case iCloudDriveNotAvailable
+    case iCloudDriveNotEnabled
+    case iCloudDrivePathInvalid
 
     var errorDescription: String? {
         switch self {
@@ -465,6 +500,12 @@ enum RsyncError: LocalizedError {
             return "Invalid rsync configuration"
         case .cancelled:
             return "Rsync was cancelled"
+        case .iCloudDriveNotAvailable:
+            return "iCloud Drive is not available. Check that iCloud Drive is enabled in System Settings → Apple ID → iCloud."
+        case .iCloudDriveNotEnabled:
+            return "iCloud Drive is not enabled. Enable it in System Settings → Apple ID → iCloud → iCloud Drive."
+        case .iCloudDrivePathInvalid:
+            return "Invalid iCloud Drive path. The path must be within iCloud Drive folder."
         }
     }
 }

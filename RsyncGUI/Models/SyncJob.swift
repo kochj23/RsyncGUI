@@ -7,16 +7,40 @@
 
 import Foundation
 
+/// Destination type for sync jobs
+enum DestinationType: String, Codable {
+    case local = "Local Folder"
+    case remoteSSH = "Remote Server (SSH)"
+    case iCloudDrive = "iCloud Drive"
+}
+
 /// Represents a complete rsync synchronization job
 struct SyncJob: Identifiable, Codable {
     var id: UUID
     var name: String
     var source: String
     var destination: String
+    var destinationType: DestinationType?
     var isRemote: Bool
     var remoteHost: String?
     var remoteUser: String?
     var sshKeyPath: String?
+
+    // Computed property for safe destination type access (handles migration)
+    var effectiveDestinationType: DestinationType {
+        get {
+            if let type = destinationType {
+                return type
+            }
+            // Migration: Use isRemote to determine type for old jobs
+            return isRemote ? .remoteSSH : .local
+        }
+        set {
+            destinationType = newValue
+            // Keep isRemote in sync for backwards compatibility
+            isRemote = (newValue == .remoteSSH)
+        }
+    }
 
     // Rsync options
     var options: RsyncOptions
@@ -44,12 +68,13 @@ struct SyncJob: Identifiable, Codable {
     var successfulRuns: Int
     var failedRuns: Int
 
-    init(name: String, source: String, destination: String) {
+    init(name: String, source: String, destination: String, destinationType: DestinationType = .local) {
         self.id = UUID()
         self.name = name
         self.source = source
         self.destination = destination
-        self.isRemote = false
+        self.destinationType = destinationType
+        self.isRemote = (destinationType == .remoteSSH)
         self.options = RsyncOptions()
         self.dependencies = []
         self.runOnlyIfChanged = false
@@ -58,6 +83,12 @@ struct SyncJob: Identifiable, Codable {
         self.totalRuns = 0
         self.successfulRuns = 0
         self.failedRuns = 0
+    }
+
+    /// Get iCloud Drive path
+    static var iCloudDrivePath: String {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(homeDir)/Library/Mobile Documents/com~apple~CloudDocs"
     }
 }
 

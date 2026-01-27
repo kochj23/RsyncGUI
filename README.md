@@ -1,4 +1,4 @@
-# RsyncGUI
+# RsyncGUI v1.1.0
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS-13.0+-blue.svg" alt="macOS 13.0+">
@@ -6,9 +6,35 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
 </p>
 
-**Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization.
+**Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization with iCloud Drive support.
 
 ![RsyncGUI Interface](Screenshots/interface.png)
+
+---
+
+## 🆕 What's New in v1.1.0 (January 2026)
+
+### ☁️ iCloud Drive Support
+**Sync directly to iCloud Drive with one click:**
+
+- **Native Integration**: iCloud Drive as a destination option
+- **One-Click Setup**: Button to select iCloud Drive root folder
+- **Path Validation**: Automatic verification that iCloud Drive is enabled
+- **Seamless Sync**: Rsync handles iCloud Drive like any local folder
+- **Auto-Detection**: Validates iCloud Drive availability before sync
+
+**Usage:**
+1. Create new sync job
+2. Select "iCloud Drive" as destination type
+3. Click "iCloud Drive" button to set root folder
+4. Or specify subfolder: `~/Library/Mobile Documents/com~apple~CloudDocs/Backups`
+5. Run sync—files automatically sync to iCloud
+
+**Benefits:**
+- Automatic cloud backup with rsync reliability
+- Files available on all your Macs and iOS devices
+- No additional cloud service needed (included with iCloud)
+- Use existing iCloud storage quota
 
 ---
 
@@ -36,6 +62,13 @@
 - Secure credential storage (macOS Keychain)
 - Remote-to-local, local-to-remote, remote-to-remote syncs
 - Connection testing
+
+### ☁️ iCloud Drive Integration (v1.1.0)
+- **Native iCloud Drive destination** - Sync directly to iCloud
+- **One-click setup** - Button to select iCloud Drive root
+- **Path validation** - Ensures iCloud Drive is enabled and accessible
+- **Automatic sync** - Files available on all your devices
+- **No extra cost** - Uses your existing iCloud storage
 
 ### 💾 Job Management
 - Save unlimited sync jobs
@@ -120,11 +153,31 @@ Options:
 Schedule: Daily at 2:00 AM
 ```
 
-### Example 2: Remote Server Sync
+### Example 2: iCloud Drive Backup (v1.1.0)
+```
+Name: Photos to iCloud
+Source: ~/Pictures/Photos
+Destination: iCloud Drive (click "iCloud Drive" button)
+Destination Type: iCloud Drive
+Options:
+  ✓ Archive mode (-a)
+  ✓ Verbose (-v)
+  ✓ Progress (--progress)
+Schedule: Daily at 11:00 PM
+
+Benefits:
+- Files automatically available on all Macs
+- Accessible from iPhone/iPad
+- Built-in versioning via iCloud
+- No additional cloud service needed
+```
+
+### Example 3: Remote Server Sync
 ```
 Name: Web Server Backup
 Source: user@server.com:/var/www/html
 Destination: ~/Backups/WebServer
+Destination Type: Remote Server (SSH)
 SSH Key: ~/.ssh/id_rsa
 Options:
   ✓ Archive mode (-a)

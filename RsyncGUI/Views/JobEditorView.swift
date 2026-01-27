@@ -167,6 +167,13 @@ struct JobEditorView: View {
             }
 
             FormSection(title: "Destination") {
+                Picker("Destination Type", selection: $job.effectiveDestinationType) {
+                    ForEach([DestinationType.local, .iCloudDrive, .remoteSSH], id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 HStack {
                     TextField("Destination path", text: $job.destination)
                         .textFieldStyle(.roundedBorder)
@@ -174,13 +181,32 @@ struct JobEditorView: View {
                     Button("Browse") {
                         selectFolder(for: \.destination)
                     }
+
+                    if job.effectiveDestinationType == .iCloudDrive {
+                        Button("iCloud Drive") {
+                            job.destination = SyncJob.iCloudDrivePath
+                        }
+                        .help("Set to iCloud Drive root folder")
+                    }
                 }
-            }
 
-            FormSection(title: "Remote Connection") {
-                Toggle("Use remote server (SSH)", isOn: $job.isRemote)
+                if job.effectiveDestinationType == .iCloudDrive {
+                    Text("iCloud Drive: \(SyncJob.iCloudDrivePath)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                if job.isRemote {
+                    Text("Note: Ensure iCloud Drive is enabled in System Settings → Apple ID → iCloud")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+
+                if job.effectiveDestinationType == .remoteSSH {
+                    Divider()
+
+                    Text("SSH Connection Details")
+                        .font(.headline)
+                        .padding(.top, 8)
+
                     HStack {
                         TextField("Username", text: Binding(
                             get: { job.remoteUser ?? "" },
