@@ -27,37 +27,9 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
-        // Restore security-scoped resource access for iCloud Drive
-        var destinationURL: URL?
-        var accessGranted = false
-
+        // Prepare iCloud Drive destination (sandbox disabled, direct access)
         if job.effectiveDestinationType == .iCloudDrive {
-            NSLog("[RsyncExecutor] iCloud Drive destination detected")
-
-            // Restore bookmark to regain permission
-            if let bookmarkData = job.destinationBookmark {
-                do {
-                    var isStale = false
-                    destinationURL = try URL(
-                        resolvingBookmarkData: bookmarkData,
-                        options: [.withSecurityScope, .withoutUI],
-                        relativeTo: nil,
-                        bookmarkDataIsStale: &isStale
-                    )
-
-                    if let url = destinationURL {
-                        accessGranted = url.startAccessingSecurityScopedResource()
-                        NSLog("[RsyncExecutor] ✅ Security-scoped access granted to: %@", url.path)
-                        NSLog("[RsyncExecutor] Bookmark stale: %@", isStale ? "YES" : "NO")
-                    }
-                } catch {
-                    NSLog("[RsyncExecutor] ⚠️ Failed to restore bookmark: %@", error.localizedDescription)
-                    throw RsyncError.iCloudDriveNotAvailable
-                }
-            } else {
-                NSLog("[RsyncExecutor] ⚠️ No security bookmark found - user must click 'iCloud Drive' button to grant permission")
-                throw RsyncError.iCloudDriveNotEnabled
-            }
+            NSLog("[RsyncExecutor] iCloud Drive destination detected (sandbox disabled)")
 
             // Create destination directory if it doesn't exist
             if !dryRun {
@@ -70,12 +42,6 @@ class RsyncExecutor: ObservableObject {
         }
 
         defer {
-            // Release security-scoped resource
-            if accessGranted, let url = destinationURL {
-                url.stopAccessingSecurityScopedResource()
-                NSLog("[RsyncExecutor] ✅ Released security-scoped access")
-            }
-
             Task { @MainActor in
                 isRunning = false
             }
