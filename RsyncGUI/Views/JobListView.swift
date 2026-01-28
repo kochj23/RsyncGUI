@@ -9,10 +9,36 @@ import SwiftUI
 
 struct JobListView: View {
     @EnvironmentObject var jobManager: JobManager
-    @Binding var selectedJobId: UUID?
+    @Binding var sidebarSelection: SidebarSelection?
+
+    /// Extract job ID from sidebar selection for List binding
+    private var selectedJobId: Binding<UUID?> {
+        Binding(
+            get: {
+                if case .job(let id) = sidebarSelection {
+                    return id
+                }
+                return nil
+            },
+            set: { newValue in
+                if let id = newValue {
+                    sidebarSelection = .job(id)
+                }
+            }
+        )
+    }
+
+    /// Check if history tab is selected
+    private var isHistorySelected: Bool {
+        if case .history = sidebarSelection {
+            return true
+        }
+        return false
+    }
 
     var body: some View {
-        List(selection: $selectedJobId) {
+        List(selection: selectedJobId) {
+            // Jobs Section
             Section {
                 ForEach(jobManager.jobs) { job in
                     JobRow(job: job)
@@ -51,6 +77,17 @@ struct JobListView: View {
                     .buttonStyle(.borderless)
                 }
             }
+
+            // History Section
+            Section {
+                HistorySidebarRow(isSelected: isHistorySelected)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        sidebarSelection = .history
+                    }
+            } header: {
+                Text("History")
+            }
         }
         .listStyle(.sidebar)
         .navigationTitle("RsyncGUI")
@@ -70,6 +107,49 @@ struct JobListView: View {
                 print("Failed to run job: \(error)")
             }
         }
+    }
+}
+
+// MARK: - History Sidebar Row
+
+struct HistorySidebarRow: View {
+    let isSelected: Bool
+    @State private var historyCount: Int = 0
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Icon
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.title3)
+                .foregroundStyle(
+                    isSelected ?
+                    AnyShapeStyle(LinearGradient(colors: [ModernColors.cyan, ModernColors.purple], startPoint: .topLeading, endPoint: .bottomTrailing)) :
+                    AnyShapeStyle(ModernColors.textSecondary)
+                )
+                .shadow(color: isSelected ? ModernColors.cyan.opacity(0.5) : .clear, radius: 5)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Job History")
+                    .font(.headline)
+                    .foregroundColor(isSelected ? ModernColors.textPrimary : ModernColors.textSecondary)
+
+                Text("\(historyCount) execution(s)")
+                    .font(.caption)
+                    .foregroundColor(ModernColors.textTertiary)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
+        .background(isSelected ? ModernColors.cyan.opacity(0.1) : Color.clear)
+        .cornerRadius(8)
+        .onAppear {
+            loadHistoryCount()
+        }
+    }
+
+    private func loadHistoryCount() {
+        historyCount = ExecutionHistoryManager.shared.getAllHistory(limit: 10000).count
     }
 }
 

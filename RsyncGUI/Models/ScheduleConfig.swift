@@ -134,7 +134,7 @@ extension ScheduleConfig {
             break
         }
 
-        if let idleMinutes = runAfterIdleMinutes {
+        if runAfterIdleMinutes != nil {
             plist += """
 
                 <key>StartOnMount</key>

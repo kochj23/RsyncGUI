@@ -61,6 +61,20 @@ class ExecutionHistoryManager {
         return all.filter { $0.timestamp >= cutoffDate }.reversed()
     }
 
+    // MARK: - Clear History
+
+    /// Clear all execution history
+    func clearHistory() {
+        saveHistory([])
+    }
+
+    /// Clear history for a specific job
+    func clearHistory(for jobId: UUID) {
+        var history = loadAllHistory()
+        history.removeAll { $0.jobId == jobId }
+        saveHistory(history)
+    }
+
     // MARK: - Export
 
     func exportToCSV() -> String {

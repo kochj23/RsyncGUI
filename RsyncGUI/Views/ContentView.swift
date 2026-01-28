@@ -8,9 +8,15 @@
 import SwiftUI
 import AppKit
 
+/// Sidebar selection type - either a job or the history tab
+enum SidebarSelection: Hashable {
+    case job(UUID)
+    case history
+}
+
 struct ContentView: View {
     @EnvironmentObject var jobManager: JobManager
-    @State private var selectedJobId: UUID?
+    @State private var sidebarSelection: SidebarSelection?
     @State private var showingJobEditor = false
     @State private var showingProgress = false
     @State private var runningJobId: UUID?
@@ -21,24 +27,30 @@ struct ContentView: View {
             GlassmorphicBackground()
 
             NavigationSplitView {
-                // Sidebar - Job List
-                JobListView(selectedJobId: $selectedJobId)
+                // Sidebar - Job List with History
+                JobListView(sidebarSelection: $sidebarSelection)
                     .navigationSplitViewColumnWidth(min: 250, ideal: 300)
             } detail: {
-                // Detail - Job Details or Welcome
-                if let jobId = selectedJobId,
-                   let job = jobManager.jobs.first(where: { $0.id == jobId }) {
-                    JobDetailView(
-                        job: job,
-                        onRun: { dryRun in
-                            runJob(job, dryRun: dryRun)
-                        },
-                        onEdit: {
-                            jobManager.selectedJob = job
-                            showingJobEditor = true
-                        }
-                    )
-                } else {
+                // Detail - Job Details, History, or Welcome
+                switch sidebarSelection {
+                case .job(let jobId):
+                    if let job = jobManager.jobs.first(where: { $0.id == jobId }) {
+                        JobDetailView(
+                            job: job,
+                            onRun: { dryRun in
+                                runJob(job, dryRun: dryRun)
+                            },
+                            onEdit: {
+                                jobManager.selectedJob = job
+                                showingJobEditor = true
+                            }
+                        )
+                    } else {
+                        WelcomeView()
+                    }
+                case .history:
+                    JobHistoryTabView()
+                case .none:
                     WelcomeView()
                 }
             }

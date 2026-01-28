@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		004BBD4258FE662FCA52E8CD /* JobEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */; };
+		JHTV234567890BCDE12345678 /* JobHistoryTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = JHTVF123456789ABCDEF1234 /* JobHistoryTabView.swift */; };
 		175534DBF96B78AB0F1703DF /* RsyncExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF5B1E2A7F640E96D1263B4 /* RsyncExecutor.swift */; };
 		181767815121D85A3CF5822A /* JobListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5684BBFA718F2AA2DC46E26E /* JobListView.swift */; };
 		1C4174733EE1125C60A08A32 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20DC9E75D93D4C2D009EEF26 /* ParallelismConfig.swift */; };
@@ -92,6 +93,7 @@
 		F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RsyncGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F670173A93CD07D603A51D71 /* ExecutionHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExecutionHistoryView.swift; path = RsyncGUI/Views/ExecutionHistoryView.swift; sourceTree = "<group>"; };
 		FB5B2B02DFC13B7EA918212F /* SyncJob.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncJob.swift; path = RsyncGUI/Models/SyncJob.swift; sourceTree = "<group>"; };
+		JHTVF123456789ABCDEF1234 /* JobHistoryTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobHistoryTabView.swift; path = RsyncGUI/Views/JobHistoryTabView.swift; sourceTree = "<group>"; };
 		FBCA479BCB8F0B84C983B855 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
 		FEA6D7E7862F46B26E6722F1 /* DeltaReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReport.swift; path = RsyncGUI/Models/DeltaReport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -217,6 +219,7 @@
 				47A0D38A87F482DE72217C85 /* ContentView.swift */,
 				41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */,
 				F670173A93CD07D603A51D71 /* ExecutionHistoryView.swift */,
+				JHTVF123456789ABCDEF1234 /* JobHistoryTabView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -318,6 +321,7 @@
 				D7F6F164F155BC99408EE1C9 /* ExecutionHistory.swift in Sources */,
 				2899CD054C674179B69E26C5 /* DeltaReportView.swift in Sources */,
 				74CE539FE55405EFCB873ACD /* ExecutionHistoryView.swift in Sources */,
+				JHTV234567890BCDE12345678 /* JobHistoryTabView.swift in Sources */,
 				F9BFC0E780A9956CED223966 /* ParallelismConfig.swift in Sources */,
 				3BDB8643D6E226F717FA803B /* DeltaReport.swift in Sources */,
 				EC15AAD13EDE7128A3BE1B28 /* AdvancedExecutionService.swift in Sources */,
