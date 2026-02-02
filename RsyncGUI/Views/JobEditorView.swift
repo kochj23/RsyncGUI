@@ -18,6 +18,7 @@ struct JobEditorView: View {
 
     enum EditorTab: String, CaseIterable {
         case basic = "Basic"
+        case syncMode = "Sync Mode"
         case transfer = "Transfer"
         case preserve = "Preserve"
         case filters = "Filters"
@@ -123,6 +124,8 @@ struct JobEditorView: View {
         switch selectedTab {
         case .basic:
             basicTab
+        case .syncMode:
+            syncModeTab
         case .transfer:
             transferTab
         case .preserve:
@@ -209,6 +212,190 @@ struct JobEditorView: View {
                 Toggle("Show progress during transfer (--progress)", isOn: $job.options.progress)
                 Toggle("Show statistics (--stats)", isOn: $job.options.stats)
             }
+        }
+    }
+
+    // MARK: - Sync Mode Tab
+
+    private var syncModeTab: some View {
+        VStack(spacing: 24) {
+            FormSection(title: "Sync Mode") {
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(SyncMode.allCases, id: \.self) { mode in
+                        HStack(spacing: 16) {
+                            Image(systemName: mode.icon)
+                                .font(.title2)
+                                .foregroundColor(job.syncMode == mode ? .blue : .secondary)
+                                .frame(width: 30)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(mode.rawValue)
+                                    .font(.headline)
+                                    .foregroundColor(job.syncMode == mode ? .primary : .secondary)
+
+                                Text(mode.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            if job.syncMode == mode {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        .padding()
+                        .background(job.syncMode == mode ? Color.blue.opacity(0.1) : Color.secondary.opacity(0.05))
+                        .cornerRadius(8)
+                        .onTapGesture {
+                            job.syncMode = mode
+                        }
+                    }
+                }
+
+                // Visual diagram of current mode
+                syncModeDiagram
+            }
+
+            FormSection(title: "Execution Strategy") {
+                Picker("Strategy", selection: $job.executionStrategy) {
+                    ForEach(ExecutionStrategy.allCases, id: \.self) { strategy in
+                        Text(strategy.rawValue).tag(strategy)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text(job.executionStrategy.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                if job.executionStrategy == .parallel {
+                    Stepper("Max parallel syncs: \(job.maxParallelSyncs)", value: $job.maxParallelSyncs, in: 2...8)
+
+                    Text("⚡ Parallel mode can significantly speed up syncs to multiple destinations")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+            }
+
+            FormSection(title: "Failure Handling") {
+                Picker("On failure", selection: $job.failureHandling) {
+                    ForEach(FailureHandling.allCases, id: \.self) { handling in
+                        Text(handling.rawValue).tag(handling)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text(job.failureHandling.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            FormSection(title: "Verification") {
+                Toggle("Verify after sync (checksum comparison)", isOn: $job.verifyAfterSync)
+
+                if job.verifyAfterSync {
+                    Text("After sync completes, rsync will run again with --checksum to verify all files match")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    Text("⚠️ Verification doubles the sync time but ensures data integrity")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+            }
+
+            FormSection(title: "Scripts") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Pre-sync script (runs before sync starts)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    TextField("e.g., /path/to/script.sh or shell command", text: Binding(
+                        get: { job.preScript ?? "" },
+                        set: { job.preScript = $0.isEmpty ? nil : $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(.body, design: .monospaced))
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Post-sync script (runs after sync completes)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    TextField("e.g., /path/to/script.sh or shell command", text: Binding(
+                        get: { job.postScript ?? "" },
+                        set: { job.postScript = $0.isEmpty ? nil : $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(.body, design: .monospaced))
+                }
+
+                Text("Scripts receive JOB_NAME, JOB_STATUS, FILES_TRANSFERRED environment variables")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    // MARK: - Sync Mode Diagram
+
+    private var syncModeDiagram: some View {
+        VStack(spacing: 8) {
+            Text("Current Configuration")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            HStack(spacing: 20) {
+                // Sources
+                VStack(spacing: 4) {
+                    ForEach(job.sources.indices, id: \.self) { index in
+                        if !job.sources[index].isEmpty {
+                            HStack {
+                                Image(systemName: "folder.fill")
+                                    .foregroundColor(.blue)
+                                Text(URL(fileURLWithPath: job.sources[index]).lastPathComponent)
+                                    .font(.caption)
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(4)
+                        }
+                    }
+                }
+
+                // Arrows
+                VStack {
+                    Image(systemName: job.syncMode.icon)
+                        .font(.title)
+                        .foregroundColor(.orange)
+                }
+
+                // Destinations
+                VStack(spacing: 4) {
+                    ForEach(job.destinations.filter { $0.isEnabled }) { dest in
+                        HStack {
+                            Image(systemName: dest.type == .remoteSSH ? "server.rack" :
+                                    dest.type == .iCloudDrive ? "icloud.fill" : "externaldrive.fill")
+                                .foregroundColor(.green)
+                            Text(URL(fileURLWithPath: dest.path).lastPathComponent)
+                                .font(.caption)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(4)
+                    }
+                }
+            }
+            .padding()
+            .background(Color.secondary.opacity(0.05))
+            .cornerRadius(8)
         }
     }
 

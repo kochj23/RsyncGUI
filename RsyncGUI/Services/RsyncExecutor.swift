@@ -44,20 +44,64 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.invalidConfiguration
         }
 
-        guard !job.sources.isEmpty && !job.sources.allSatisfy({ $0.isEmpty }) else {
+        let validSources = job.sources.filter { !$0.isEmpty }
+        guard !validSources.isEmpty else {
             throw RsyncError.invalidConfiguration
+        }
+
+        // Run pre-sync script
+        if let preScript = job.preScript, !preScript.isEmpty, !dryRun {
+            NSLog("[RsyncExecutor] Running pre-sync script...")
+            try await runScript(preScript, jobName: job.name, status: "starting", filesTransferred: 0)
         }
 
         // Prepare all destinations (create directories if needed)
         for dest in enabledDestinations {
-            if dest.type == .iCloudDrive && !dryRun {
-                try createDestinationDirectory(path: dest.path)
-            } else if dest.type == .local && !dryRun {
+            if (dest.type == .iCloudDrive || dest.type == .local) && !dryRun {
                 try createDestinationDirectory(path: dest.path)
             }
         }
 
-        // Execute sync to each destination
+        // Execute sync based on strategy
+        var combinedResult: ExecutionResult
+
+        if job.executionStrategy == .parallel && enabledDestinations.count > 1 {
+            combinedResult = try await executeParallel(job: job, destinations: enabledDestinations, dryRun: dryRun)
+        } else {
+            combinedResult = try await executeSequential(job: job, destinations: enabledDestinations, dryRun: dryRun)
+        }
+
+        // Run verification if enabled
+        if job.verifyAfterSync && !dryRun && combinedResult.status != .failed {
+            NSLog("[RsyncExecutor] Running verification pass...")
+            combinedResult.output += "\n\n=== VERIFICATION PASS ===\n"
+            for dest in enabledDestinations {
+                var verifyJob = job
+                verifyJob.options.checksum = true
+                verifyJob.options.dryRun = true
+                let command = buildCommand(for: verifyJob, destination: dest, dryRun: true)
+                let verifyResult = try await executeCommand(command, result: ExecutionResult(
+                    id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                    status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
+                ))
+                combinedResult.output += "\n--- Verify: \(dest.path) ---\n" + verifyResult.output
+            }
+        }
+
+        // Run post-sync script
+        if let postScript = job.postScript, !postScript.isEmpty, !dryRun {
+            NSLog("[RsyncExecutor] Running post-sync script...")
+            try await runScript(postScript, jobName: job.name,
+                              status: combinedResult.status.rawValue,
+                              filesTransferred: combinedResult.filesTransferred)
+        }
+
+        return combinedResult
+    }
+
+    // MARK: - Sequential Execution
+
+    private func executeSequential(job: SyncJob, destinations: [SyncDestination], dryRun: Bool) async throws -> ExecutionResult {
         var combinedResult = ExecutionResult(
             id: UUID(),
             jobId: job.id,
@@ -73,23 +117,109 @@ class RsyncExecutor: ObservableObject {
         var allSucceeded = true
         var anySucceeded = false
 
-        for (index, dest) in enabledDestinations.enumerated() {
-            NSLog("[RsyncExecutor] Syncing to destination %d/%d: %@", index + 1, enabledDestinations.count, dest.path)
+        for (index, dest) in destinations.enumerated() {
+            NSLog("[RsyncExecutor] Syncing to destination %d/%d: %@", index + 1, destinations.count, dest.path)
 
             let command = buildCommand(for: job, destination: dest, dryRun: dryRun)
             let result = try await executeCommand(command, result: ExecutionResult(
-                id: UUID(),
-                jobId: job.id,
-                startTime: Date(),
-                endTime: nil,
-                status: .success,
-                filesTransferred: 0,
-                bytesTransferred: 0,
-                errors: [],
-                output: ""
+                id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
             ))
 
-            // Combine results
+            combinedResult.filesTransferred += result.filesTransferred
+            combinedResult.bytesTransferred += result.bytesTransferred
+            combinedResult.errors.append(contentsOf: result.errors)
+            combinedResult.output += "\n--- Destination: \(dest.path) ---\n" + result.output
+
+            if result.status == .success {
+                anySucceeded = true
+            } else if result.status == .failed {
+                allSucceeded = false
+                if job.failureHandling == .stopOnError {
+                    combinedResult.errors.append("Stopped: Destination \(dest.path) failed")
+                    break
+                }
+            } else if result.status == .partialSuccess {
+                anySucceeded = true
+                allSucceeded = false
+            }
+        }
+
+        combinedResult.endTime = Date()
+        combinedResult.status = allSucceeded ? .success : (anySucceeded ? .partialSuccess : .failed)
+        return combinedResult
+    }
+
+    // MARK: - Parallel Execution
+
+    private func executeParallel(job: SyncJob, destinations: [SyncDestination], dryRun: Bool) async throws -> ExecutionResult {
+        var combinedResult = ExecutionResult(
+            id: UUID(),
+            jobId: job.id,
+            startTime: Date(),
+            endTime: nil,
+            status: .success,
+            filesTransferred: 0,
+            bytesTransferred: 0,
+            errors: [],
+            output: ""
+        )
+
+        NSLog("[RsyncExecutor] Starting parallel sync to %d destinations (max %d concurrent)", destinations.count, job.maxParallelSyncs)
+
+        // Use TaskGroup for parallel execution with limited concurrency
+        let results = await withTaskGroup(of: (SyncDestination, ExecutionResult).self) { group in
+            var pending = destinations[...]
+            var results: [(SyncDestination, ExecutionResult)] = []
+            var activeCount = 0
+
+            // Start initial batch
+            while activeCount < job.maxParallelSyncs && !pending.isEmpty {
+                let dest = pending.removeFirst()
+                activeCount += 1
+                group.addTask {
+                    let command = self.buildCommand(for: job, destination: dest, dryRun: dryRun)
+                    let result = try? await self.executeCommand(command, result: ExecutionResult(
+                        id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                        status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
+                    ))
+                    return (dest, result ?? ExecutionResult(
+                        id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                        status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
+                    ))
+                }
+            }
+
+            // Process results and start new tasks
+            for await result in group {
+                results.append(result)
+                activeCount -= 1
+
+                if !pending.isEmpty {
+                    let dest = pending.removeFirst()
+                    activeCount += 1
+                    group.addTask {
+                        let command = self.buildCommand(for: job, destination: dest, dryRun: dryRun)
+                        let result = try? await self.executeCommand(command, result: ExecutionResult(
+                            id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                            status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
+                        ))
+                        return (dest, result ?? ExecutionResult(
+                            id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                            status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
+                        ))
+                    }
+                }
+            }
+
+            return results
+        }
+
+        // Combine results
+        var allSucceeded = true
+        var anySucceeded = false
+
+        for (dest, result) in results {
             combinedResult.filesTransferred += result.filesTransferred
             combinedResult.bytesTransferred += result.bytesTransferred
             combinedResult.errors.append(contentsOf: result.errors)
@@ -106,17 +236,34 @@ class RsyncExecutor: ObservableObject {
         }
 
         combinedResult.endTime = Date()
-
-        // Determine overall status
-        if allSucceeded {
-            combinedResult.status = .success
-        } else if anySucceeded {
-            combinedResult.status = .partialSuccess
-        } else {
-            combinedResult.status = .failed
-        }
-
+        combinedResult.status = allSucceeded ? .success : (anySucceeded ? .partialSuccess : .failed)
         return combinedResult
+    }
+
+    // MARK: - Script Execution
+
+    private func runScript(_ script: String, jobName: String, status: String, filesTransferred: Int) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = ["-c", script]
+        process.environment = [
+            "JOB_NAME": jobName,
+            "JOB_STATUS": status,
+            "FILES_TRANSFERRED": String(filesTransferred),
+            "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+        ]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            NSLog("[RsyncExecutor] Script failed with exit code %d: %@", process.terminationStatus, output)
+        }
     }
 
     func cancel() {

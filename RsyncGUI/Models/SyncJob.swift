@@ -14,6 +14,62 @@ enum DestinationType: String, Codable {
     case iCloudDrive = "iCloud Drive"
 }
 
+/// Sync mode - how sources and destinations relate
+enum SyncMode: String, Codable, CaseIterable {
+    case fanOut = "Fan-out (1→N)"
+    case fanIn = "Fan-in (N→1)"
+    case fullMesh = "Full Mesh (N→N)"
+
+    var description: String {
+        switch self {
+        case .fanOut:
+            return "Sync one source to multiple destinations (backup)"
+        case .fanIn:
+            return "Sync multiple sources to one destination (consolidate)"
+        case .fullMesh:
+            return "Sync all sources to all destinations"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .fanOut: return "arrow.triangle.branch"
+        case .fanIn: return "arrow.triangle.merge"
+        case .fullMesh: return "arrow.triangle.2.circlepath"
+        }
+    }
+}
+
+/// Execution strategy for multiple destinations
+enum ExecutionStrategy: String, Codable, CaseIterable {
+    case sequential = "Sequential"
+    case parallel = "Parallel"
+
+    var description: String {
+        switch self {
+        case .sequential:
+            return "Sync to destinations one at a time"
+        case .parallel:
+            return "Sync to all destinations simultaneously"
+        }
+    }
+}
+
+/// What to do when a destination fails
+enum FailureHandling: String, Codable, CaseIterable {
+    case continueOnError = "Continue"
+    case stopOnError = "Stop"
+
+    var description: String {
+        switch self {
+        case .continueOnError:
+            return "Continue syncing to remaining destinations"
+        case .stopOnError:
+            return "Stop all syncing if any destination fails"
+        }
+    }
+}
+
 /// Represents a single destination with its configuration
 struct SyncDestination: Identifiable, Codable, Equatable {
     var id: UUID
@@ -145,6 +201,15 @@ struct SyncJob: Identifiable, Codable {
     // Rsync options
     var options: RsyncOptions
 
+    // Sync behavior
+    var syncMode: SyncMode
+    var executionStrategy: ExecutionStrategy
+    var failureHandling: FailureHandling
+    var verifyAfterSync: Bool              // Run checksum verification after sync
+    var preScript: String?                 // Script to run before sync
+    var postScript: String?                // Script to run after sync
+    var maxParallelSyncs: Int              // Max concurrent syncs (for parallel mode)
+
     // Parallelism for tiny files
     var parallelism: ParallelismConfig?
 
@@ -174,6 +239,11 @@ struct SyncJob: Identifiable, Codable {
         self.sources = [source]
         self.destinations = [SyncDestination(path: destination, type: destinationType)]
         self.options = RsyncOptions()
+        self.syncMode = .fanOut
+        self.executionStrategy = .sequential
+        self.failureHandling = .continueOnError
+        self.verifyAfterSync = false
+        self.maxParallelSyncs = 2
         self.dependencies = []
         self.runOnlyIfChanged = false
         self.isEnabled = true
@@ -190,6 +260,11 @@ struct SyncJob: Identifiable, Codable {
         self.sources = sources.isEmpty ? [""] : sources
         self.destinations = destinations.isEmpty ? [SyncDestination()] : destinations
         self.options = RsyncOptions()
+        self.syncMode = .fanOut
+        self.executionStrategy = .sequential
+        self.failureHandling = .continueOnError
+        self.verifyAfterSync = false
+        self.maxParallelSyncs = 2
         self.dependencies = []
         self.runOnlyIfChanged = false
         self.isEnabled = true
