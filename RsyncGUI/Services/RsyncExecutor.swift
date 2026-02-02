@@ -27,16 +27,6 @@ class RsyncExecutor: ObservableObject {
             throw RsyncError.alreadyRunning
         }
 
-        // Prepare iCloud Drive destination (sandbox disabled, direct access)
-        if job.effectiveDestinationType == .iCloudDrive {
-            NSLog("[RsyncExecutor] iCloud Drive destination detected (sandbox disabled)")
-
-            // Create destination directory if it doesn't exist
-            if !dryRun {
-                try createDestinationDirectory(path: job.destination)
-            }
-        }
-
         await MainActor.run {
             isRunning = true
         }
@@ -47,7 +37,28 @@ class RsyncExecutor: ObservableObject {
             }
         }
 
-        let result = ExecutionResult(
+        // Get enabled destinations only
+        let enabledDestinations = job.destinations.filter { $0.isEnabled }
+
+        guard !enabledDestinations.isEmpty else {
+            throw RsyncError.invalidConfiguration
+        }
+
+        guard !job.sources.isEmpty && !job.sources.allSatisfy({ $0.isEmpty }) else {
+            throw RsyncError.invalidConfiguration
+        }
+
+        // Prepare all destinations (create directories if needed)
+        for dest in enabledDestinations {
+            if dest.type == .iCloudDrive && !dryRun {
+                try createDestinationDirectory(path: dest.path)
+            } else if dest.type == .local && !dryRun {
+                try createDestinationDirectory(path: dest.path)
+            }
+        }
+
+        // Execute sync to each destination
+        var combinedResult = ExecutionResult(
             id: UUID(),
             jobId: job.id,
             startTime: Date(),
@@ -59,11 +70,53 @@ class RsyncExecutor: ObservableObject {
             output: ""
         )
 
-        // Build rsync command
-        let command = buildCommand(for: job, dryRun: dryRun)
+        var allSucceeded = true
+        var anySucceeded = false
 
-        // Execute
-        return try await executeCommand(command, result: result)
+        for (index, dest) in enabledDestinations.enumerated() {
+            NSLog("[RsyncExecutor] Syncing to destination %d/%d: %@", index + 1, enabledDestinations.count, dest.path)
+
+            let command = buildCommand(for: job, destination: dest, dryRun: dryRun)
+            let result = try await executeCommand(command, result: ExecutionResult(
+                id: UUID(),
+                jobId: job.id,
+                startTime: Date(),
+                endTime: nil,
+                status: .success,
+                filesTransferred: 0,
+                bytesTransferred: 0,
+                errors: [],
+                output: ""
+            ))
+
+            // Combine results
+            combinedResult.filesTransferred += result.filesTransferred
+            combinedResult.bytesTransferred += result.bytesTransferred
+            combinedResult.errors.append(contentsOf: result.errors)
+            combinedResult.output += "\n--- Destination: \(dest.path) ---\n" + result.output
+
+            if result.status == .success {
+                anySucceeded = true
+            } else if result.status == .failed {
+                allSucceeded = false
+            } else if result.status == .partialSuccess {
+                anySucceeded = true
+                allSucceeded = false
+            }
+        }
+
+        combinedResult.endTime = Date()
+
+        // Determine overall status
+        if allSucceeded {
+            combinedResult.status = .success
+        } else if anySucceeded {
+            combinedResult.status = .partialSuccess
+        } else {
+            combinedResult.status = .failed
+        }
+
+        return combinedResult
     }
 
     func cancel() {
@@ -164,7 +217,7 @@ class RsyncExecutor: ObservableObject {
 
     // MARK: - Command Building
 
-    private func buildCommand(for job: SyncJob, dryRun: Bool) -> [String] {
+    private func buildCommand(for job: SyncJob, destination dest: SyncDestination, dryRun: Bool) -> [String] {
         // Get rsync path from settings
         let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
         var args = [rsyncPath]
@@ -176,43 +229,48 @@ class RsyncExecutor: ObservableObject {
         }
         args.append(contentsOf: options.toArguments())
 
-        // Handle destination type
-        let destType = job.effectiveDestinationType
-
         // Handle remote SSH connections
-        if destType == .remoteSSH, let host = job.remoteHost, let user = job.remoteUser {
+        if dest.type == .remoteSSH, let host = dest.remoteHost, let user = dest.remoteUser {
             // SSH options
             var sshCommand = "ssh"
-            if let keyPath = job.sshKeyPath {
+            if let keyPath = dest.sshKeyPath {
                 sshCommand += " -i \(keyPath)"
             }
             args.append("-e")
             args.append(sshCommand)
 
-            // Source or destination is remote
-            // Detect if source or dest has host prefix
+            // Add all sources (rsync supports multiple sources)
+            for source in job.sources where !source.isEmpty {
+                let expandedSource = source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+                args.append(expandedSource)
+            }
+
+            // Remote destination
             let remotePrefix = "\(user)@\(host):"
+            let destPath = dest.path.starts(with: remotePrefix) ? dest.path : "\(remotePrefix)\(dest.path)"
+            args.append(destPath)
 
-            let source = job.source.starts(with: remotePrefix) ? job.source : job.source
-            let destination = job.destination.starts(with: remotePrefix) ? job.destination : job.destination
-
-            args.append(source)
-            args.append(destination)
+            print("[RsyncExecutor] Sources: \(job.sources)")
+            print("[RsyncExecutor] Remote Destination: \(destPath)")
         } else {
-            // Expand ~ to home directory
-            let expandedSource = job.source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
-            var expandedDest = job.destination.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+            // Add all sources (rsync supports multiple sources)
+            for source in job.sources where !source.isEmpty {
+                let expandedSource = source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+                args.append(expandedSource)
+            }
 
-            // For iCloud Drive or local directories, ensure trailing slash if source ends with slash
+            // Local/iCloud destination
+            var expandedDest = dest.path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+
+            // For iCloud Drive or local directories, ensure trailing slash
             // This tells rsync to sync contents into the directory rather than creating a subdirectory
-            if (destType == .iCloudDrive || destType == .local) && job.source.hasSuffix("/") && !expandedDest.hasSuffix("/") {
+            if !expandedDest.hasSuffix("/") {
                 expandedDest += "/"
             }
 
-            args.append(expandedSource)
             args.append(expandedDest)
 
-            print("[RsyncExecutor] Source: \(expandedSource)")
+            print("[RsyncExecutor] Sources: \(job.sources)")
             print("[RsyncExecutor] Destination: \(expandedDest)")
         }
 

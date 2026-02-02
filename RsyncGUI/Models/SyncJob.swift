@@ -14,20 +14,117 @@ enum DestinationType: String, Codable {
     case iCloudDrive = "iCloud Drive"
 }
 
+/// Represents a single destination with its configuration
+struct SyncDestination: Identifiable, Codable, Equatable {
+    var id: UUID
+    var path: String
+    var type: DestinationType
+    var remoteHost: String?
+    var remoteUser: String?
+    var sshKeyPath: String?
+    var bookmark: Data?
+    var isEnabled: Bool
+
+    init(path: String = "", type: DestinationType = .local) {
+        self.id = UUID()
+        self.path = path
+        self.type = type
+        self.isEnabled = true
+    }
+
+    static func == (lhs: SyncDestination, rhs: SyncDestination) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 /// Represents a complete rsync synchronization job
 struct SyncJob: Identifiable, Codable {
     var id: UUID
     var name: String
-    var source: String
-    var destination: String
-    var destinationType: DestinationType?
-    var isRemote: Bool
-    var remoteHost: String?
-    var remoteUser: String?
-    var sshKeyPath: String?
+
+    // Multiple sources support (new)
+    var sources: [String]
+
+    // Multiple destinations support (new)
+    var destinations: [SyncDestination]
+
+    // Legacy single source/destination for backward compatibility
+    var source: String {
+        get { sources.first ?? "" }
+        set {
+            if sources.isEmpty {
+                sources = [newValue]
+            } else {
+                sources[0] = newValue
+            }
+        }
+    }
+
+    var destination: String {
+        get { destinations.first?.path ?? "" }
+        set {
+            if destinations.isEmpty {
+                destinations = [SyncDestination(path: newValue)]
+            } else {
+                destinations[0].path = newValue
+            }
+        }
+    }
+
+    var destinationType: DestinationType? {
+        get { destinations.first?.type }
+        set {
+            if !destinations.isEmpty, let type = newValue {
+                destinations[0].type = type
+            }
+        }
+    }
+
+    var isRemote: Bool {
+        get { destinations.first?.type == .remoteSSH }
+        set {
+            if !destinations.isEmpty {
+                destinations[0].type = newValue ? .remoteSSH : .local
+            }
+        }
+    }
+
+    var remoteHost: String? {
+        get { destinations.first?.remoteHost }
+        set {
+            if !destinations.isEmpty {
+                destinations[0].remoteHost = newValue
+            }
+        }
+    }
+
+    var remoteUser: String? {
+        get { destinations.first?.remoteUser }
+        set {
+            if !destinations.isEmpty {
+                destinations[0].remoteUser = newValue
+            }
+        }
+    }
+
+    var sshKeyPath: String? {
+        get { destinations.first?.sshKeyPath }
+        set {
+            if !destinations.isEmpty {
+                destinations[0].sshKeyPath = newValue
+            }
+        }
+    }
 
     // Security-scoped bookmark for sandbox permission persistence
-    var destinationBookmark: Data?
+    var destinationBookmark: Data? {
+        get { destinations.first?.bookmark }
+        set {
+            if !destinations.isEmpty {
+                destinations[0].bookmark = newValue
+            }
+        }
+    }
 
     // Computed property for safe destination type access (handles migration)
     var effectiveDestinationType: DestinationType {
@@ -74,10 +171,24 @@ struct SyncJob: Identifiable, Codable {
     init(name: String, source: String, destination: String, destinationType: DestinationType = .local) {
         self.id = UUID()
         self.name = name
-        self.source = source
-        self.destination = destination
-        self.destinationType = destinationType
-        self.isRemote = (destinationType == .remoteSSH)
+        self.sources = [source]
+        self.destinations = [SyncDestination(path: destination, type: destinationType)]
+        self.options = RsyncOptions()
+        self.dependencies = []
+        self.runOnlyIfChanged = false
+        self.isEnabled = true
+        self.created = Date()
+        self.totalRuns = 0
+        self.successfulRuns = 0
+        self.failedRuns = 0
+    }
+
+    /// Initialize with multiple sources and destinations
+    init(name: String, sources: [String], destinations: [SyncDestination]) {
+        self.id = UUID()
+        self.name = name
+        self.sources = sources.isEmpty ? [""] : sources
+        self.destinations = destinations.isEmpty ? [SyncDestination()] : destinations
         self.options = RsyncOptions()
         self.dependencies = []
         self.runOnlyIfChanged = false

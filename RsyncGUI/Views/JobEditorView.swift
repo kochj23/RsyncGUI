@@ -151,99 +151,53 @@ struct JobEditorView: View {
                 Toggle("Enabled", isOn: $job.isEnabled)
             }
 
-            FormSection(title: "Source") {
-                HStack {
-                    TextField("Source path", text: $job.source)
-                        .textFieldStyle(.roundedBorder)
+            FormSection(title: "Sources (\(job.sources.count))") {
+                ForEach(job.sources.indices, id: \.self) { index in
+                    HStack {
+                        Image(systemName: "folder.fill")
+                            .foregroundColor(.blue)
 
-                    Button("Browse") {
-                        selectFolder(for: \.source)
+                        TextField("Source path", text: $job.sources[index])
+                            .textFieldStyle(.roundedBorder)
+
+                        Button(action: { browseForSource(at: index) }) {
+                            Image(systemName: "folder.badge.plus")
+                        }
+                        .buttonStyle(.bordered)
+
+                        if job.sources.count > 1 {
+                            Button(action: { job.sources.remove(at: index) }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundColor(.red)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
 
-                Text("Tip: Use ~ for home directory (e.g., ~/Documents)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Button(action: { job.sources.append("") }) {
+                        Label("Add Source", systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Spacer()
+
+                    Text("Tip: Use ~ for home directory")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
-            FormSection(title: "Destination") {
-                Picker("Destination Type", selection: $job.effectiveDestinationType) {
-                    ForEach([DestinationType.local, .iCloudDrive, .remoteSSH], id: \.self) { type in
-                        Text(type.rawValue).tag(type)
-                    }
-                }
-                .pickerStyle(.segmented)
-
-                HStack {
-                    TextField("Destination path", text: $job.destination)
-                        .textFieldStyle(.roundedBorder)
-
-                    Button("Browse") {
-                        selectFolder(for: \.destination)
-                    }
-
-                    if job.effectiveDestinationType == .iCloudDrive {
-                        Button("iCloud Drive") {
-                            selectiCloudDrive()
-                        }
-                        .help("Select iCloud Drive folder (grants permission)")
-                    }
+            FormSection(title: "Destinations (\(job.destinations.count))") {
+                ForEach($job.destinations) { $dest in
+                    destinationRow(destination: $dest)
                 }
 
-                if job.effectiveDestinationType == .iCloudDrive {
-                    Text("iCloud Drive: \(SyncJob.iCloudDrivePath)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Text("⚠️ Important: Click 'iCloud Drive' button to grant folder access permission")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                        .fontWeight(.semibold)
-
-                    Text("Or use 'Browse' to select any folder within iCloud Drive")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                Button(action: { job.destinations.append(SyncDestination()) }) {
+                    Label("Add Destination", systemImage: "plus.circle.fill")
                 }
-
-                if job.effectiveDestinationType == .remoteSSH {
-                    Divider()
-
-                    Text("SSH Connection Details")
-                        .font(.headline)
-                        .padding(.top, 8)
-
-                    HStack {
-                        TextField("Username", text: Binding(
-                            get: { job.remoteUser ?? "" },
-                            set: { job.remoteUser = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textFieldStyle(.roundedBorder)
-
-                        Text("@")
-
-                        TextField("Host", text: Binding(
-                            get: { job.remoteHost ?? "" },
-                            set: { job.remoteHost = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textFieldStyle(.roundedBorder)
-                    }
-
-                    HStack {
-                        TextField("SSH Key Path (optional)", text: Binding(
-                            get: { job.sshKeyPath ?? "" },
-                            set: { job.sshKeyPath = $0.isEmpty ? nil : $0 }
-                        ))
-                        .textFieldStyle(.roundedBorder)
-
-                        Button("Browse") {
-                            selectSSHKey()
-                        }
-                    }
-
-                    Text("Leave empty to use default SSH key (~/.ssh/id_rsa)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                .buttonStyle(.bordered)
             }
 
             FormSection(title: "Common Options") {
@@ -254,6 +208,146 @@ struct JobEditorView: View {
                     .foregroundColor(job.options.delete ? .red : .primary)
                 Toggle("Show progress during transfer (--progress)", isOn: $job.options.progress)
                 Toggle("Show statistics (--stats)", isOn: $job.options.stats)
+            }
+        }
+    }
+
+    // MARK: - Destination Row
+
+    @ViewBuilder
+    private func destinationRow(destination: Binding<SyncDestination>) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: destination.wrappedValue.type == .remoteSSH ? "server.rack" :
+                        destination.wrappedValue.type == .iCloudDrive ? "icloud.fill" : "externaldrive.fill")
+                    .foregroundColor(destination.wrappedValue.type == .remoteSSH ? .orange :
+                        destination.wrappedValue.type == .iCloudDrive ? .blue : .green)
+
+                Picker("", selection: destination.type) {
+                    ForEach([DestinationType.local, .iCloudDrive, .remoteSSH], id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 350)
+
+                Toggle("", isOn: destination.isEnabled)
+                    .toggleStyle(.switch)
+                    .labelsHidden()
+
+                if job.destinations.count > 1 {
+                    Button(action: {
+                        job.destinations.removeAll { $0.id == destination.wrappedValue.id }
+                    }) {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            HStack {
+                TextField("Destination path", text: destination.path)
+                    .textFieldStyle(.roundedBorder)
+
+                Button("Browse") {
+                    browseForDestination(destination: destination)
+                }
+                .buttonStyle(.bordered)
+
+                if destination.wrappedValue.type == .iCloudDrive {
+                    Button("iCloud") {
+                        selectiCloudDriveFor(destination: destination)
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            if destination.wrappedValue.type == .remoteSSH {
+                HStack {
+                    TextField("Username", text: Binding(
+                        get: { destination.wrappedValue.remoteUser ?? "" },
+                        set: { destination.wrappedValue.remoteUser = $0.isEmpty ? nil : $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 150)
+
+                    Text("@")
+
+                    TextField("Host", text: Binding(
+                        get: { destination.wrappedValue.remoteHost ?? "" },
+                        set: { destination.wrappedValue.remoteHost = $0.isEmpty ? nil : $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+
+                    TextField("SSH Key (optional)", text: Binding(
+                        get: { destination.wrappedValue.sshKeyPath ?? "" },
+                        set: { destination.wrappedValue.sshKeyPath = $0.isEmpty ? nil : $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 200)
+                }
+            }
+
+            if !destination.wrappedValue.isEnabled {
+                Text("This destination is disabled and will be skipped")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+        }
+        .padding()
+        .background(destination.wrappedValue.isEnabled ? Color.secondary.opacity(0.05) : Color.orange.opacity(0.05))
+        .cornerRadius(8)
+    }
+
+    // MARK: - Browse Helpers
+
+    private func browseForSource(at index: Int) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK, let url = panel.url {
+            job.sources[index] = url.path
+        }
+    }
+
+    private func browseForDestination(destination: Binding<SyncDestination>) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK, let url = panel.url {
+            destination.wrappedValue.path = url.path
+        }
+    }
+
+    private func selectiCloudDriveFor(destination: Binding<SyncDestination>) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Select iCloud Drive folder to grant RsyncGUI access permission"
+        panel.prompt = "Grant Access"
+
+        let iCloudPath = SyncJob.iCloudDrivePath
+        if FileManager.default.fileExists(atPath: iCloudPath) {
+            panel.directoryURL = URL(fileURLWithPath: iCloudPath)
+        }
+
+        if panel.runModal() == .OK, let url = panel.url {
+            destination.wrappedValue.path = url.path
+            do {
+                let bookmark = try url.bookmarkData(
+                    options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                    includingResourceValuesForKeys: nil,
+                    relativeTo: nil
+                )
+                destination.wrappedValue.bookmark = bookmark
+            } catch {
+                NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
             }
         }
     }
