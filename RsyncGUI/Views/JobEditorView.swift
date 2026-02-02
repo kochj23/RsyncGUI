@@ -251,13 +251,13 @@ struct JobEditorView: View {
                     .textFieldStyle(.roundedBorder)
 
                 Button("Browse") {
-                    browseForDestination(destination: destination)
+                    browseForDestination(destinationId: destination.wrappedValue.id)
                 }
                 .buttonStyle(.bordered)
 
                 if destination.wrappedValue.type == .iCloudDrive {
                     Button("iCloud") {
-                        selectiCloudDriveFor(destination: destination)
+                        selectiCloudDriveFor(destinationId: destination.wrappedValue.id)
                     }
                     .buttonStyle(.bordered)
                 }
@@ -313,18 +313,20 @@ struct JobEditorView: View {
         }
     }
 
-    private func browseForDestination(destination: Binding<SyncDestination>) {
+    private func browseForDestination(destinationId: UUID) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
 
         if panel.runModal() == .OK, let url = panel.url {
-            destination.wrappedValue.path = url.path
+            if let index = job.destinations.firstIndex(where: { $0.id == destinationId }) {
+                job.destinations[index].path = url.path
+            }
         }
     }
 
-    private func selectiCloudDriveFor(destination: Binding<SyncDestination>) {
+    private func selectiCloudDriveFor(destinationId: UUID) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
@@ -338,16 +340,18 @@ struct JobEditorView: View {
         }
 
         if panel.runModal() == .OK, let url = panel.url {
-            destination.wrappedValue.path = url.path
-            do {
-                let bookmark = try url.bookmarkData(
-                    options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
-                    includingResourceValuesForKeys: nil,
-                    relativeTo: nil
-                )
-                destination.wrappedValue.bookmark = bookmark
-            } catch {
-                NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
+            if let index = job.destinations.firstIndex(where: { $0.id == destinationId }) {
+                job.destinations[index].path = url.path
+                do {
+                    let bookmark = try url.bookmarkData(
+                        options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                        includingResourceValuesForKeys: nil,
+                        relativeTo: nil
+                    )
+                    job.destinations[index].bookmark = bookmark
+                } catch {
+                    NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
+                }
             }
         }
     }
