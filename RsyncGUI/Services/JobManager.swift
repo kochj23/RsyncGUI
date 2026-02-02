@@ -64,6 +64,11 @@ class JobManager: ObservableObject {
         ScheduleManager.shared.removeSchedule(for: job.id.uuidString)
     }
 
+    func addJob(_ job: SyncJob) {
+        jobs.append(job)
+        saveJobs()
+    }
+
     func duplicateJob(_ job: SyncJob) {
         var duplicate = job
         duplicate.id = UUID()

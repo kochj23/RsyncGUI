@@ -8,10 +8,11 @@
 import SwiftUI
 import AppKit
 
-/// Sidebar selection type - either a job or the history tab
+/// Sidebar selection type - either a job or the history/AI insights tabs
 enum SidebarSelection: Hashable {
     case job(UUID)
     case history
+    case aiInsights
 }
 
 struct ContentView: View {
@@ -50,6 +51,8 @@ struct ContentView: View {
                     }
                 case .history:
                     JobHistoryTabView()
+                case .aiInsights:
+                    AIInsightsView()
                 case .none:
                     WelcomeView()
                 }

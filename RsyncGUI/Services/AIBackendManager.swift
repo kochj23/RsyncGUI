@@ -480,7 +480,7 @@ struct AISettingsView: View {
         Form {
             Section("AI Features") {
                 Toggle("Enable AI Assistance", isOn: $manager.aiEnabled)
-                    .onChange(of: manager.aiEnabled) { _, _ in manager.saveSettings() }
+                    .onChange(of: manager.aiEnabled) { _ in manager.saveSettings() }
 
                 Text("AI can help with anomaly detection, smart scheduling, and exclusion suggestions.")
                     .font(.caption)
@@ -493,7 +493,7 @@ struct AISettingsView: View {
                         Label(backend.rawValue, systemImage: backend.icon).tag(backend)
                     }
                 }
-                .onChange(of: manager.selectedBackend) { _, _ in
+                .onChange(of: manager.selectedBackend) { _ in
                     manager.saveSettings()
                     Task { await manager.checkBackendAvailability() }
                 }

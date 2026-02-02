@@ -36,6 +36,14 @@ struct JobListView: View {
         return false
     }
 
+    /// Check if AI insights tab is selected
+    private var isAIInsightsSelected: Bool {
+        if case .aiInsights = sidebarSelection {
+            return true
+        }
+        return false
+    }
+
     var body: some View {
         List(selection: selectedJobId) {
             // Jobs Section
@@ -88,6 +96,17 @@ struct JobListView: View {
             } header: {
                 Text("History")
             }
+
+            // AI Insights Section
+            Section {
+                AIInsightsSidebarRow(isSelected: isAIInsightsSelected)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        sidebarSelection = .aiInsights
+                    }
+            } header: {
+                Text("AI Features")
+            }
         }
         .listStyle(.sidebar)
         .navigationTitle("RsyncGUI")
@@ -107,6 +126,41 @@ struct JobListView: View {
                 print("Failed to run job: \(error)")
             }
         }
+    }
+}
+
+// MARK: - AI Insights Sidebar Row
+
+struct AIInsightsSidebarRow: View {
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Icon
+            Image(systemName: "brain.head.profile")
+                .font(.title3)
+                .foregroundStyle(
+                    isSelected ?
+                    AnyShapeStyle(LinearGradient(colors: [ModernColors.purple, ModernColors.cyan], startPoint: .topLeading, endPoint: .bottomTrailing)) :
+                    AnyShapeStyle(ModernColors.textSecondary)
+                )
+                .shadow(color: isSelected ? ModernColors.purple.opacity(0.5) : .clear, radius: 5)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("AI Insights")
+                    .font(.headline)
+                    .foregroundColor(isSelected ? ModernColors.textPrimary : ModernColors.textSecondary)
+
+                Text("Smart recommendations")
+                    .font(.caption)
+                    .foregroundColor(ModernColors.textTertiary)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
+        .background(isSelected ? ModernColors.purple.opacity(0.1) : Color.clear)
+        .cornerRadius(8)
     }
 }
 
