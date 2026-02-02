@@ -1,4 +1,4 @@
-# RsyncGUI v1.1.0
+# RsyncGUI v1.5.0
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS-13.0+-blue.svg" alt="macOS 13.0+">
@@ -6,13 +6,44 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
 </p>
 
-**Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization with iCloud Drive support.
+**Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization with AI-powered insights.
 
 ![RsyncGUI Interface](Screenshots/interface.png)
 
 ---
 
-## 🆕 What's New in v1.1.0 (January 2026)
+## 🆕 What's New in v1.5.0 (February 2026)
+
+### 🧠 AI-Powered Insights Dashboard
+**10 intelligent features to help manage your backups:**
+
+1. **Smart Error Diagnosis** - Analyzes rsync errors and provides actionable fixes with specific commands
+2. **Change Summary** - Human-readable summaries of sync operations ("Added 50 photos, Updated 10 documents")
+3. **Anomaly Detection** - Detects ransomware patterns, mass deletions, and unusual file activity
+4. **Smart Scheduling** - Analyzes your sync history to recommend optimal backup times
+5. **Storage Prediction** - Predicts when destination drives will run out of space
+6. **Intelligent Exclusions** - Suggests files/folders to exclude (node_modules, DerivedData, etc.)
+7. **Natural Language Job Creation** - Create jobs by describing them in plain English ("Backup my documents to iCloud daily")
+8. **Backup Health Score** - Overall grade (A-F) with detailed metrics for coverage, frequency, redundancy
+9. **Recovery Assistant** - Search your backup history to find and recover specific files
+10. **Sensitive File Detection** - Warns about credentials, SSH keys, API keys, and other secrets
+
+**Access AI Insights from the sidebar:**
+- Click "AI Insights" in the sidebar
+- View your Backup Health Score with recommendations
+- Create jobs using natural language
+- Scan for security risks before syncing
+
+### 🔀 Multiple Sources & Destinations
+- **Fan-out**: Sync one source to multiple destinations (backup)
+- **Fan-in**: Sync multiple sources to one destination (consolidate)
+- **Full Mesh**: Sync all sources to all destinations
+- **Parallel Execution**: Run syncs simultaneously for speed
+- **Pre/Post Scripts**: Run custom scripts before and after syncs
+
+---
+
+## 📋 What's New in v1.1.0 (January 2026)
 
 ### ☁️ iCloud Drive Support
 **Sync directly to iCloud Drive with one click:**
@@ -69,6 +100,23 @@
 - **Path validation** - Ensures iCloud Drive is enabled and accessible
 - **Automatic sync** - Files available on all your devices
 - **No extra cost** - Uses your existing iCloud storage
+
+### 🧠 AI-Powered Insights (v1.5.0)
+- **Backup Health Score** - Overall grade with detailed recommendations
+- **Smart Error Diagnosis** - Understand and fix rsync errors
+- **Anomaly Detection** - Ransomware, mass deletion alerts
+- **Natural Language Jobs** - Create jobs by describing them
+- **Storage Prediction** - Know when drives will fill up
+- **Sensitive File Scanner** - Find credentials before backing up
+- **Intelligent Exclusions** - Smart suggestions for files to skip
+- **Recovery Search** - Find files in your backup history
+
+### 🔀 Multi-Source/Destination (v1.5.0)
+- **Multiple sources** - Sync from multiple folders
+- **Multiple destinations** - Backup to multiple locations
+- **Sync modes** - Fan-out, Fan-in, Full Mesh
+- **Parallel execution** - Faster backups to multiple destinations
+- **Pre/Post scripts** - Custom automation
 
 ### 💾 Job Management
 - Save unlimited sync jobs
@@ -234,6 +282,8 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -configuration Release b
 - **JobManager:** Job CRUD, execution, persistence
 - **RsyncExecutor:** rsync command execution and real-time parsing
 - **ScheduleManager:** launchd integration and schedule management
+- **AIInsightsService:** AI-powered analysis, predictions, and recommendations
+- **AIBackendManager:** AI backend configuration (local/cloud options)
 
 ### Views (`Views/`):
 - **ContentView:** Main app container with navigation
@@ -242,6 +292,7 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -configuration Release b
 - **JobEditorView:** Comprehensive editor with tabbed interface
 - **ProgressView:** Beautiful real-time progress visualization
 - **SettingsView:** App preferences and configuration
+- **AIInsightsView:** AI-powered insights dashboard with multiple tabs
 
 ---
 
@@ -340,15 +391,18 @@ node_modules/  # Exclude entire directories
 
 ## 🔮 Roadmap
 
+### Completed Features:
+- [x] ~~Execution history viewer~~ ✅ v1.2.0
+- [x] ~~Before/after hook scripts~~ ✅ v1.5.0
+- [x] ~~Multi-job parallel execution~~ ✅ v1.5.0
+- [x] ~~Exclude pattern library~~ ✅ v1.5.0 (AI suggestions)
+- [x] ~~AI-powered insights~~ ✅ v1.5.0
+
 ### Planned Features:
 - [ ] Job templates library
-- [ ] Execution history viewer
 - [ ] Email notifications
 - [ ] Bandwidth usage graphs
-- [ ] Before/after hook scripts
-- [ ] Multi-job parallel execution
 - [ ] Conflict resolution UI
-- [ ] Exclude pattern library
 - [ ] Menu bar app mode
 - [ ] iCloud job sync
 
@@ -407,5 +461,5 @@ If you find RsyncGUI useful, please:
 
 ---
 
-**Last Updated:** January 22, 2026
+**Last Updated:** February 2, 2026
 **Status:** ✅ Production Ready
