@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 @main
 struct RsyncGUIApp: App {
@@ -20,6 +21,13 @@ struct RsyncGUIApp: App {
                 .task {
                     // Setup menu bar after view appears
                     menuBarManager.setup(jobManager: jobManager)
+
+                    // Sync data to widget on app launch
+                    WidgetDataSyncService.shared.syncAllJobData()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    // Sync data to widget when app quits
+                    WidgetDataSyncService.shared.syncAllJobData()
                 }
         }
         .commands {

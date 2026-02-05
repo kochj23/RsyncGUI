@@ -442,36 +442,70 @@ class RsyncExecutor: ObservableObject {
             process.standardOutput = outputPipe
             process.standardError = errorPipe
 
-            // Thread-safe data accumulation using NSLock
+            // Thread-safe data accumulation and termination signaling
             let dataLock = NSLock()
             var outputData = Data()
             var errorData = Data()
+            var isTerminating = false
+
+            // Track active handlers to prevent race conditions
+            let handlerGroup = DispatchGroup()
 
             // Read output asynchronously
             outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
+                // Check if we're terminating before processing
+                dataLock.lock()
+                let shouldProcess = !isTerminating
+                if shouldProcess {
+                    handlerGroup.enter()
+                }
+                dataLock.unlock()
+
+                guard shouldProcess else { return }
+                defer { handlerGroup.leave() }
+
                 guard let self = self else { return }
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
 
+                // Make a defensive copy of the data for thread safety
+                let dataCopy = Data(data)
+
                 // Thread-safe append
                 dataLock.lock()
-                outputData.append(data)
+                outputData.append(dataCopy)
                 dataLock.unlock()
 
-                if let output = String(data: data, encoding: .utf8) {
+                if let output = String(data: dataCopy, encoding: .utf8) {
+                    // Force a string copy to avoid substring memory issues
+                    let outputCopy = String(output)
                     // Parse progress from output
-                    self.parseProgress(from: output)
+                    self.parseProgress(from: outputCopy)
                 }
             }
 
             errorPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
+                // Check if we're terminating before processing
+                dataLock.lock()
+                let shouldProcess = !isTerminating
+                if shouldProcess {
+                    handlerGroup.enter()
+                }
+                dataLock.unlock()
+
+                guard shouldProcess else { return }
+                defer { handlerGroup.leave() }
+
                 guard let self = self else { return }
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
 
+                // Make a defensive copy
+                let dataCopy = Data(data)
+
                 // Thread-safe append
                 dataLock.lock()
-                errorData.append(data)
+                errorData.append(dataCopy)
                 dataLock.unlock()
             }
 
@@ -481,6 +515,15 @@ class RsyncExecutor: ObservableObject {
                     return
                 }
 
+                // Signal handlers to stop accepting new data
+                dataLock.lock()
+                isTerminating = true
+                dataLock.unlock()
+
+                // Wait for any in-progress handlers to complete (with timeout)
+                _ = handlerGroup.wait(timeout: .now() + 2.0)
+
+                // Now safe to nil out the handlers
                 outputPipe.fileHandleForReading.readabilityHandler = nil
                 errorPipe.fileHandleForReading.readabilityHandler = nil
 
@@ -535,17 +578,22 @@ class RsyncExecutor: ObservableObject {
         // Format: "  1,234,567  56%  123.45MB/s    0:01:23"
         // Or: "sent 123 bytes  received 456 bytes  789.00 bytes/sec"
 
-        let lines = output.components(separatedBy: .newlines)
+        // Force a copy to prevent any reference to the original buffer
+        let outputCopy = String(output)
+        let lines = outputCopy.components(separatedBy: .newlines)
 
         for line in lines {
+            // Convert Substring to String to prevent memory issues
+            let lineString = String(line)
+
             // Parse progress line (with --progress flag)
-            if line.contains("%") {
-                parseProgressLine(line)
+            if lineString.contains("%") {
+                parseProgressLine(lineString)
             }
 
             // Parse file transfer line (with -v flag)
-            if line.hasPrefix("sending incremental file list") || line.contains("/") {
-                parseFileTransferLine(line)
+            if lineString.hasPrefix("sending incremental file list") || lineString.contains("/") {
+                parseFileTransferLine(lineString)
             }
         }
     }
@@ -634,23 +682,29 @@ class RsyncExecutor: ObservableObject {
         var filesTransferred = 0
         var bytesTransferred: Int64 = 0
 
-        let lines = output.components(separatedBy: .newlines)
+        // Force copy to prevent substring reference issues
+        let outputCopy = String(output)
+        let lines = outputCopy.components(separatedBy: .newlines)
 
         for line in lines {
+            // Convert Substring to String for safety
+            let lineString = String(line)
+
             // Parse "Number of files transferred: 123"
-            if line.contains("Number of files transferred:") {
-                let components = line.components(separatedBy: ":")
-                if components.count >= 2,
-                   let count = Int(components[1].trimmingCharacters(in: .whitespaces).components(separatedBy: .whitespaces).first ?? "0") {
-                    filesTransferred = count
+            if lineString.contains("Number of files transferred:") {
+                let components = lineString.components(separatedBy: ":")
+                if components.count >= 2 {
+                    let valueString = String(components[1]).trimmingCharacters(in: .whitespaces)
+                    let numberPart = valueString.components(separatedBy: .whitespaces).first ?? "0"
+                    filesTransferred = Int(String(numberPart)) ?? 0
                 }
             }
 
             // Parse "Total transferred file size: 123,456 bytes"
-            if line.contains("Total transferred file size:") {
-                let components = line.components(separatedBy: ":")
+            if lineString.contains("Total transferred file size:") {
+                let components = lineString.components(separatedBy: ":")
                 if components.count >= 2 {
-                    let sizeString = components[1].trimmingCharacters(in: .whitespaces)
+                    let sizeString = String(components[1]).trimmingCharacters(in: .whitespaces)
                     bytesTransferred = parseBytes(sizeString)
                 }
             }

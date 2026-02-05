@@ -115,6 +115,9 @@ class JobManager: ObservableObject {
         // Save to execution history
         ExecutionHistoryManager.shared.addExecution(result, jobName: job.name)
 
+        // Sync data to widget
+        WidgetDataSyncService.shared.updateAfterJobExecution(job: mutableJob, result: result)
+
         return result
     }
 
@@ -143,6 +146,11 @@ class JobManager: ObservableObject {
         }
 
         try? data.write(to: jobsFile, options: .atomic)
+
+        // Sync updated job data to widget
+        Task { @MainActor in
+            WidgetDataSyncService.shared.syncAllJobData()
+        }
     }
 
     private func createSampleJob() {
