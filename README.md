@@ -1,18 +1,65 @@
-# RsyncGUI v1.5.0
+# RsyncGUI v1.6.0
 
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS-13.0+-blue.svg" alt="macOS 13.0+">
+  <img src="https://img.shields.io/badge/macOS-14.0+-blue.svg" alt="macOS 14.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
 </p>
 
 **Professional rsync GUI for macOS** - Beautiful, comprehensive, and powerful file synchronization with AI-powered insights.
 
+A modern, open-source alternative to the discontinued [RsyncOSX](https://github.com/rsyncOSX/RsyncOSX).
+
 ![RsyncGUI Interface](Screenshots/interface.png)
 
 ---
 
-## 🆕 What's New in v1.5.0 (February 2026)
+## Download
+
+Download the latest release: [RsyncGUI v1.6.0](https://github.com/kochj23/RsyncGUI/releases/latest)
+
+Or build from source (see below).
+
+---
+
+## Migrating from RsyncOSX?
+
+If you're coming from RsyncOSX (discontinued), RsyncGUI offers:
+- Modern SwiftUI interface with glassmorphic design
+- Real-time transfer progress with speed and ETA
+- Native Apple Silicon support
+- Active development and maintenance
+- Free and open source (MIT License)
+
+---
+
+## 🆕 What's New in v1.6.0 (February 2026)
+
+### 🔲 macOS Desktop Widget
+**Monitor your backups at a glance from your desktop:**
+
+- **Three Widget Sizes**: Small, Medium, and Large widgets for Notification Center
+- **Backup Health Score**: Visual health grade (A-F) with percentage score
+- **Last Sync Status**: See when your last sync ran and its result
+- **Next Scheduled Sync**: Know when your next backup will run
+- **Jobs with Errors**: Quick view of any jobs that need attention
+- **Recent Activity**: Track your most recent sync operations (Large widget)
+
+**Widget Features:**
+- Real-time updates after each sync operation
+- Auto-refresh every 15 minutes
+- Color-coded status indicators (green=success, red=failed, orange=partial)
+- Tap widget to open RsyncGUI app
+
+**Adding the Widget:**
+1. Right-click on your desktop
+2. Select "Edit Widgets..."
+3. Search for "RsyncGUI"
+4. Drag your preferred size to the desktop
+
+---
+
+## What's New in v1.5.0 (February 2026)
 
 ### 🧠 AI-Powered Insights Dashboard
 **10 intelligent features to help manage your backups:**
@@ -110,6 +157,13 @@
 - **Sensitive File Scanner** - Find credentials before backing up
 - **Intelligent Exclusions** - Smart suggestions for files to skip
 - **Recovery Search** - Find files in your backup history
+
+### 🔲 Desktop Widget (v1.6.0)
+- **macOS Widget** - Monitor backups from Notification Center
+- **Three sizes** - Small, Medium, and Large widgets
+- **Health Score** - Visual backup health at a glance
+- **Status Display** - Last sync, next scheduled, errors
+- **Recent Activity** - Track recent operations (Large)
 
 ### 🔀 Multi-Source/Destination (v1.5.0)
 - **Multiple sources** - Sync from multiple folders
