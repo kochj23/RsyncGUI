@@ -533,3 +533,7 @@ If you find RsyncGUI useful, please:
 | [icon-creator](https://github.com/kochj23/icon-creator) | App icon set generator for all Apple platforms |
 
 > **[View all projects](https://github.com/kochj23?tab=repositories)**
+
+---
+
+> **Disclaimer:** This is a personal project created on my own time. It is not affiliated with, endorsed by, or representative of my employer.
