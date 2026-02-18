@@ -519,3 +519,17 @@ If you find RsyncGUI useful, please:
 
 **Last Updated:** February 2, 2026
 **Status:** ✅ Production Ready
+
+---
+
+## More Apps by Jordan Koch
+
+| App | Description |
+|-----|-------------|
+| [DotSync](https://github.com/kochj23/DotSync) | Configuration file synchronization across machines |
+| [TopGUI](https://github.com/kochj23/TopGUI) | macOS system monitor with real-time metrics |
+| [ExcelExplorer](https://github.com/kochj23/ExcelExplorer) | Native macOS Excel/CSV file viewer |
+| [MBox-Explorer](https://github.com/kochj23/MBox-Explorer) | macOS mbox email archive viewer |
+| [icon-creator](https://github.com/kochj23/icon-creator) | App icon set generator for all Apple platforms |
+
+> **[View all projects](https://github.com/kochj23?tab=repositories)**
