@@ -12,6 +12,8 @@ A modern, open-source alternative to the discontinued [RsyncOSX](https://github.
 
 ![RsyncGUI Interface](Screenshots/interface.png)
 
+![RsyncGUI Welcome](Screenshots/main-window.png)
+
 ---
 
 ## Download
