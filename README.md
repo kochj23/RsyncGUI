@@ -1,5 +1,7 @@
 # RsyncGUI v1.6.0
 
+![Build](https://github.com/kochj23/RsyncGUI/actions/workflows/build.yml/badge.svg)
+
 <p align="center">
   <img src="https://img.shields.io/badge/macOS-14.0+-blue.svg" alt="macOS 14.0+">
   <img src="https://img.shields.io/badge/Swift-5.9-orange.svg" alt="Swift 5.9">
