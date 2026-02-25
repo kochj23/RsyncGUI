@@ -213,6 +213,24 @@ Comprehensive rsync option editor with organized tabs:
 
 ---
 
+## Security
+
+### Script Execution
+- **Audit Logging**: All user-defined pre/post scripts are logged via NSLog before execution, including the script path (truncated to 200 chars)
+- **Trust Warning**: The job editor displays a prominent warning that scripts run with user privileges
+- **Environment Variables Only**: Scripts receive data via environment variables (JOB_NAME, JOB_STATUS, FILES_TRANSFERRED), not via shell interpolation
+
+### Credential & SSH Security
+- **Keychain Storage**: SSH credentials stored in macOS Keychain
+- **No Plaintext Secrets**: API keys and passwords never written to disk in plaintext
+- **Sensitive File Detection**: AI Insights scanner warns about credentials, SSH keys, and API keys before syncing
+
+### Network Security
+- **SSH Transport**: Remote syncs use SSH with public key authentication
+- **No Telemetry**: No analytics or usage data transmitted externally
+
+---
+
 ## 🚀 Getting Started
 
 ### Installation
