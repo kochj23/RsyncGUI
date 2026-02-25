@@ -16,7 +16,7 @@ else
 fi
 
 # Verify build numbers
-APP_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "/Users/kochj/Applications/RsyncGUI.app/Contents/Info.plist")
+APP_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$HOME/Applications/RsyncGUI.app/Contents/Info.plist")
 NAS_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "/Volumes/NAS/binaries/20260114-RsyncGUI-v1.0.0/RsyncGUI.app/Contents/Info.plist")
 
 echo ""
@@ -27,13 +27,13 @@ echo ""
 
 # Check file timestamps
 echo "File timestamps:"
-stat -f "  Applications: %Sm" -t "%Y-%m-%d %H:%M:%S" "/Users/kochj/Applications/RsyncGUI.app/Contents/MacOS/RsyncGUI"
+stat -f "  Applications: %Sm" -t "%Y-%m-%d %H:%M:%S" "$HOME/Applications/RsyncGUI.app/Contents/MacOS/RsyncGUI"
 stat -f "  NAS:          %Sm" -t "%Y-%m-%d %H:%M:%S" "/Volumes/NAS/binaries/20260114-RsyncGUI-v1.0.0/RsyncGUI.app/Contents/MacOS/RsyncGUI"
 echo ""
 
 # Launch fresh
 echo "Launching RsyncGUI..."
-open "/Users/kochj/Applications/RsyncGUI.app"
+open "$HOME/Applications/RsyncGUI.app"
 
 echo ""
 echo "✅ RsyncGUI launched with build $APP_BUILD"
