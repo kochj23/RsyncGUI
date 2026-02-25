@@ -333,6 +333,10 @@ struct JobEditorView: View {
                     .font(.system(.body, design: .monospaced))
                 }
 
+                Text("Scripts run with your user privileges. Only use scripts you trust.")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+
                 Text("Scripts receive JOB_NAME, JOB_STATUS, FILES_TRANSFERRED environment variables")
                     .font(.caption)
                     .foregroundColor(.secondary)

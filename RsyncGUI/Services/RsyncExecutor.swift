@@ -243,6 +243,8 @@ class RsyncExecutor: ObservableObject {
     // MARK: - Script Execution
 
     private func runScript(_ script: String, jobName: String, status: String, filesTransferred: Int) async throws {
+        NSLog("[RsyncExecutor] WARNING: Executing user-defined script: %@", String(script.prefix(200)))
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = ["-c", script]
