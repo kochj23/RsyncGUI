@@ -396,7 +396,7 @@ struct AIInsightsView: View {
                             Spacer()
 
                             Button("Locate") {
-                                // TODO: Open in Finder
+                                locateFile(result.filename)
                             }
                             .buttonStyle(.bordered)
                         }
@@ -582,6 +582,31 @@ struct AIInsightsView: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - File Location
+
+    /// Attempt to reveal a file in Finder. If the path is absolute and exists, select it directly.
+    /// Otherwise, open the parent directory or fall back to the user's home folder.
+    private func locateFile(_ filename: String) {
+        let fileURL = URL(fileURLWithPath: filename)
+
+        if filename.hasPrefix("/"), FileManager.default.fileExists(atPath: filename) {
+            // Absolute path that exists -- reveal it selected in Finder
+            NSWorkspace.shared.selectFile(filename, inFileViewerRootedAtPath: fileURL.deletingLastPathComponent().path)
+        } else if filename.hasPrefix("/") {
+            // Absolute path that doesn't exist -- open its parent directory if possible
+            let parentPath = fileURL.deletingLastPathComponent().path
+            if FileManager.default.fileExists(atPath: parentPath) {
+                NSWorkspace.shared.open(URL(fileURLWithPath: parentPath))
+            } else {
+                NSWorkspace.shared.open(URL(fileURLWithPath: NSHomeDirectory()))
+            }
+        } else {
+            // Relative filename -- open a Finder search for it
+            let searchURL = URL(fileURLWithPath: NSHomeDirectory())
+            NSWorkspace.shared.open(searchURL)
         }
     }
 

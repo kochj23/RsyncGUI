@@ -208,6 +208,26 @@ struct FloatingBlob: View {
 struct GlassmorphicBackground: View {
     @State private var animateBlobs = false
 
+    // MARK: - Blob Layout Constants
+
+    /// Diameter for primary background blobs (cyan, pink)
+    private static let blobSizeLarge: CGFloat = 400
+    /// Diameter for secondary background blobs (purple)
+    private static let blobSizeMedium: CGFloat = 350
+    /// Diameter for the largest decorative blob (pink)
+    private static let blobSizeExtraLarge: CGFloat = 450
+    /// Diameter for smaller accent blobs (orange, trailing cyan)
+    private static let blobSizeSmall: CGFloat = 300
+    /// Diameter for the smallest trailing accent blob
+    private static let blobSizeCompact: CGFloat = 250
+
+    /// Animation durations for each blob layer, staggered to create organic motion
+    private static let blobAnimationSlow: Double = 10
+    private static let blobAnimationMediumSlow: Double = 9
+    private static let blobAnimationMedium: Double = 8
+    private static let blobAnimationMediumFast: Double = 7
+    private static let blobAnimationFast: Double = 6
+
     var body: some View {
         ZStack {
             // Base gradient
@@ -217,42 +237,42 @@ struct GlassmorphicBackground: View {
             // Large floating blobs (dark theme colors)
             FloatingBlob(
                 color: ModernColors.blobCyan,
-                size: 400,
+                size: Self.blobSizeLarge,
                 x: animateBlobs ? -100 : -150,
                 y: animateBlobs ? -200 : -250,
-                animation: .easeInOut(duration: 8).repeatForever(autoreverses: true)
+                animation: .easeInOut(duration: Self.blobAnimationMedium).repeatForever(autoreverses: true)
             )
 
             FloatingBlob(
                 color: ModernColors.blobPurple,
-                size: 350,
+                size: Self.blobSizeMedium,
                 x: animateBlobs ? 150 : 100,
                 y: animateBlobs ? -150 : -100,
-                animation: .easeInOut(duration: 7).repeatForever(autoreverses: true)
+                animation: .easeInOut(duration: Self.blobAnimationMediumFast).repeatForever(autoreverses: true)
             )
 
             FloatingBlob(
                 color: ModernColors.blobPink,
-                size: 450,
+                size: Self.blobSizeExtraLarge,
                 x: animateBlobs ? 100 : 150,
                 y: animateBlobs ? 300 : 350,
-                animation: .easeInOut(duration: 9).repeatForever(autoreverses: true)
+                animation: .easeInOut(duration: Self.blobAnimationMediumSlow).repeatForever(autoreverses: true)
             )
 
             FloatingBlob(
                 color: ModernColors.blobOrange,
-                size: 300,
+                size: Self.blobSizeSmall,
                 x: animateBlobs ? -200 : -150,
                 y: animateBlobs ? 250 : 300,
-                animation: .easeInOut(duration: 10).repeatForever(autoreverses: true)
+                animation: .easeInOut(duration: Self.blobAnimationSlow).repeatForever(autoreverses: true)
             )
 
             FloatingBlob(
                 color: ModernColors.blobCyan.opacity(0.7),
-                size: 250,
+                size: Self.blobSizeCompact,
                 x: animateBlobs ? 200 : 250,
                 y: animateBlobs ? 100 : 50,
-                animation: .easeInOut(duration: 6).repeatForever(autoreverses: true)
+                animation: .easeInOut(duration: Self.blobAnimationFast).repeatForever(autoreverses: true)
             )
         }
         .onAppear {

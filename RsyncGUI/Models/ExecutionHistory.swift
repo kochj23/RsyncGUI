@@ -15,7 +15,12 @@ class ExecutionHistoryManager {
     private let maxHistoryEntries = 1000 // Keep last 1000 executions
 
     private init() {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            // Fallback to temporary directory if Application Support is unavailable
+            storageURL = FileManager.default.temporaryDirectory.appendingPathComponent("RsyncGUI/History", isDirectory: true)
+            try? FileManager.default.createDirectory(at: storageURL, withIntermediateDirectories: true)
+            return
+        }
         storageURL = appSupport.appendingPathComponent("RsyncGUI/History", isDirectory: true)
         try? FileManager.default.createDirectory(at: storageURL, withIntermediateDirectories: true)
     }
@@ -56,7 +61,10 @@ class ExecutionHistoryManager {
     }
 
     func getRecentHistory(days: Int = 7) -> [ExecutionHistoryEntry] {
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
+        guard let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) else {
+            // If date calculation fails, return all history as a safe fallback
+            return loadAllHistory().reversed()
+        }
         let all = loadAllHistory()
         return all.filter { $0.timestamp >= cutoffDate }.reversed()
     }

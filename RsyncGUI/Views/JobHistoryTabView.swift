@@ -12,6 +12,9 @@ import SwiftUI
 
 /// Main job history tab view displayed in the detail pane
 struct JobHistoryTabView: View {
+    /// Brief delay before showing loaded history to allow the UI to render the loading state
+    private static let historyLoadDelay: TimeInterval = 0.3
+
     @State private var history: [ExecutionHistoryEntry] = []
     @State private var filter: HistoryFilter = .all
     @State private var searchText: String = ""
@@ -50,11 +53,13 @@ struct JobHistoryTabView: View {
         case .failed:
             result = result.filter { $0.status == .failed }
         case .week:
-            let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-            result = result.filter { $0.timestamp >= cutoff }
+            if let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date()) {
+                result = result.filter { $0.timestamp >= cutoff }
+            }
         case .month:
-            let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
-            result = result.filter { $0.timestamp >= cutoff }
+            if let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) {
+                result = result.filter { $0.timestamp >= cutoff }
+            }
         }
 
         // Apply job filter
@@ -366,7 +371,7 @@ struct JobHistoryTabView: View {
 
     private func loadHistory() {
         isLoading = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.historyLoadDelay) {
             history = ExecutionHistoryManager.shared.getAllHistory(limit: 1000)
             isLoading = false
         }

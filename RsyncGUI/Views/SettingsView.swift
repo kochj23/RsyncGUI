@@ -71,6 +71,11 @@ struct GeneralSettings: View {
         }
     }
 
+    /// Fetches the rsync version string by running the binary with --version.
+    /// Uses withCheckedContinuation to bridge Process (which blocks with waitUntilExit)
+    /// into Swift concurrency. The DispatchQueue.global call ensures the blocking
+    /// Process execution happens off the main thread while the async/await interface
+    /// keeps the call site clean in the .task modifier above.
     private func fetchRsyncVersion(path: String) async -> String {
         return await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -177,9 +182,11 @@ struct AdvancedSettings: View {
     }
 
     private func openLogsFolder() {
-        let logsURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("RsyncGUI/Logs")
-
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            showAlert(title: "Error", message: "Could not locate Application Support directory")
+            return
+        }
+        let logsURL = appSupport.appendingPathComponent("RsyncGUI/Logs")
         NSWorkspace.shared.open(logsURL)
     }
 

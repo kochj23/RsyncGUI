@@ -1,6 +1,9 @@
 import Foundation
 import SwiftUI
 import Combine
+#if os(macOS)
+import AppKit
+#endif
 
 //
 //  AIBackendManager+Enhanced.swift
@@ -345,8 +348,6 @@ extension AIBackendManager {
 // MARK: - Keyboard Shortcut Support
 
 #if os(macOS)
-import AppKit
-
 extension AIBackendManager {
 
     /// Register global keyboard shortcuts for backend switching
