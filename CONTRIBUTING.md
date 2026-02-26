@@ -30,12 +30,13 @@ Thank you for your interest in contributing! We welcome contributions from the c
 - macOS 13.0 (Ventura) or later
 - Xcode 15.0+
 - Swift 5.9+
+- rsync installed (included with macOS)
 
 ### Building
 ```bash
 git clone https://github.com/kochj23/RsyncGUI.git
 cd RsyncGUI
-open *.xcodeproj
+open RsyncGUI.xcodeproj
 ```
 
 ## Code Standards
@@ -51,10 +52,6 @@ open *.xcodeproj
 - **Never commit credentials, API keys, or secrets**
 - Report security vulnerabilities privately (see [SECURITY.md](SECURITY.md))
 - Follow OWASP security best practices
-
-## Code of Conduct
-
-This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold this code.
 
 ## License
 

@@ -1,26 +1,35 @@
 # Security Policy
 
+## Supported Versions
+
+| Version | Supported |
+|---------|-----------|
+| 1.7.x   | Yes       |
+| < 1.6   | No        |
+
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability, please report it responsibly:
 
-1. **Do NOT open a public issue**
-2. Email: kochj@digitalnoise.net
-3. Include steps to reproduce and impact assessment
+1. **Do NOT open a public GitHub issue**
+2. Email: kochj23 (via GitHub)
+3. Include: description, steps to reproduce, potential impact
 
-## Response Timeline
+We aim to respond within 48 hours and provide a fix within 7 days for critical issues.
 
-- Acknowledgment within 48 hours
-- Status update within 7 days
-- Fix or mitigation plan within 30 days
+## Security Features
 
-## Supported Versions
+- **Shell Command Escaping**: All rsync arguments properly escaped to prevent injection
+- **Plist Injection Prevention**: Schedule/job plist values validated against injection
+- **Input Length Limits**: Path and hostname inputs capped to prevent buffer abuse
+- **Hostname Validation**: RFC-compliant regex validation for all hostnames
+- **Keychain Storage**: Cloud AI API keys stored in macOS Keychain
+- **Thread Safety**: Job execution state managed with proper synchronization
+- **No Sandbox**: App runs without sandbox for full file system access (required for rsync)
 
-Only the latest release is supported with security updates.
+## Best Practices
 
-## Security Best Practices
-
-This project follows security best practices:
-- No hardcoded credentials
-- Dependencies regularly audited
-- MIT License with no warranty
+- Never hardcode credentials or SSH keys
+- Report suspicious behavior immediately
+- Keep dependencies updated
+- Review all code changes for security implications
