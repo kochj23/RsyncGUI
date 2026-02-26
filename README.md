@@ -1,4 +1,4 @@
-# RsyncGUI v1.6.0
+# RsyncGUI v1.7.0
 
 ![Build](https://github.com/kochj23/RsyncGUI/actions/workflows/build.yml/badge.svg)
 
@@ -20,7 +20,7 @@ A modern, open-source alternative to the discontinued [RsyncOSX](https://github.
 
 ## Download
 
-Download the latest release: [RsyncGUI v1.6.0](https://github.com/kochj23/RsyncGUI/releases/latest)
+Download the latest release: [RsyncGUI v1.7.0](https://github.com/kochj23/RsyncGUI/releases/latest)
 
 Or build from source (see below).
 
@@ -37,7 +37,41 @@ If you're coming from RsyncOSX (discontinued), RsyncGUI offers:
 
 ---
 
-## 🆕 What's New in v1.6.0 (February 2026)
+## 🆕 What's New in v1.7.0 (February 2026)
+
+### Security Hardening & Code Quality Audit
+**30 findings resolved across CRITICAL, HIGH, MEDIUM, LOW, and INFO severities:**
+
+**Critical Fixes:**
+- **Command Injection Prevention**: rsync executor now uses direct `Process.arguments` array instead of shell string interpolation, eliminating injection vectors in source/destination paths
+- **XML Injection Prevention**: Schedule plist generation uses `PropertyListSerialization` instead of manual XML string building, preventing injection via job names or paths
+- **Shell Escaping**: Schedule manager properly shell-escapes all rsync arguments with single-quote wrapping for launchd plist commands
+
+**High Fixes:**
+- **Job Import Validation**: Imported jobs are validated for empty/whitespace-only names, sources, and destinations before being accepted
+- **Filter Rule Injection**: Filter patterns reject control characters to prevent rsync argument injection
+- **Main Thread Safety**: rsync version detection moved to async background execution, preventing UI freezes
+- **Input Validation**: Job editor validates source/destination paths before allowing save
+- **Thread Safety**: Reordered process handler cleanup to prevent use-after-nil crashes
+- **SSH Key Path Safety**: SSH command built with array-based construction instead of string interpolation
+- **Audit Logging**: All job mutations (add, update, delete, reorder) logged via NSLog for traceability
+
+**Medium Fixes:**
+- **Resource Cleanup**: Pipe file handles properly closed with `defer` blocks in rsync executor and AI backend
+- **Configurable Paths**: Rsync binary path configurable via Settings instead of hardcoded
+- **Thread Safety**: Widget data sync serialized with dedicated `DispatchQueue` to prevent race conditions
+- **Numeric Validation**: Job editor clamps negative values on numeric fields
+
+**Low & Info Fixes:**
+- Eliminated force unwraps in ExecutionHistory, JobHistoryTabView, and SettingsView with `guard let` patterns
+- Extracted magic numbers to named constants (blob sizes, animation durations, delays)
+- Implemented "Locate" button in AI Insights to reveal files in Finder
+- Moved mid-file `import AppKit` to proper file-level location
+- Documented async bridging pattern for process execution
+
+---
+
+## What's New in v1.6.0 (February 2026)
 
 ### 🔲 macOS Desktop Widget
 **Monitor your backups at a glance from your desktop:**
@@ -215,19 +249,36 @@ Comprehensive rsync option editor with organized tabs:
 
 ## Security
 
+### Command Execution Safety (v1.7.0)
+- **No Shell Interpolation**: rsync commands use `Process.arguments` array, preventing shell injection via paths or filenames
+- **Shell Escaping**: Scheduled commands use proper single-quote escaping (`'\\''` pattern) for all arguments
+- **Filter Sanitization**: Filter patterns reject control characters to prevent rsync argument injection
+- **Input Validation**: Job editor validates source/destination paths; import validates all job fields
+- **Audit Logging**: All job mutations (add, update, delete, reorder) logged via NSLog for traceability
+
 ### Script Execution
 - **Audit Logging**: All user-defined pre/post scripts are logged via NSLog before execution, including the script path (truncated to 200 chars)
 - **Trust Warning**: The job editor displays a prominent warning that scripts run with user privileges
 - **Environment Variables Only**: Scripts receive data via environment variables (JOB_NAME, JOB_STATUS, FILES_TRANSFERRED), not via shell interpolation
 
+### Plist & Schedule Security (v1.7.0)
+- **PropertyListSerialization**: Schedule plists generated using Apple's serialization API, preventing XML injection
+- **Safe Plist Generation**: No user-supplied values interpolated directly into XML strings
+
 ### Credential & SSH Security
 - **Keychain Storage**: SSH credentials stored in macOS Keychain
 - **No Plaintext Secrets**: API keys and passwords never written to disk in plaintext
 - **Sensitive File Detection**: AI Insights scanner warns about credentials, SSH keys, and API keys before syncing
+- **SSH Key Path Safety (v1.7.0)**: SSH commands built with array-based construction instead of string interpolation
 
 ### Network Security
 - **SSH Transport**: Remote syncs use SSH with public key authentication
 - **No Telemetry**: No analytics or usage data transmitted externally
+
+### Thread Safety (v1.7.0)
+- **Widget Data Sync**: Serialized with dedicated `DispatchQueue` to prevent race conditions
+- **Process Handler Cleanup**: Reordered to prevent use-after-nil crashes
+- **Async Version Detection**: rsync version check moved off main thread to prevent UI freezes
 
 ---
 
@@ -465,6 +516,46 @@ node_modules/  # Exclude entire directories
 
 ---
 
+## Version History
+
+### v1.7.0 (February 2026)
+- Comprehensive security audit: 30 findings resolved (3 CRITICAL, 8 HIGH, 5 MEDIUM, 7 LOW, 2 INFO)
+- Command injection prevention with Process.arguments array
+- XML injection prevention with PropertyListSerialization for schedule plists
+- Shell escaping for launchd scheduled commands
+- Job import validation and filter rule sanitization
+- Async rsync version detection (no more UI freezes)
+- Thread-safe widget data sync with serial DispatchQueue
+- Pipe file handle cleanup with defer blocks
+- Force unwrap elimination across history and settings views
+- Implemented "Locate" button for file recovery in AI Insights
+- Named constants for blob sizes, animation durations, delays
+
+### v1.6.0 (February 2026)
+- macOS Desktop Widget (Small, Medium, Large)
+- Backup Health Score visualization
+- Widget auto-refresh and tap-to-open
+
+### v1.5.0 (February 2026)
+- AI-Powered Insights Dashboard (10 features)
+- Multiple sources and destinations (fan-out, fan-in, full mesh)
+- Pre/post script support
+- Parallel execution
+
+### v1.1.0 (January 2026)
+- iCloud Drive integration
+- One-click iCloud destination setup
+- Path validation
+
+### v1.0.0 (January 2026)
+- Initial release
+- Complete rsync option support (100+ options)
+- Automated scheduling via launchd
+- SSH remote support
+- Beautiful progress visualization
+
+---
+
 ## 🔮 Roadmap
 
 ### Completed Features:
@@ -473,6 +564,7 @@ node_modules/  # Exclude entire directories
 - [x] ~~Multi-job parallel execution~~ ✅ v1.5.0
 - [x] ~~Exclude pattern library~~ ✅ v1.5.0 (AI suggestions)
 - [x] ~~AI-powered insights~~ ✅ v1.5.0
+- [x] ~~Security hardening audit~~ ✅ v1.7.0
 
 ### Planned Features:
 - [ ] Job templates library
@@ -537,7 +629,7 @@ If you find RsyncGUI useful, please:
 
 ---
 
-**Last Updated:** February 2, 2026
+**Last Updated:** February 26, 2026
 **Status:** ✅ Production Ready
 
 ---
