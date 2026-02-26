@@ -275,6 +275,9 @@ class RsyncExecutor: ObservableObject {
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
+        defer {
+            pipe.fileHandleForReading.closeFile()
+        }
 
         try process.run()
         process.waitUntilExit()
@@ -497,10 +500,8 @@ class RsyncExecutor: ObservableObject {
                 dataLock.unlock()
 
                 if let output = String(data: dataCopy, encoding: .utf8) {
-                    // Force a string copy to avoid substring memory issues
-                    let outputCopy = String(output)
-                    // Parse progress from output
-                    self.parseProgress(from: outputCopy)
+                    // String(data:encoding:) already returns an owned String
+                    self.parseProgress(from: output)
                 }
             }
 
@@ -599,22 +600,19 @@ class RsyncExecutor: ObservableObject {
         // Format: "  1,234,567  56%  123.45MB/s    0:01:23"
         // Or: "sent 123 bytes  received 456 bytes  789.00 bytes/sec"
 
-        // Force a copy to prevent any reference to the original buffer
-        let outputCopy = String(output)
-        let lines = outputCopy.components(separatedBy: .newlines)
+        let lines = output.components(separatedBy: .newlines)
 
         for line in lines {
-            // Convert Substring to String to prevent memory issues
-            let lineString = String(line)
+            // .components(separatedBy:) already returns [String], no conversion needed
 
             // Parse progress line (with --progress flag)
-            if lineString.contains("%") {
-                parseProgressLine(lineString)
+            if line.contains("%") {
+                parseProgressLine(line)
             }
 
             // Parse file transfer line (with -v flag)
-            if lineString.hasPrefix("sending incremental file list") || lineString.contains("/") {
-                parseFileTransferLine(lineString)
+            if line.hasPrefix("sending incremental file list") || line.contains("/") {
+                parseFileTransferLine(line)
             }
         }
     }
@@ -703,29 +701,26 @@ class RsyncExecutor: ObservableObject {
         var filesTransferred = 0
         var bytesTransferred: Int64 = 0
 
-        // Force copy to prevent substring reference issues
-        let outputCopy = String(output)
-        let lines = outputCopy.components(separatedBy: .newlines)
+        let lines = output.components(separatedBy: .newlines)
 
         for line in lines {
-            // Convert Substring to String for safety
-            let lineString = String(line)
+            // .components(separatedBy:) already returns [String], no conversion needed
 
             // Parse "Number of files transferred: 123"
-            if lineString.contains("Number of files transferred:") {
-                let components = lineString.components(separatedBy: ":")
+            if line.contains("Number of files transferred:") {
+                let components = line.components(separatedBy: ":")
                 if components.count >= 2 {
-                    let valueString = String(components[1]).trimmingCharacters(in: .whitespaces)
+                    let valueString = components[1].trimmingCharacters(in: .whitespaces)
                     let numberPart = valueString.components(separatedBy: .whitespaces).first ?? "0"
-                    filesTransferred = Int(String(numberPart)) ?? 0
+                    filesTransferred = Int(numberPart) ?? 0
                 }
             }
 
             // Parse "Total transferred file size: 123,456 bytes"
-            if lineString.contains("Total transferred file size:") {
-                let components = lineString.components(separatedBy: ":")
+            if line.contains("Total transferred file size:") {
+                let components = line.components(separatedBy: ":")
                 if components.count >= 2 {
-                    let sizeString = String(components[1]).trimmingCharacters(in: .whitespaces)
+                    let sizeString = components[1].trimmingCharacters(in: .whitespaces)
                     bytesTransferred = parseBytes(sizeString)
                 }
             }

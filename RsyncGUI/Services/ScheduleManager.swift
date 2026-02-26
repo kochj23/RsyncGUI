@@ -127,7 +127,8 @@ class ScheduleManager {
     }
 
     private func buildRsyncCommand(for job: SyncJob) -> String {
-        var args = ["/usr/bin/rsync"]
+        let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
+        var args = [rsyncPath]
 
         // Add options
         args.append(contentsOf: job.options.toArguments())

@@ -225,6 +225,9 @@ class AIBackendManager: ObservableObject {
         let pipe = Pipe()
         task.standardOutput = pipe
         task.standardError = pipe
+        defer {
+            pipe.fileHandleForReading.closeFile()
+        }
         do {
             try task.run()
             task.waitUntilExit()
@@ -304,6 +307,9 @@ class AIBackendManager: ObservableObject {
         task.arguments = [tempFile.path]
         let outputPipe = Pipe()
         task.standardOutput = outputPipe
+        defer {
+            outputPipe.fileHandleForReading.closeFile()
+        }
         try task.run()
         task.waitUntilExit()
 

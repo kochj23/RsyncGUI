@@ -577,6 +577,9 @@ struct JobEditorView: View {
                             TextField("Unlimited", value: $job.options.maxDelete, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 100)
+                                .onChange(of: job.options.maxDelete) { newValue in
+                                    if let val = newValue, val < 0 { job.options.maxDelete = nil }
+                                }
                         }
                     }
                     .padding(.leading, 20)
@@ -641,6 +644,9 @@ struct JobEditorView: View {
                     TextField("Auto", value: $job.options.modifyWindow, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 100)
+                        .onChange(of: job.options.modifyWindow) { newValue in
+                            if let val = newValue, val < 0 { job.options.modifyWindow = nil }
+                        }
                 }
             }
         }
@@ -759,6 +765,9 @@ struct JobEditorView: View {
                     TextField("Unlimited", value: $job.options.bandwidth, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
+                        .onChange(of: job.options.bandwidth) { newValue in
+                            if let val = newValue, val < 0 { job.options.bandwidth = nil }
+                        }
                 }
 
                 HStack {
@@ -766,6 +775,9 @@ struct JobEditorView: View {
                     TextField("Default", value: $job.options.timeout, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
+                        .onChange(of: job.options.timeout) { newValue in
+                            if let val = newValue, val < 0 { job.options.timeout = nil }
+                        }
                 }
 
                 HStack {
@@ -773,6 +785,9 @@ struct JobEditorView: View {
                     TextField("Auto", value: $job.options.blockSize, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
+                        .onChange(of: job.options.blockSize) { newValue in
+                            if let val = newValue, val < 0 { job.options.blockSize = nil }
+                        }
                 }
 
                 Toggle("Copy files whole, no delta (-W)", isOn: $job.options.wholeFile)
@@ -1315,12 +1330,13 @@ struct JobEditorView: View {
             checks.append(sshResult)
         }
 
-        // 4. Check rsync is installed
-        let rsyncExists = FileManager.default.fileExists(atPath: "/usr/bin/rsync")
+        // 4. Check rsync is installed (use user-configured path)
+        let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
+        let rsyncExists = FileManager.default.fileExists(atPath: rsyncPath)
         checks.append(ConnectionCheck(
             name: "rsync Binary",
             passed: rsyncExists,
-            message: rsyncExists ? "✅ /usr/bin/rsync" : "❌ rsync not found at /usr/bin/rsync"
+            message: rsyncExists ? "rsync found at \(rsyncPath)" : "rsync not found at \(rsyncPath)"
         ))
 
         let allPassed = checks.allSatisfy { $0.passed }

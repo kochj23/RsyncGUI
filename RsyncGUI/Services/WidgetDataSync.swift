@@ -73,6 +73,9 @@ struct WidgetRecentSync: Codable, Identifiable {
 class WidgetDataSyncService {
     static let shared = WidgetDataSyncService()
 
+    /// Serial queue to prevent concurrent saves from racing
+    private let saveQueue = DispatchQueue(label: "com.jkoch.rsyncgui.widgetDataSync")
+
     /// Shared container URL - uses Application Support for non-sandboxed apps
     /// Falls back to App Group container if available
     private var containerURL: URL? {
@@ -96,54 +99,58 @@ class WidgetDataSyncService {
 
     // MARK: - Load Data
 
-    /// Load current widget data from shared container
+    /// Load current widget data from shared container (serialized to prevent race conditions)
     private func loadWidgetData() -> WidgetSyncData {
-        guard let url = dataFileURL else {
-            print("[WidgetSync] Failed to get container URL for app group: \(appGroupIdentifier)")
-            return WidgetSyncData()
-        }
+        return saveQueue.sync {
+            guard let url = dataFileURL else {
+                print("[WidgetSync] Failed to get container URL for app group: \(appGroupIdentifier)")
+                return WidgetSyncData()
+            }
 
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            return WidgetSyncData()
-        }
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                return WidgetSyncData()
+            }
 
-        do {
-            let data = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode(WidgetSyncData.self, from: data)
-        } catch {
-            print("[WidgetSync] Failed to load widget data: \(error)")
-            return WidgetSyncData()
+            do {
+                let data = try Data(contentsOf: url)
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                return try decoder.decode(WidgetSyncData.self, from: data)
+            } catch {
+                print("[WidgetSync] Failed to load widget data: \(error)")
+                return WidgetSyncData()
+            }
         }
     }
 
     // MARK: - Save Data
 
-    /// Save widget data to shared container
+    /// Save widget data to shared container (serialized to prevent race conditions)
     private func saveWidgetData(_ widgetData: WidgetSyncData) {
-        guard let url = dataFileURL else {
-            print("[WidgetSync] Failed to get container URL for app group: \(appGroupIdentifier)")
-            return
-        }
+        saveQueue.sync {
+            guard let url = dataFileURL else {
+                print("[WidgetSync] Failed to get container URL for app group: \(appGroupIdentifier)")
+                return
+            }
 
-        // Ensure container directory exists
-        if let containerURL = containerURL {
-            try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
-        }
+            // Ensure container directory exists
+            if let containerURL = containerURL {
+                try? FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+            }
 
-        do {
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .iso8601
-            encoder.outputFormatting = .prettyPrinted
-            let data = try encoder.encode(widgetData)
-            try data.write(to: url, options: .atomic)
-            print("[WidgetSync] Successfully saved widget data")
+            do {
+                let encoder = JSONEncoder()
+                encoder.dateEncodingStrategy = .iso8601
+                encoder.outputFormatting = .prettyPrinted
+                let data = try encoder.encode(widgetData)
+                try data.write(to: url, options: .atomic)
+                print("[WidgetSync] Successfully saved widget data")
 
-            // Reload widget timelines
-            WidgetCenter.shared.reloadTimelines(ofKind: "RsyncGUIWidget")
-        } catch {
-            print("[WidgetSync] Failed to save widget data: \(error)")
+                // Reload widget timelines
+                WidgetCenter.shared.reloadTimelines(ofKind: "RsyncGUIWidget")
+            } catch {
+                print("[WidgetSync] Failed to save widget data: \(error)")
+            }
         }
     }
 
