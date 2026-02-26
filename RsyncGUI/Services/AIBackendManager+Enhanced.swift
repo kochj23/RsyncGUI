@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import UserNotifications
 #if os(macOS)
 import AppKit
 #endif
@@ -70,10 +71,10 @@ extension AIBackendManager {
             backends.append(active)
         }
 
-        // Add other available backends in priority order
+        // Add other available backends in priority order (local first, cloud last)
         let priorityOrder: [AIBackend] = [
-            .ollama, .openAI, .tinyChat, .tinyLLM, .openWebUI,
-            .googleCloud, .azureCognitive, .ibmWatson, .mlx, .awsAI
+            .ollama, .tinyChat, .tinyLLM, .openWebUI, .mlx,
+            .openAI, .googleCloud, .azureCognitive, .awsAI, .ibmWatson
         ]
 
         for backend in priorityOrder where !backends.contains(backend) && isBackendAvailable(backend) {
@@ -95,12 +96,11 @@ extension AIBackendManager {
         case .azureCognitive: return isAzureAvailable
         case .awsAI: return isAWSAvailable
         case .ibmWatson: return isIBMWatsonAvailable
+        case .auto: return false
         }
     }
 
     // MARK: - Connection Testing
-
-    @Published var connectionTestResults: [AIBackend: ConnectionTestResult] = [:]
 
     struct ConnectionTestResult {
         let success: Bool
@@ -167,8 +167,6 @@ extension AIBackendManager {
 
     // MARK: - Usage Tracking
 
-    @Published var usageStats: [AIBackend: UsageStats] = [:]
-
     struct UsageStats: Codable {
         var totalTokens: Int = 0
         var totalRequests: Int = 0
@@ -208,7 +206,7 @@ extension AIBackendManager {
             case .azureCognitive: return 10.0
             case .awsAI: return 8.0
             case .ibmWatson: return 12.0
-            case .ollama, .mlx, .tinyLLM, .tinyChat, .openWebUI: return 0.0 // Free/local
+            case .ollama, .mlx, .tinyLLM, .tinyChat, .openWebUI, .auto: return 0.0 // Free/local
             }
         }()
 
@@ -230,8 +228,6 @@ extension AIBackendManager {
     }
 
     // MARK: - Performance Metrics
-
-    @Published var performanceMetrics: [AIBackend: PerformanceMetrics] = [:]
 
     struct PerformanceMetrics {
         var averageLatency: TimeInterval = 0.0
@@ -282,22 +278,28 @@ extension AIBackendManager {
     // MARK: - Notification System
 
     private func sendNotification(title: String, message: String) {
-        // For macOS, use NSUserNotification or UNUserNotificationCenter
-        // This is a simplified version
         #if os(macOS)
-        let notification = NSUserNotification()
-        notification.title = title
-        notification.informativeText = message
-        notification.soundName = NSUserNotificationDefaultSoundName
-        NSUserNotificationCenter.default.deliver(notification)
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = message
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                NSLog("[AIBackendManager] Failed to deliver notification: %@", error.localizedDescription)
+            }
+        }
         #endif
 
-        print("📢 \(title): \(message)")
+        NSLog("[AIBackendManager] %@: %@", title, message)
     }
 
     // MARK: - Background Monitoring
-
-    private var monitoringTimer: Timer?
 
     func startBackgroundMonitoring(interval: TimeInterval = 60.0) {
         stopBackgroundMonitoring()

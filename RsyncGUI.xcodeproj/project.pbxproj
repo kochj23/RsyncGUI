@@ -13,7 +13,6 @@
 		1E4F73C26D4A268D3D14C625 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 474C574974A0174A24BE137E /* Assets.xcassets */; };
 		21C7A54F29AFE39FC9E322A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE96445DCFA962CFEDC89752 /* SettingsView.swift */; };
 		2899CD054C674179B69E26C5 /* DeltaReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */; };
-		2B5152DFEBDFCC0DB9297AD8 /* AIBackendManager+Generation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD38DB4D58D8BCBDCB8C3571 /* AIBackendManager+Generation.swift */; };
 		32BF2466EA616BF63BF798D7 /* ConnectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB5A4475246EFD82B180AB5 /* ConnectionTest.swift */; };
 		408EF7ED937BB7A1B936420C /* RsyncOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */; };
 		40C92BF2B05D618ED2249847 /* TestProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */; };
@@ -98,7 +97,6 @@
 		C0524EE8D6032F69C5D3B81B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = RsyncGUI/Info.plist; sourceTree = "<group>"; };
 		C1300EC32CF13FEAF866BEB8 /* AdvancedExecutionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedExecutionService.swift; path = RsyncGUI/Services/AdvancedExecutionService.swift; sourceTree = "<group>"; };
 		D18D90307EA5D1AAE8FC075E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		DD38DB4D58D8BCBDCB8C3571 /* AIBackendManager+Generation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "AIBackendManager+Generation.swift"; path = "RsyncGUI/Services/AIBackendManager+Generation.swift"; sourceTree = "<group>"; };
 		EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobDetailView.swift; path = RsyncGUI/Views/JobDetailView.swift; sourceTree = "<group>"; };
 		EE96445DCFA962CFEDC89752 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = RsyncGUI/Views/SettingsView.swift; sourceTree = "<group>"; };
 		F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RsyncGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -152,7 +150,6 @@
 		3CBDD4BB9DBB3B7410411DEA /* AIBackend */ = {
 			isa = PBXGroup;
 			children = (
-				DD38DB4D58D8BCBDCB8C3571 /* AIBackendManager+Generation.swift */,
 				A65F21CD34865F6C33A60947 /* AIBackendManager+Enhanced.swift */,
 				525652212BC206EFC0413518 /* AIBackendStatusMenu.swift */,
 			);
@@ -401,7 +398,6 @@
 				9CBB5767AE7FECE6D6F329BB /* MenuBarManager.swift in Sources */,
 				94678A6B39B29BE9B0DB924D /* ModernDesign.swift in Sources */,
 				W1DGETDATASYNC1BLDFILE12 /* WidgetDataSync.swift in Sources */,
-				2B5152DFEBDFCC0DB9297AD8 /* AIBackendManager+Generation.swift in Sources */,
 				445A92C3E85B0445DD3CE0F5 /* AIBackendManager+Enhanced.swift in Sources */,
 				A39615CCF66F3666DDCE7573 /* AIBackendStatusMenu.swift in Sources */,
 			);
@@ -599,7 +595,7 @@
 				CODE_SIGN_ENTITLEMENTS = "RsyncGUI Widget/RsyncGUI_Widget.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RsyncGUI Widget/Info.plist";
@@ -611,7 +607,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -629,7 +625,7 @@
 				CODE_SIGN_ENTITLEMENTS = "RsyncGUI Widget/RsyncGUI_Widget.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RsyncGUI Widget/Info.plist";
@@ -641,7 +637,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

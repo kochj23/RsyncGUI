@@ -54,7 +54,7 @@ struct AIBackendStatusMenu: View {
                 .fill(Color.secondary.opacity(0.1))
         )
         .sheet(isPresented: $showSettings) {
-            AIBackendSelectionView()
+            AISettingsView()
         }
     }
 
@@ -122,7 +122,7 @@ struct AIBackendStatusMenu: View {
 
     private var backendSelector: some View {
         Menu {
-            ForEach(AIBackendManager.AIBackend.allCases, id: \.self) { backend in
+            ForEach(AIBackend.allCases, id: \.self) { backend in
                 Button(action: {
                     manager.activeBackend = backend
                     manager.saveConfiguration()
@@ -235,22 +235,11 @@ struct AIBackendStatusMenu: View {
 
     // MARK: - Helper Functions
 
-    private func backendIcon(_ backend: AIBackendManager.AIBackend) -> String {
-        switch backend {
-        case .ollama: return "network"
-        case .mlx: return "cpu"
-        case .tinyLLM: return "cube"
-        case .tinyChat: return "bubble.left.and.bubble.right.fill"
-        case .openWebUI: return "globe"
-        case .openAI: return "brain"
-        case .googleCloud: return "cloud"
-        case .azureCognitive: return "cloud.fill"
-        case .awsAI: return "server.rack"
-        case .ibmWatson: return "atom"
-        }
+    private func backendIcon(_ backend: AIBackend) -> String {
+        backend.icon
     }
 
-    private func isBackendAvailable(_ backend: AIBackendManager.AIBackend) -> Bool {
+    private func isBackendAvailable(_ backend: AIBackend) -> Bool {
         switch backend {
         case .ollama: return manager.isOllamaAvailable
         case .mlx: return manager.isMLXAvailable
@@ -262,12 +251,13 @@ struct AIBackendStatusMenu: View {
         case .azureCognitive: return manager.isAzureAvailable
         case .awsAI: return manager.isAWSAvailable
         case .ibmWatson: return manager.isIBMWatsonAvailable
+        case .auto: return false
         }
     }
 
-    private func isBackendConfigured(_ backend: AIBackendManager.AIBackend) -> Bool {
+    private func isBackendConfigured(_ backend: AIBackend) -> Bool {
         switch backend {
-        case .ollama, .mlx, .tinyLLM, .tinyChat, .openWebUI:
+        case .ollama, .mlx, .tinyLLM, .tinyChat, .openWebUI, .auto:
             return true // Local backends don't need configuration
         case .openAI: return !manager.openAIAPIKey.isEmpty
         case .googleCloud: return !manager.googleCloudAPIKey.isEmpty
@@ -279,7 +269,10 @@ struct AIBackendStatusMenu: View {
 
     private func truncateModelName(_ name: String) -> String {
         let parts = name.split(separator: ":")
-        return String(parts.first ?? name)
+        if let first = parts.first {
+            return String(first)
+        }
+        return name
     }
 }
 

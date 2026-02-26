@@ -30,6 +30,12 @@ enum AIBackend: String, Codable, CaseIterable {
     case mlx = "MLX Toolkit"
     case tinyLLM = "TinyLLM"
     case tinyChat = "TinyChat"
+    case openWebUI = "Open WebUI"
+    case openAI = "OpenAI"
+    case googleCloud = "Google Cloud"
+    case azureCognitive = "Azure Cognitive"
+    case awsAI = "AWS AI"
+    case ibmWatson = "IBM Watson"
     case auto = "Auto (Prefer Local)"
 
     var icon: String {
@@ -38,6 +44,12 @@ enum AIBackend: String, Codable, CaseIterable {
         case .mlx: return "cpu"
         case .tinyLLM: return "cube"
         case .tinyChat: return "bubble.left.and.bubble.right.fill"
+        case .openWebUI: return "globe"
+        case .openAI: return "brain"
+        case .googleCloud: return "cloud"
+        case .azureCognitive: return "cloud.fill"
+        case .awsAI: return "server.rack"
+        case .ibmWatson: return "atom"
         case .auto: return "sparkles"
         }
     }
@@ -52,6 +64,18 @@ enum AIBackend: String, Codable, CaseIterable {
             return "TinyLLM by Jason Cox - Lightweight LLM server"
         case .tinyChat:
             return "TinyChat by Jason Cox - Fast chatbot interface"
+        case .openWebUI:
+            return "Open WebUI - Self-hosted web interface for LLMs"
+        case .openAI:
+            return "OpenAI API (GPT-4o) - Cloud-based"
+        case .googleCloud:
+            return "Google Cloud AI - Cloud-based"
+        case .azureCognitive:
+            return "Azure Cognitive Services - Cloud-based"
+        case .awsAI:
+            return "AWS AI Services - Cloud-based"
+        case .ibmWatson:
+            return "IBM Watson - Cloud-based"
         case .auto:
             return "Automatically select best available backend"
         }
@@ -83,6 +107,12 @@ class AIBackendManager: ObservableObject {
     @Published var isMLXAvailable = false
     @Published var isTinyLLMAvailable = false
     @Published var isTinyChatAvailable = false
+    @Published var isOpenWebUIAvailable = false
+    @Published var isOpenAIAvailable = false
+    @Published var isGoogleCloudAvailable = false
+    @Published var isAzureAvailable = false
+    @Published var isAWSAvailable = false
+    @Published var isIBMWatsonAvailable = false
     @Published var isProcessing = false
     @Published var lastError: String? = nil
     @Published var aiEnabled = true
@@ -91,11 +121,25 @@ class AIBackendManager: ObservableObject {
     @Published var ollamaURL: String = "http://localhost:11434"
     @Published var tinyLLMServerURL: String = "http://localhost:8000"
     @Published var tinyChatServerURL: String = "http://localhost:8000"
+    @Published var openWebUIServerURL: String = "http://localhost:3000"
     @Published var pythonPath: String = "/opt/homebrew/bin/python3"
+
+    // Cloud API keys (stored in Keychain in production; placeholders for availability checks)
+    @Published var openAIAPIKey: String = ""
+    @Published var googleCloudAPIKey: String = ""
+    @Published var azureAPIKey: String = ""
+    @Published var awsAccessKey: String = ""
+    @Published var ibmWatsonAPIKey: String = ""
 
     // Ollama model selection
     @Published var ollamaModels: [String] = []
     @Published var selectedOllamaModel: String = "llama3.2"
+
+    // Enhanced extension properties (stored here since extensions cannot have stored properties)
+    @Published var connectionTestResults: [AIBackend: ConnectionTestResult] = [:]
+    @Published var usageStats: [AIBackend: UsageStats] = [:]
+    @Published var performanceMetrics: [AIBackend: PerformanceMetrics] = [:]
+    var monitoringTimer: Timer?
 
     private let userDefaults = UserDefaults.standard
 
@@ -145,15 +189,34 @@ class AIBackendManager: ObservableObject {
         async let mlxCheck = checkMLXAvailability()
         async let tinyLLMCheck = checkTinyLLMAvailability()
         async let tinyChatCheck = checkTinyChatAvailability()
+        async let openWebUICheck = checkOpenWebUIAvailability()
 
-        let (ollama, mlx, tinyLLM, tinyChat) = await (ollamaCheck, mlxCheck, tinyLLMCheck, tinyChatCheck)
+        let (ollama, mlx, tinyLLM, tinyChat, openWebUI) = await (ollamaCheck, mlxCheck, tinyLLMCheck, tinyChatCheck, openWebUICheck)
 
         isOllamaAvailable = ollama
         isMLXAvailable = mlx
         isTinyLLMAvailable = tinyLLM
         isTinyChatAvailable = tinyChat
+        isOpenWebUIAvailable = openWebUI
+
+        // Cloud backends are available if API keys are configured
+        isOpenAIAvailable = !openAIAPIKey.isEmpty
+        isGoogleCloudAvailable = !googleCloudAPIKey.isEmpty
+        isAzureAvailable = !azureAPIKey.isEmpty
+        isAWSAvailable = !awsAccessKey.isEmpty
+        isIBMWatsonAvailable = !ibmWatsonAPIKey.isEmpty
 
         determineActiveBackend()
+    }
+
+    /// Alias used by AIBackendStatusMenu and Enhanced extension
+    func refreshAllBackends() async {
+        await checkBackendAvailability()
+    }
+
+    /// Alias used by AIBackendStatusMenu
+    func saveConfiguration() {
+        saveSettings()
     }
 
     private func determineActiveBackend() {
@@ -166,6 +229,18 @@ class AIBackendManager: ObservableObject {
             activeBackend = isTinyLLMAvailable ? .tinyLLM : nil
         case .tinyChat:
             activeBackend = isTinyChatAvailable ? .tinyChat : nil
+        case .openWebUI:
+            activeBackend = isOpenWebUIAvailable ? .openWebUI : nil
+        case .openAI:
+            activeBackend = isOpenAIAvailable ? .openAI : nil
+        case .googleCloud:
+            activeBackend = isGoogleCloudAvailable ? .googleCloud : nil
+        case .azureCognitive:
+            activeBackend = isAzureAvailable ? .azureCognitive : nil
+        case .awsAI:
+            activeBackend = isAWSAvailable ? .awsAI : nil
+        case .ibmWatson:
+            activeBackend = isIBMWatsonAvailable ? .ibmWatson : nil
         case .auto:
             if isOllamaAvailable {
                 activeBackend = .ollama
@@ -173,6 +248,8 @@ class AIBackendManager: ObservableObject {
                 activeBackend = .tinyChat
             } else if isTinyLLMAvailable {
                 activeBackend = .tinyLLM
+            } else if isOpenWebUIAvailable {
+                activeBackend = .openWebUI
             } else if isMLXAvailable {
                 activeBackend = .mlx
             } else {
@@ -218,6 +295,16 @@ class AIBackendManager: ObservableObject {
         }
     }
 
+    private func checkOpenWebUIAvailability() async -> Bool {
+        guard let url = URL(string: "\(openWebUIServerURL)/") else { return false }
+        do {
+            let (_, response) = try await URLSession.shared.data(from: url)
+            return (response as? HTTPURLResponse)?.statusCode == 200
+        } catch {
+            return false
+        }
+    }
+
     private func checkMLXAvailability() async -> Bool {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: pythonPath)
@@ -254,6 +341,10 @@ class AIBackendManager: ObservableObject {
             return try await generateWithTinyLLM(prompt: prompt, systemPrompt: systemPrompt, temperature: temperature, maxTokens: maxTokens)
         case .tinyChat:
             return try await generateWithTinyChat(prompt: prompt, systemPrompt: systemPrompt, temperature: temperature, maxTokens: maxTokens)
+        case .openWebUI:
+            return try await generateWithOpenWebUI(prompt: prompt, systemPrompt: systemPrompt, temperature: temperature)
+        case .openAI, .googleCloud, .azureCognitive, .awsAI, .ibmWatson:
+            throw AIBackendError.invalidConfiguration // Cloud providers not yet implemented
         case .auto:
             throw AIBackendError.invalidState
         }
@@ -390,6 +481,48 @@ class AIBackendManager: ObservableObject {
         let response = try JSONDecoder().decode(Response.self, from: data)
         return response.choices.first?.message.content ?? ""
     }
+
+    // Open WebUI - self-hosted LLM web interface
+    private func generateWithOpenWebUI(prompt: String, systemPrompt: String?, temperature: Float) async throws -> String {
+        guard let url = URL(string: "\(openWebUIServerURL)/api/chat") else {
+            throw AIBackendError.invalidConfiguration
+        }
+
+        var messages: [[String: String]] = []
+        if let systemPrompt = systemPrompt {
+            messages.append(["role": "system", "content": systemPrompt])
+        }
+        messages.append(["role": "user", "content": prompt])
+
+        let requestBody: [String: Any] = [
+            "model": selectedOllamaModel,
+            "messages": messages,
+            "temperature": temperature
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        request.timeoutInterval = 60.0
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw AIBackendError.invalidConfiguration
+        }
+
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let message = json["message"] as? [String: Any],
+           let content = message["content"] as? String {
+            return content
+        }
+
+        throw AIBackendError.invalidState
+    }
+
+    /// Alias for ollamaURL (used by some extension files)
+    var ollamaServerURL: String { ollamaURL }
 
     // MARK: - RsyncGUI-Specific AI Features
 
