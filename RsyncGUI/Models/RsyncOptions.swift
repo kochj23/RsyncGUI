@@ -158,6 +158,23 @@ struct RsyncOptions: Codable {
 
     // MARK: - Helper Methods
 
+    /// Sanitize a filter/exclude/include pattern by rejecting control characters.
+    /// Returns the pattern if valid, or nil if it contains control characters (including null bytes).
+    private static func sanitizeFilterPattern(_ pattern: String) -> String? {
+        for scalar in pattern.unicodeScalars {
+            // Reject null bytes and other C0/C1 control characters (except tab, which is harmless)
+            if scalar.value < 0x20 && scalar != "\t" {
+                NSLog("[RsyncOptions] Rejected filter pattern containing control character (U+%04X): %@", scalar.value, pattern.prefix(100).description)
+                return nil
+            }
+            if scalar.value == 0x7F { // DEL
+                NSLog("[RsyncOptions] Rejected filter pattern containing DEL character: %@", pattern.prefix(100).description)
+                return nil
+            }
+        }
+        return pattern
+    }
+
     /// Generate rsync command line arguments from options
     func toArguments() -> [String] {
         var args: [String] = []
@@ -217,22 +234,28 @@ struct RsyncOptions: Codable {
         if preserveXattrs { args.append("-X") }
         if preserveExecutability { args.append("-E") }
 
-        // Filters
+        // Filters (sanitized to reject control characters)
         for pattern in exclude {
-            args.append("--exclude=\(pattern)")
+            if let sanitized = RsyncOptions.sanitizeFilterPattern(pattern) {
+                args.append("--exclude=\(sanitized)")
+            }
         }
         if let excludeFile = excludeFrom {
             args.append("--exclude-from=\(excludeFile)")
         }
         for pattern in include {
-            args.append("--include=\(pattern)")
+            if let sanitized = RsyncOptions.sanitizeFilterPattern(pattern) {
+                args.append("--include=\(sanitized)")
+            }
         }
         if let includeFile = includeFrom {
             args.append("--include-from=\(includeFile)")
         }
         if cvsExclude { args.append("-C") }
         for rule in filterRules {
-            args.append("--filter=\(rule)")
+            if let sanitized = RsyncOptions.sanitizeFilterPattern(rule) {
+                args.append("--filter=\(sanitized)")
+            }
         }
 
         // Comparison

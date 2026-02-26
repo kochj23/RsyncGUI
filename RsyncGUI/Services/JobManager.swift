@@ -26,7 +26,11 @@ class JobManager: ObservableObject {
         storageURL = appSupport.appendingPathComponent("RsyncGUI", isDirectory: true)
 
         // Create directory if needed
-        try? fileManager.createDirectory(at: storageURL, withIntermediateDirectories: true)
+        do {
+            try fileManager.createDirectory(at: storageURL, withIntermediateDirectories: true)
+        } catch {
+            NSLog("[JobManager] Failed to create storage directory at %@: %@", storageURL.path, error.localizedDescription)
+        }
 
         // Load saved jobs
         loadJobs()
@@ -43,17 +47,20 @@ class JobManager: ObservableObject {
         jobs.append(newJob)
         selectedJob = newJob
         isCreatingNewJob = true
+        NSLog("[JobManager] AUDIT: Created new job '%@' (id: %@)", newJob.name, newJob.id.uuidString)
         saveJobs()
     }
 
     func updateJob(_ job: SyncJob) {
         if let index = jobs.firstIndex(where: { $0.id == job.id }) {
+            NSLog("[JobManager] AUDIT: Updated job '%@' (id: %@), sources: %d, destinations: %d", job.name, job.id.uuidString, job.sources.count, job.destinations.count)
             jobs[index] = job
             saveJobs()
         }
     }
 
     func deleteJob(_ job: SyncJob) {
+        NSLog("[JobManager] AUDIT: Deleted job '%@' (id: %@)", job.name, job.id.uuidString)
         jobs.removeAll { $0.id == job.id }
         if selectedJob?.id == job.id {
             selectedJob = nil
@@ -65,6 +72,7 @@ class JobManager: ObservableObject {
     }
 
     func addJob(_ job: SyncJob) {
+        NSLog("[JobManager] AUDIT: Added job '%@' (id: %@), sources: %d, destinations: %d", job.name, job.id.uuidString, job.sources.count, job.destinations.count)
         jobs.append(job)
         saveJobs()
     }
@@ -79,6 +87,7 @@ class JobManager: ObservableObject {
         duplicate.totalRuns = 0
         duplicate.successfulRuns = 0
         duplicate.failedRuns = 0
+        NSLog("[JobManager] AUDIT: Duplicated job '%@' (id: %@) as '%@' (new id: %@)", job.name, job.id.uuidString, duplicate.name, duplicate.id.uuidString)
         jobs.append(duplicate)
         saveJobs()
     }
@@ -145,7 +154,11 @@ class JobManager: ObservableObject {
             return
         }
 
-        try? data.write(to: jobsFile, options: .atomic)
+        do {
+            try data.write(to: jobsFile, options: .atomic)
+        } catch {
+            NSLog("[JobManager] Failed to write jobs to %@: %@", jobsFile.path, error.localizedDescription)
+        }
 
         // Sync updated job data to widget
         Task { @MainActor in

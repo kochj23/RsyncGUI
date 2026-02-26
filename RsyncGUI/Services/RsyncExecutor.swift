@@ -397,13 +397,14 @@ class RsyncExecutor: ObservableObject {
 
         // Handle remote SSH connections
         if dest.type == .remoteSSH, let host = dest.remoteHost, let user = dest.remoteUser {
-            // SSH options
-            var sshCommand = "ssh"
-            if let keyPath = dest.sshKeyPath {
-                sshCommand += " -i \(keyPath)"
+            // SSH options - build as array components to avoid shell injection via key path
+            var sshComponents = ["ssh"]
+            if let keyPath = dest.sshKeyPath, !keyPath.isEmpty {
+                sshComponents.append("-i")
+                sshComponents.append(keyPath)
             }
             args.append("-e")
-            args.append(sshCommand)
+            args.append(sshComponents.joined(separator: " "))
 
             // Add all sources (rsync supports multiple sources)
             for source in job.sources where !source.isEmpty {
@@ -539,12 +540,13 @@ class RsyncExecutor: ObservableObject {
                 isTerminating = true
                 dataLock.unlock()
 
-                // Wait for any in-progress handlers to complete (with timeout)
-                _ = handlerGroup.wait(timeout: .now() + 2.0)
-
-                // Now safe to nil out the handlers
+                // Nil out handlers first to prevent new callbacks from being dispatched,
+                // then wait for any already in-flight handler invocations to complete.
                 outputPipe.fileHandleForReading.readabilityHandler = nil
                 errorPipe.fileHandleForReading.readabilityHandler = nil
+
+                // Wait for any in-progress handlers to complete (with timeout)
+                _ = handlerGroup.wait(timeout: .now() + 2.0)
 
                 mutableResult.endTime = Date()
 

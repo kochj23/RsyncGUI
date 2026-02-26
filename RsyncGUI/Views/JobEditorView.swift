@@ -1194,12 +1194,19 @@ struct JobEditorView: View {
             }
             .buttonStyle(.bordered)
 
+            if let message = validationMessage {
+                Text(message)
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+
             Spacer()
 
             Button("Dry Run") {
                 saveAndDryRun()
             }
             .buttonStyle(.bordered)
+            .disabled(!isValid)
 
             Button("Save") {
                 saveJob()
@@ -1207,9 +1214,44 @@ struct JobEditorView: View {
             }
             .buttonStyle(.borderedProminent)
             .keyboardShortcut(.defaultAction)
+            .disabled(!isValid)
         }
         .padding()
         .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    // MARK: - Validation
+
+    /// Validates the job has reasonable, non-empty inputs before saving.
+    private var isValid: Bool {
+        // Job name must not be empty or whitespace-only
+        guard !job.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+
+        // At least one non-empty source path
+        let validSources = job.sources.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard !validSources.isEmpty else { return false }
+
+        // At least one destination with a non-empty path
+        let validDestinations = job.destinations.filter { !$0.path.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard !validDestinations.isEmpty else { return false }
+
+        return true
+    }
+
+    /// Human-readable validation error message, or nil if valid.
+    private var validationMessage: String? {
+        if job.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Job name cannot be empty"
+        }
+        let validSources = job.sources.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        if validSources.isEmpty {
+            return "At least one source path is required"
+        }
+        let validDestinations = job.destinations.filter { !$0.path.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        if validDestinations.isEmpty {
+            return "At least one destination path is required"
+        }
+        return nil
     }
 
     // MARK: - Actions

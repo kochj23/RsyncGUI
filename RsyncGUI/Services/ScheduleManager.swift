@@ -19,7 +19,11 @@ class ScheduleManager {
 
     private init() {
         // Ensure LaunchAgents directory exists
-        try? fileManager.createDirectory(at: launchAgentsDir, withIntermediateDirectories: true)
+        do {
+            try fileManager.createDirectory(at: launchAgentsDir, withIntermediateDirectories: true)
+        } catch {
+            NSLog("[ScheduleManager] Failed to create LaunchAgents directory at %@: %@", launchAgentsDir.path, error.localizedDescription)
+        }
     }
 
     // MARK: - Schedule Management
@@ -56,8 +60,12 @@ class ScheduleManager {
         unloadSchedule(plistURL: plistURL)
 
         // Remove plist file
-        try? fileManager.removeItem(at: plistURL)
-        print("✅ Removed launchd plist: \(plistURL.path)")
+        do {
+            try fileManager.removeItem(at: plistURL)
+            NSLog("[ScheduleManager] Removed launchd plist: %@", plistURL.path)
+        } catch {
+            NSLog("[ScheduleManager] Failed to remove launchd plist at %@: %@", plistURL.path, error.localizedDescription)
+        }
     }
 
     func updateSchedule(for job: SyncJob) {
