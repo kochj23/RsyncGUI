@@ -41,117 +41,61 @@ enum ScheduleFrequency: String, Codable, CaseIterable {
 
 /// Extension for launchd plist generation
 extension ScheduleConfig {
-    /// Generate launchd plist configuration
+    /// Generate launchd plist configuration using PropertyListSerialization
+    /// to prevent XML injection from user-supplied values.
     func toLaunchdPlist(jobId: String, rsyncCommand: String) -> String {
-        var plist = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>com.jordankoch.rsyncgui.\(jobId)</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>/bin/sh</string>
-                <string>-c</string>
-                <string>\(rsyncCommand)</string>
-            </array>
-            <key>RunAtLoad</key>
-            <\(runAtStartup ? "true" : "false")/>
-        """
+        var dict: [String: Any] = [
+            "Label": "com.jordankoch.rsyncgui.\(jobId)",
+            "ProgramArguments": ["/bin/sh", "-c", rsyncCommand],
+            "RunAtLoad": runAtStartup
+        ]
 
         // Add schedule based on frequency
         switch frequency {
         case .hourly:
-            plist += """
-
-                <key>StartCalendarInterval</key>
-                <dict>
-                    <key>Minute</key>
-                    <integer>0</integer>
-                </dict>
-            """
+            dict["StartCalendarInterval"] = ["Minute": 0]
 
         case .daily:
             if let scheduleTime = time {
                 let hour = Calendar.current.component(.hour, from: scheduleTime)
                 let minute = Calendar.current.component(.minute, from: scheduleTime)
-                plist += """
-
-                    <key>StartCalendarInterval</key>
-                    <dict>
-                        <key>Hour</key>
-                        <integer>\(hour)</integer>
-                        <key>Minute</key>
-                        <integer>\(minute)</integer>
-                    </dict>
-                """
+                dict["StartCalendarInterval"] = ["Hour": hour, "Minute": minute]
             }
 
         case .weekly:
             if let scheduleTime = time, let day = dayOfWeek {
                 let hour = Calendar.current.component(.hour, from: scheduleTime)
                 let minute = Calendar.current.component(.minute, from: scheduleTime)
-                plist += """
-
-                    <key>StartCalendarInterval</key>
-                    <dict>
-                        <key>Weekday</key>
-                        <integer>\(day)</integer>
-                        <key>Hour</key>
-                        <integer>\(hour)</integer>
-                        <key>Minute</key>
-                        <integer>\(minute)</integer>
-                    </dict>
-                """
+                dict["StartCalendarInterval"] = ["Weekday": day, "Hour": hour, "Minute": minute]
             }
 
         case .monthly:
             if let scheduleTime = time, let day = dayOfMonth {
                 let hour = Calendar.current.component(.hour, from: scheduleTime)
                 let minute = Calendar.current.component(.minute, from: scheduleTime)
-                plist += """
-
-                    <key>StartCalendarInterval</key>
-                    <dict>
-                        <key>Day</key>
-                        <integer>\(day)</integer>
-                        <key>Hour</key>
-                        <integer>\(hour)</integer>
-                        <key>Minute</key>
-                        <integer>\(minute)</integer>
-                    </dict>
-                """
+                dict["StartCalendarInterval"] = ["Day": day, "Hour": hour, "Minute": minute]
             }
 
-        case .custom:
-            // Custom cron expressions require different handling
-            // Would need to convert to StartCalendarInterval format
-            break
-
-        case .manual:
-            // No schedule
+        case .custom, .manual:
             break
         }
 
         if runAfterIdleMinutes != nil {
-            plist += """
-
-                <key>StartOnMount</key>
-                <false/>
-                <key>LowPriorityIO</key>
-                <true/>
-                <key>Nice</key>
-                <integer>10</integer>
-            """
+            dict["StartOnMount"] = false
+            dict["LowPriorityIO"] = true
+            dict["Nice"] = 10
         }
 
-        plist += """
+        // Use PropertyListSerialization for safe XML generation
+        guard let data = try? PropertyListSerialization.data(
+            fromPropertyList: dict,
+            format: .xml,
+            options: 0
+        ), let xml = String(data: data, encoding: .utf8) else {
+            NSLog("[ScheduleConfig] Failed to serialize plist for job %@", jobId)
+            return ""
+        }
 
-        </dict>
-        </plist>
-        """
-
-        return plist
+        return xml
     }
 }

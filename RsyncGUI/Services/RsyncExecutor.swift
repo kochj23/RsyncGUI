@@ -243,17 +243,34 @@ class RsyncExecutor: ObservableObject {
     // MARK: - Script Execution
 
     private func runScript(_ script: String, jobName: String, status: String, filesTransferred: Int) async throws {
-        NSLog("[RsyncExecutor] WARNING: Executing user-defined script: %@", String(script.prefix(200)))
+        let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        NSLog("[RsyncExecutor] Executing user-defined script: %@", String(trimmed.prefix(200)))
 
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/bash")
-        process.arguments = ["-c", script]
-        process.environment = [
+        let env = [
             "JOB_NAME": jobName,
             "JOB_STATUS": status,
             "FILES_TRANSFERRED": String(filesTransferred),
             "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         ]
+
+        // If the script is a path to an executable file, run it directly
+        // instead of passing through bash -c (avoids shell injection)
+        let expanded = (trimmed as NSString).expandingTildeInPath
+        if FileManager.default.isExecutableFile(atPath: expanded) {
+            process.executableURL = URL(fileURLWithPath: expanded)
+            process.arguments = []
+        } else {
+            // Inline command — run through bash but restrict to a safe PATH
+            // and log prominently for auditability
+            NSLog("[RsyncExecutor] SECURITY: Running inline shell command (not a file path)")
+            process.executableURL = URL(fileURLWithPath: "/bin/bash")
+            process.arguments = ["-c", trimmed]
+        }
+
+        process.environment = env
 
         let pipe = Pipe()
         process.standardOutput = pipe

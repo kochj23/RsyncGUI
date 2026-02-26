@@ -112,6 +112,12 @@ class ScheduleManager {
 
     // MARK: - Command Building
 
+    /// Shell-escape a single argument for safe inclusion in a shell command string.
+    /// Wraps in single quotes and escapes any embedded single quotes.
+    private func shellEscape(_ arg: String) -> String {
+        "'" + arg.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
     private func buildRsyncCommand(for job: SyncJob) -> String {
         var args = ["/usr/bin/rsync"]
 
@@ -120,11 +126,14 @@ class ScheduleManager {
 
         // Handle remote connections
         if job.isRemote, let host = job.remoteHost, let user = job.remoteUser {
-            var sshCommand = "ssh"
+            var sshArgs = ["ssh"]
             if let keyPath = job.sshKeyPath {
-                sshCommand += " -i \(keyPath)"
+                sshArgs.append("-i")
+                sshArgs.append(keyPath)
             }
-            args.append("-e '\(sshCommand)'")
+            // Build the -e argument with proper escaping
+            args.append("-e")
+            args.append(sshArgs.joined(separator: " "))
 
             let remotePrefix = "\(user)@\(host):"
             args.append(job.source.starts(with: remotePrefix) ? job.source : job.source)
@@ -139,15 +148,8 @@ class ScheduleManager {
             args.append(expandedDest)
         }
 
-        // Escape for shell
-        let escapedArgs = args.map { arg in
-            if arg.contains(" ") {
-                return "'\(arg)'"
-            }
-            return arg
-        }
-
-        return escapedArgs.joined(separator: " ")
+        // Properly shell-escape every argument
+        return args.map { shellEscape($0) }.joined(separator: " ")
     }
 
     // MARK: - Status Checking
