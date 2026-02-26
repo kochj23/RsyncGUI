@@ -124,7 +124,7 @@ If you're coming from RsyncOSX (discontinued), RsyncGUI offers:
 
 ### 🎨 Beautiful Progress Visualization
 - Stunning animated progress display optimized for **huge syncs** (millions of files)
-- Real-time statistics: speed, ETA, files transferred, data transferred
+- Real-time statistics: speed, ETA (Estimated Time of Arrival), files transferred, data transferred
 - Smooth animations and gradient effects
 - Current file display
 
@@ -355,7 +355,7 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -configuration Release b
 - **ExecutionResult:** Statistics and results tracking
 
 ### Services (`Services/`):
-- **JobManager:** Job CRUD, execution, persistence
+- **JobManager:** Job CRUD (Create, Read, Update, Delete), execution, persistence
 - **RsyncExecutor:** rsync command execution and real-time parsing
 - **ScheduleManager:** launchd integration and schedule management
 - **AIInsightsService:** AI-powered analysis, predictions, and recommendations
@@ -383,10 +383,10 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -configuration Release b
 - Recursive, Update, Partial, In-place, Remove source files
 
 #### **Preserve:**
-- Permissions, Owner, Group, Times, Links, ACLs, Extended attributes
+- Permissions, Owner, Group, Times, Links, ACLs (Access Control Lists), Extended attributes
 
 #### **Filters:**
-- Exclude/Include patterns, Size filters, CVS exclusions
+- Exclude/Include patterns, Size filters, CVS (Concurrent Versions System) exclusions
 
 #### **Advanced:**
 - Checksums, Bandwidth limits, Timeouts, Backups, Performance tuning
@@ -422,7 +422,7 @@ node_modules/  # Exclude entire directories
 ## 🎯 Use Cases
 
 ### Perfect For:
-- ✅ **Large backups** (external drives, NAS)
+- ✅ **Large backups** (external drives, NAS (Network Attached Storage))
 - ✅ **Remote server synchronization** (SSH)
 - ✅ **Automated daily/weekly backups**
 - ✅ **Photo/video library management**
@@ -549,7 +549,7 @@ If you find RsyncGUI useful, please:
 | [DotSync](https://github.com/kochj23/DotSync) | Configuration file synchronization across machines |
 | [TopGUI](https://github.com/kochj23/TopGUI) | macOS system monitor with real-time metrics |
 | [ExcelExplorer](https://github.com/kochj23/ExcelExplorer) | Native macOS Excel/CSV file viewer |
-| [MBox-Explorer](https://github.com/kochj23/MBox-Explorer) | macOS mbox email archive viewer |
+| [MBox-Explorer](https://github.com/kochj23/MBox-Explorer) | macOS MBOX (Mailbox format) email archive viewer |
 | [icon-creator](https://github.com/kochj23/icon-creator) | App icon set generator for all Apple platforms |
 
 > **[View all projects](https://github.com/kochj23?tab=repositories)**
