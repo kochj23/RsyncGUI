@@ -79,7 +79,7 @@ class RsyncExecutor: ObservableObject {
                 var verifyJob = job
                 verifyJob.options.checksum = true
                 verifyJob.options.dryRun = true
-                let command = buildCommand(for: verifyJob, destination: dest, dryRun: true)
+                let command = try buildCommand(for: verifyJob, destination: dest, dryRun: true)
                 let verifyResult = try await executeCommand(command, result: ExecutionResult(
                     id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
                     status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
@@ -120,7 +120,7 @@ class RsyncExecutor: ObservableObject {
         for (index, dest) in destinations.enumerated() {
             NSLog("[RsyncExecutor] Syncing to destination %d/%d: %@", index + 1, destinations.count, dest.path)
 
-            let command = buildCommand(for: job, destination: dest, dryRun: dryRun)
+            let command = try buildCommand(for: job, destination: dest, dryRun: dryRun)
             let result = try await executeCommand(command, result: ExecutionResult(
                 id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
                 status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
@@ -178,15 +178,23 @@ class RsyncExecutor: ObservableObject {
                 let dest = pending.removeFirst()
                 activeCount += 1
                 group.addTask {
-                    let command = self.buildCommand(for: job, destination: dest, dryRun: dryRun)
-                    let result = try? await self.executeCommand(command, result: ExecutionResult(
-                        id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
-                        status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
-                    ))
-                    return (dest, result ?? ExecutionResult(
-                        id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
-                        status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
-                    ))
+                    do {
+                        let command = try self.buildCommand(for: job, destination: dest, dryRun: dryRun)
+                        let result = try? await self.executeCommand(command, result: ExecutionResult(
+                            id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                            status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
+                        ))
+                        return (dest, result ?? ExecutionResult(
+                            id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                            status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
+                        ))
+                    } catch {
+                        return (dest, ExecutionResult(
+                            id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                            status: .failed, filesTransferred: 0, bytesTransferred: 0,
+                            errors: ["Command build failed: \(error.localizedDescription)"], output: ""
+                        ))
+                    }
                 }
             }
 
@@ -199,15 +207,23 @@ class RsyncExecutor: ObservableObject {
                     let dest = pending.removeFirst()
                     activeCount += 1
                     group.addTask {
-                        let command = self.buildCommand(for: job, destination: dest, dryRun: dryRun)
-                        let result = try? await self.executeCommand(command, result: ExecutionResult(
-                            id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
-                            status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
-                        ))
-                        return (dest, result ?? ExecutionResult(
-                            id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
-                            status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
-                        ))
+                        do {
+                            let command = try self.buildCommand(for: job, destination: dest, dryRun: dryRun)
+                            let result = try? await self.executeCommand(command, result: ExecutionResult(
+                                id: UUID(), jobId: job.id, startTime: Date(), endTime: nil,
+                                status: .success, filesTransferred: 0, bytesTransferred: 0, errors: [], output: ""
+                            ))
+                            return (dest, result ?? ExecutionResult(
+                                id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                                status: .failed, filesTransferred: 0, bytesTransferred: 0, errors: ["Execution failed"], output: ""
+                            ))
+                        } catch {
+                            return (dest, ExecutionResult(
+                                id: UUID(), jobId: job.id, startTime: Date(), endTime: Date(),
+                                status: .failed, filesTransferred: 0, bytesTransferred: 0,
+                                errors: ["Command build failed: \(error.localizedDescription)"], output: ""
+                            ))
+                        }
                     }
                 }
             }
@@ -246,7 +262,17 @@ class RsyncExecutor: ObservableObject {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        NSLog("[RsyncExecutor] Executing user-defined script: %@", String(trimmed.prefix(200)))
+        // Only permit execution of real files — inline shell commands are rejected
+        // to prevent shell injection attacks via user-configured script fields.
+        let expanded = (trimmed as NSString).expandingTildeInPath
+        guard expanded.hasPrefix("/"),
+              !expanded.contains(".."),
+              FileManager.default.isExecutableFile(atPath: expanded) else {
+            NSLog("[RsyncExecutor] SECURITY: Script '%@' is not an executable file path — inline commands are not permitted", String(trimmed.prefix(200)))
+            return
+        }
+
+        NSLog("[RsyncExecutor] Executing script: %@", expanded)
 
         let process = Process()
         let env = [
@@ -256,19 +282,8 @@ class RsyncExecutor: ObservableObject {
             "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         ]
 
-        // If the script is a path to an executable file, run it directly
-        // instead of passing through bash -c (avoids shell injection)
-        let expanded = (trimmed as NSString).expandingTildeInPath
-        if FileManager.default.isExecutableFile(atPath: expanded) {
-            process.executableURL = URL(fileURLWithPath: expanded)
-            process.arguments = []
-        } else {
-            // Inline command — run through bash but restrict to a safe PATH
-            // and log prominently for auditability
-            NSLog("[RsyncExecutor] SECURITY: Running inline shell command (not a file path)")
-            process.executableURL = URL(fileURLWithPath: "/bin/bash")
-            process.arguments = ["-c", trimmed]
-        }
+        process.executableURL = URL(fileURLWithPath: expanded)
+        process.arguments = []
 
         process.environment = env
 
@@ -386,9 +401,15 @@ class RsyncExecutor: ObservableObject {
 
     // MARK: - Command Building
 
-    private func buildCommand(for job: SyncJob, destination dest: SyncDestination, dryRun: Bool) -> [String] {
-        // Get rsync path from settings
-        let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
+    /// Resolves the rsync binary from a fixed set of known locations.
+    /// Never reads from UserDefaults — prevents binary substitution attacks.
+    private func resolveRsyncPath() -> String {
+        let candidates = ["/usr/bin/rsync", "/opt/homebrew/bin/rsync", "/usr/local/bin/rsync"]
+        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "/usr/bin/rsync"
+    }
+
+    private func buildCommand(for job: SyncJob, destination dest: SyncDestination, dryRun: Bool) throws -> [String] {
+        let rsyncPath = resolveRsyncPath()
         var args = [rsyncPath]
 
         // Add rsync options
@@ -400,11 +421,26 @@ class RsyncExecutor: ObservableObject {
 
         // Handle remote SSH connections
         if dest.type == .remoteSSH, let host = dest.remoteHost, let user = dest.remoteUser {
+            // Validate host and user contain only safe characters
+            let safePattern = #"^[a-zA-Z0-9._-]+$"#
+            guard host.range(of: safePattern, options: .regularExpression) != nil else {
+                throw RsyncError.invalidHostOrUser(host)
+            }
+            guard user.range(of: safePattern, options: .regularExpression) != nil else {
+                throw RsyncError.invalidHostOrUser(user)
+            }
+
             // SSH options - build as array components to avoid shell injection via key path
             var sshComponents = ["ssh"]
             if let keyPath = dest.sshKeyPath, !keyPath.isEmpty {
+                let expandedKey = (keyPath as NSString).expandingTildeInPath
+                guard expandedKey.hasPrefix("/"),
+                      !expandedKey.contains(".."),
+                      FileManager.default.fileExists(atPath: expandedKey) else {
+                    throw RsyncError.invalidSSHKeyPath
+                }
                 sshComponents.append("-i")
-                sshComponents.append(keyPath)
+                sshComponents.append(expandedKey)
             }
             args.append("-e")
             args.append(sshComponents.joined(separator: " "))
@@ -842,6 +878,8 @@ enum RsyncError: LocalizedError {
     case iCloudDriveNotAvailable
     case iCloudDriveNotEnabled
     case iCloudDrivePathInvalid
+    case invalidSSHKeyPath
+    case invalidHostOrUser(String)
 
     var errorDescription: String? {
         switch self {
@@ -859,6 +897,10 @@ enum RsyncError: LocalizedError {
             return "Permission not granted. Click the 'iCloud Drive' button in job editor and select the folder to grant RsyncGUI access permission."
         case .iCloudDrivePathInvalid:
             return "Invalid iCloud Drive path. The path must be within iCloud Drive folder."
+        case .invalidSSHKeyPath:
+            return "Invalid SSH key path. The path must be an absolute path to an existing key file."
+        case .invalidHostOrUser(let value):
+            return "Invalid hostname or username: '\(value)'. Only alphanumeric characters, dots, hyphens, and underscores are allowed."
         }
     }
 }

