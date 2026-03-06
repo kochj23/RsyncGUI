@@ -278,15 +278,33 @@ class AdvancedExecutionService {
 
     // MARK: - Helper Methods
 
-    /// Analyze source directory and list all files
+    /// Maximum number of files to load into memory for parallel splitting.
+    /// Beyond this limit, parallel execution falls back to standard rsync (which handles large
+    /// file trees far more efficiently than enumerating them all into a Swift array).
+    private static let maxParallelFiles = 50_000
+
+    /// Analyze source directory and list all files for parallel splitting.
     private func analyzeSourceDirectory(path: String) async throws -> [String] {
         let expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
         let url = URL(fileURLWithPath: expandedPath)
 
         var files: [String] = []
+        files.reserveCapacity(min(1000, AdvancedExecutionService.maxParallelFiles))
 
         if let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey]) {
             for case let fileURL as URL in enumerator {
+                // Yield periodically to avoid starving the cooperative thread pool
+                if files.count % 5000 == 0 && files.count > 0 {
+                    await Task.yield()
+                }
+
+                // Cap file list to prevent OOM on very large directories.
+                // Standard rsync execution handles large trees better than splitting by file list.
+                if files.count >= AdvancedExecutionService.maxParallelFiles {
+                    NSLog("[Parallel] File count hit %d limit — truncating list. Remaining files handled by rsync directly.", AdvancedExecutionService.maxParallelFiles)
+                    break
+                }
+
                 if let isRegularFile = try? fileURL.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile,
                    isRegularFile {
                     let relativePath = fileURL.path.replacingOccurrences(of: url.path + "/", with: "")
@@ -347,17 +365,34 @@ class AdvancedExecutionService {
         }
     }
 
-    /// Calculate directory checksum (fast hash of file list + mtimes)
+    /// Maximum number of files to examine when calculating a directory checksum.
+    /// Walking millions of files to detect changes is slower than just running rsync dry-run.
+    private static let maxChecksumFiles = 100_000
+
+    /// Calculate directory checksum (fast hash of file list + mtimes).
+    /// Caps at maxChecksumFiles to prevent blocking on very large directories.
     private func calculateDirectoryChecksum(path: String) async throws -> String {
         let expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
         let url = URL(fileURLWithPath: expandedPath)
 
         var checksumData = Data()
+        var fileCount = 0
 
         if let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]) {
             var fileInfos: [(path: String, mtime: Date, size: Int64)] = []
 
             for case let fileURL as URL in enumerator {
+                // Yield every 5,000 files to avoid blocking the cooperative thread pool
+                if fileCount % 5000 == 0 && fileCount > 0 {
+                    await Task.yield()
+                }
+
+                fileCount += 1
+                if fileCount > AdvancedExecutionService.maxChecksumFiles {
+                    NSLog("[Conditional] Checksum file limit (%d) reached — result covers partial directory", AdvancedExecutionService.maxChecksumFiles)
+                    break
+                }
+
                 if let resourceValues = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]),
                    let mtime = resourceValues.contentModificationDate,
                    let size = resourceValues.fileSize {

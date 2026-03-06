@@ -10,6 +10,10 @@ import Combine
 
 /// Executes rsync commands and provides real-time progress updates
 class RsyncExecutor: ObservableObject {
+
+    /// Maximum bytes of rsync output to retain in memory per execution.
+    /// Large jobs with --verbose --progress can generate hundreds of MB — cap prevents OOM kills.
+    private static let maxOutputBytes = 10 * 1024 * 1024 // 10 MB
     @Published var progress: RsyncProgress?
     @Published var isRunning = false
 
@@ -275,31 +279,37 @@ class RsyncExecutor: ObservableObject {
         NSLog("[RsyncExecutor] Executing script: %@", expanded)
 
         let process = Process()
-        let env = [
+        process.executableURL = URL(fileURLWithPath: expanded)
+        process.arguments = []
+        process.environment = [
             "JOB_NAME": jobName,
             "JOB_STATUS": status,
             "FILES_TRANSFERRED": String(filesTransferred),
             "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         ]
 
-        process.executableURL = URL(fileURLWithPath: expanded)
-        process.arguments = []
-
-        process.environment = env
-
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = pipe
-        defer {
-            pipe.fileHandleForReading.closeFile()
-        }
 
-        try process.run()
-        process.waitUntilExit()
-
-        if process.terminationStatus != 0 {
-            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-            NSLog("[RsyncExecutor] Script failed with exit code %d: %@", process.terminationStatus, output)
+        // Use async continuation instead of waitUntilExit() — the blocking call would
+        // occupy a cooperative thread pool thread for the entire script duration.
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            process.terminationHandler = { proc in
+                let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+                pipe.fileHandleForReading.closeFile()
+                if proc.terminationStatus != 0 {
+                    let output = String(data: outputData, encoding: .utf8) ?? ""
+                    NSLog("[RsyncExecutor] Script failed with exit code %d: %@", proc.terminationStatus, output)
+                }
+                continuation.resume()
+            }
+            do {
+                try process.run()
+            } catch {
+                pipe.fileHandleForReading.closeFile()
+                continuation.resume(throwing: RsyncError.executionFailed(error))
+            }
         }
     }
 
@@ -388,10 +398,10 @@ class RsyncExecutor: ObservableObject {
             try FileManager.default.createDirectory(atPath: expandedPath, withIntermediateDirectories: true, attributes: nil)
             print("[RsyncExecutor] ✅ Created destination directory: \(expandedPath)")
 
-            // For iCloud Drive, wait a moment for iCloud to recognize the new folder
-            if expandedPath.contains("com~apple~CloudDocs") {
-                Thread.sleep(forTimeInterval: 0.5)
-            }
+            // Note: iCloud's daemon (bird) will pick up the new folder asynchronously.
+            // A blocking sleep here is both incorrect and unnecessary — rsync handles
+            // the destination directory being present at the time it runs.
+            NSLog("[RsyncExecutor] ✅ Created iCloud destination directory: %@", expandedPath)
         } catch {
             print("[RsyncExecutor] ❌ Failed to create directory: \(error.localizedDescription)")
             print("[RsyncExecutor] Path: \(expandedPath)")
@@ -465,6 +475,14 @@ class RsyncExecutor: ObservableObject {
                 args.append(expandedSource)
             }
 
+            // iCloud: exclude .icloud placeholder stubs.
+            // Files evicted from local storage appear as ".filename.icloud" — rsync cannot read them
+            // and will either error out or transfer the stub file, not the real content.
+            if dest.type == .iCloudDrive {
+                args.append("--exclude=*.icloud")
+                NSLog("[RsyncExecutor] iCloud destination: added --exclude=*.icloud to skip offloaded file placeholders")
+            }
+
             // Local/iCloud destination
             var expandedDest = dest.path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
 
@@ -506,6 +524,7 @@ class RsyncExecutor: ObservableObject {
             var outputData = Data()
             var errorData = Data()
             var isTerminating = false
+            var outputTruncated = false
 
             // Track active handlers to prevent race conditions
             let handlerGroup = DispatchGroup()
@@ -530,9 +549,16 @@ class RsyncExecutor: ObservableObject {
                 // Make a defensive copy of the data for thread safety
                 let dataCopy = Data(data)
 
-                // Thread-safe append
+                // Thread-safe append with output cap to prevent OOM on large jobs
                 dataLock.lock()
-                outputData.append(dataCopy)
+                if outputData.count < RsyncExecutor.maxOutputBytes {
+                    outputData.append(dataCopy)
+                } else if !outputTruncated {
+                    outputTruncated = true
+                    let notice = Data("\n⚠️ Output truncated at 10 MB. Full output available in system log (Console.app).\n".utf8)
+                    outputData.append(notice)
+                    NSLog("[RsyncExecutor] Output cap reached (10 MB) — truncating display output")
+                }
                 dataLock.unlock()
 
                 if let output = String(data: dataCopy, encoding: .utf8) {

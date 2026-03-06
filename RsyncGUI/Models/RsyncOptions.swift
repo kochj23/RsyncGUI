@@ -11,8 +11,8 @@ import Foundation
 struct RsyncOptions: Codable {
     // MARK: - Common Options
     var archive: Bool = true              // -a: archive mode (recursive, preserve permissions, times, etc.)
-    var verbose: Bool = true              // -v: verbose output
-    var compress: Bool = true             // -z: compress during transfer
+    var verbose: Bool = false             // -v: verbose output (off by default — generates huge output on large jobs)
+    var compress: Bool = false            // -z: compress during transfer (off by default — slows local/LAN syncs)
     var delete: Bool = false              // --delete: delete extraneous files from dest
     var dryRun: Bool = false              // -n: dry run (show what would be done)
 
@@ -289,11 +289,23 @@ struct RsyncOptions: Codable {
 
         // SSH & Remote
         if let shell = rsh {
-            args.append("-e")
-            args.append(shell)
+            // Validate rsh is an absolute path to an existing executable — prevents arbitrary program execution
+            let expandedShell = (shell as NSString).expandingTildeInPath
+            if expandedShell.hasPrefix("/") && !expandedShell.contains("..") && FileManager.default.isExecutableFile(atPath: expandedShell) {
+                args.append("-e")
+                args.append(expandedShell)
+            } else {
+                NSLog("[RsyncOptions] Rejected rsh value '%@' — must be absolute path to an existing executable", shell.prefix(200).description)
+            }
         }
         if let rsyncProgram = rsyncPath {
-            args.append("--rsync-path=\(rsyncProgram)")
+            // Validate rsync-path contains only safe path characters (it's a remote path, so we can't check existence)
+            let safePath = #"^[a-zA-Z0-9/_.\-]+$"#
+            if rsyncProgram.range(of: safePath, options: .regularExpression) != nil {
+                args.append("--rsync-path=\(rsyncProgram)")
+            } else {
+                NSLog("[RsyncOptions] Rejected rsync-path value '%@' — contains unsafe characters", rsyncProgram.prefix(200).description)
+            }
         }
         if let portNum = port {
             args.append("--port=\(portNum)")
