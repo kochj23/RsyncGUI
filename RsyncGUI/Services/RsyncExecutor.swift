@@ -59,8 +59,15 @@ class RsyncExecutor: ObservableObject {
             try await runScript(preScript, jobName: job.name, status: "starting", filesTransferred: 0)
         }
 
-        // Prepare all destinations (create directories if needed)
+        // Validate and prepare all destinations
         for dest in enabledDestinations {
+            if dest.type == .iCloudDrive {
+                // Validate the path is actually within iCloud Drive before attempting sync.
+                // Previously this was dead code — called nowhere — so invalid paths (e.g.
+                // ~/Documents stored with type iCloud Drive) would silently sync to the
+                // wrong location.
+                try validateiCloudDrive(path: dest.path)
+            }
             if (dest.type == .iCloudDrive || dest.type == .local) && !dryRun {
                 try createDestinationDirectory(path: dest.path)
             }
@@ -794,23 +801,20 @@ class RsyncExecutor: ObservableObject {
     // MARK: - Parsing Helpers
 
     private func parseSpeed(_ speedString: String) -> Double {
-        // Parse "123.45MB/s" -> bytes per second
+        // Parse rsync speed strings like "123.45MB/s" or "1.23M/s" (rsync -h omits trailing B)
         let cleaned = speedString.replacingOccurrences(of: "/s", with: "")
 
-        if cleaned.hasSuffix("GB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "GB", with: "")) {
-                return value * 1_073_741_824 // 1024^3
-            }
-        } else if cleaned.hasSuffix("MB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "MB", with: "")) {
-                return value * 1_048_576 // 1024^2
-            }
-        } else if cleaned.hasSuffix("KB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "KB", with: "")) {
-                return value * 1024
-            }
+        if cleaned.hasSuffix("GB") || cleaned.hasSuffix("G") {
+            let stripped = cleaned.hasSuffix("GB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            return Double(stripped).map { $0 * 1_073_741_824 } ?? 0
+        } else if cleaned.hasSuffix("MB") || cleaned.hasSuffix("M") {
+            let stripped = cleaned.hasSuffix("MB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            return Double(stripped).map { $0 * 1_048_576 } ?? 0
+        } else if cleaned.hasSuffix("KB") || cleaned.hasSuffix("K") {
+            let stripped = cleaned.hasSuffix("KB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            return Double(stripped).map { $0 * 1024 } ?? 0
         } else if cleaned.hasSuffix("B") {
-            return Double(cleaned.replacingOccurrences(of: "B", with: "")) ?? 0
+            return Double(String(cleaned.dropLast())) ?? 0
         }
 
         return 0
@@ -829,27 +833,28 @@ class RsyncExecutor: ObservableObject {
     }
 
     private func parseBytes(_ bytesString: String) -> Int64 {
-        // Parse "123,456 bytes" or "123.45MB"
-        let cleaned = bytesString.replacingOccurrences(of: ",", with: "")
+        // Parse rsync byte counts. rsync outputs two formats depending on --human-readable (-h):
+        //   Without -h: "1,234,567 bytes"  (commas as thousands separators)
+        //   With    -h: "1.18M" or "1.18MB" (SI suffix, with or without trailing B)
+        // Both formats are handled here.
+        let cleaned = bytesString.trimmingCharacters(in: .whitespaces)
+            .replacingOccurrences(of: ",", with: "")
 
         if cleaned.contains("bytes") {
             let numberString = cleaned.components(separatedBy: .whitespaces).first ?? "0"
             return Int64(numberString) ?? 0
         }
 
-        // Handle unit suffixes
-        if cleaned.hasSuffix("GB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "GB", with: "")) {
-                return Int64(value * 1_073_741_824)
-            }
-        } else if cleaned.hasSuffix("MB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "MB", with: "")) {
-                return Int64(value * 1_048_576)
-            }
-        } else if cleaned.hasSuffix("KB") {
-            if let value = Double(cleaned.replacingOccurrences(of: "KB", with: "")) {
-                return Int64(value * 1024)
-            }
+        // Accept both "MB"/"M", "GB"/"G", "KB"/"K" — rsync -h omits the trailing B
+        if cleaned.hasSuffix("GB") || cleaned.hasSuffix("G") {
+            let stripped = cleaned.hasSuffix("GB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            if let value = Double(stripped) { return Int64(value * 1_073_741_824) }
+        } else if cleaned.hasSuffix("MB") || cleaned.hasSuffix("M") {
+            let stripped = cleaned.hasSuffix("MB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            if let value = Double(stripped) { return Int64(value * 1_048_576) }
+        } else if cleaned.hasSuffix("KB") || cleaned.hasSuffix("K") {
+            let stripped = cleaned.hasSuffix("KB") ? String(cleaned.dropLast(2)) : String(cleaned.dropLast())
+            if let value = Double(stripped) { return Int64(value * 1024) }
         }
 
         return Int64(cleaned) ?? 0

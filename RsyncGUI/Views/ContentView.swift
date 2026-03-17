@@ -59,7 +59,11 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingJobEditor) {
                 if let job = jobManager.selectedJob {
+                    // .id(job.id) forces SwiftUI to recreate JobEditorView (and reset @State)
+                    // each time a different job is opened. Without this, SwiftUI may reuse the
+                    // view instance and @State var job retains the previous job's stale values.
                     JobEditorView(job: job, isPresented: $showingJobEditor)
+                        .id(job.id)
                 }
             }
             .sheet(isPresented: $showingProgress) {

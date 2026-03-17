@@ -24,6 +24,9 @@ struct RsyncGUIApp: App {
 
                     // Sync data to widget on app launch
                     WidgetDataSyncService.shared.syncAllJobData()
+
+                    // Start Nova API server
+                    NovaAPIServer.shared.start()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // Sync data to widget when app quits

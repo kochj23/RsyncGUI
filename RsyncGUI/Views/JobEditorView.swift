@@ -15,6 +15,8 @@ struct JobEditorView: View {
     @State private var selectedTab: EditorTab = .basic
     @State private var showingTestResult = false
     @State private var testResult: TestConnectionResult?
+    @State private var showingICloudWarning = false
+    @State private var iCloudWarningMessage = ""
 
     enum EditorTab: String, CaseIterable {
         case basic = "Basic"
@@ -66,6 +68,11 @@ struct JobEditorView: View {
                         .font(.caption)
                 }
             }
+        }
+        .alert("Invalid iCloud Drive Path", isPresented: $showingICloudWarning) {
+            Button("OK") { showingICloudWarning = false }
+        } message: {
+            Text(iCloudWarningMessage)
         }
     }
 
@@ -499,8 +506,13 @@ struct JobEditorView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
 
-        if panel.runModal() == .OK, let url = panel.url {
-            job.sources[index] = url.path
+        // runModal() blocks the main thread and runs a nested event loop. SwiftUI
+        // processes state during that loop, so mutations issued inline after runModal()
+        // returns can get lost. Deferring to a fresh main-queue dispatch guarantees
+        // the update lands outside the nested loop and triggers a proper view refresh.
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        DispatchQueue.main.async {
+            self.job.sources[index] = url.path
         }
     }
 
@@ -510,9 +522,10 @@ struct JobEditorView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
 
-        if panel.runModal() == .OK, let url = panel.url {
-            if let index = job.destinations.firstIndex(where: { $0.id == destinationId }) {
-                job.destinations[index].path = url.path
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        DispatchQueue.main.async {
+            if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
+                self.job.destinations[index].path = url.path
             }
         }
     }
@@ -522,24 +535,39 @@ struct JobEditorView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.message = "Select iCloud Drive folder to grant RsyncGUI access permission"
-        panel.prompt = "Grant Access"
+        panel.message = "Select a destination folder inside iCloud Drive"
+        panel.prompt = "Select"
 
         let iCloudPath = SyncJob.iCloudDrivePath
         if FileManager.default.fileExists(atPath: iCloudPath) {
             panel.directoryURL = URL(fileURLWithPath: iCloudPath)
         }
 
-        if panel.runModal() == .OK, let url = panel.url {
-            if let index = job.destinations.firstIndex(where: { $0.id == destinationId }) {
-                job.destinations[index].path = url.path
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        // Validate the selected path is actually within iCloud Drive.
+        let normalizedSelected = url.path.hasSuffix("/") ? String(url.path.dropLast()) : url.path
+        let normalizedICloud = iCloudPath.hasSuffix("/") ? String(iCloudPath.dropLast()) : iCloudPath
+
+        guard normalizedSelected.hasPrefix(normalizedICloud) || normalizedSelected == normalizedICloud else {
+            NSLog("[JobEditor] ⚠️ Selected path is not within iCloud Drive: %@", url.path)
+            DispatchQueue.main.async {
+                self.iCloudWarningMessage = "'\(url.lastPathComponent)' is not inside iCloud Drive.\n\nPlease select a folder within your iCloud Drive directory."
+                self.showingICloudWarning = true
+            }
+            return
+        }
+
+        DispatchQueue.main.async {
+            if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
+                self.job.destinations[index].path = url.path
                 do {
                     let bookmark = try url.bookmarkData(
-                        options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                        options: [.withSecurityScope],
                         includingResourceValuesForKeys: nil,
                         relativeTo: nil
                     )
-                    job.destinations[index].bookmark = bookmark
+                    self.job.destinations[index].bookmark = bookmark
+                    NSLog("[JobEditor] ✅ iCloud Drive destination set: %@", url.path)
                 } catch {
                     NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
                 }
@@ -1392,8 +1420,9 @@ struct JobEditorView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
 
-        if panel.runModal() == .OK, let url = panel.url {
-            job[keyPath: keyPath] = url.path
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        DispatchQueue.main.async {
+            self.job[keyPath: keyPath] = url.path
         }
     }
 
@@ -1402,32 +1431,39 @@ struct JobEditorView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.message = "Select iCloud Drive folder to grant RsyncGUI access permission"
-        panel.prompt = "Grant Access"
+        panel.message = "Select a destination folder inside iCloud Drive"
+        panel.prompt = "Select"
 
-        // Try to navigate to iCloud Drive automatically
         let iCloudPath = SyncJob.iCloudDrivePath
         if FileManager.default.fileExists(atPath: iCloudPath) {
             panel.directoryURL = URL(fileURLWithPath: iCloudPath)
         }
 
-        if panel.runModal() == .OK, let url = panel.url {
-            // User selected folder - app now has permission to access it
-            job.destination = url.path
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let normalizedSelected = url.path.hasSuffix("/") ? String(url.path.dropLast()) : url.path
+        let normalizedICloud = iCloudPath.hasSuffix("/") ? String(iCloudPath.dropLast()) : iCloudPath
 
-            // Create and save security-scoped bookmark to persist permission
+        guard normalizedSelected.hasPrefix(normalizedICloud) || normalizedSelected == normalizedICloud else {
+            NSLog("[JobEditor] ⚠️ Selected path is not within iCloud Drive: %@", url.path)
+            DispatchQueue.main.async {
+                self.iCloudWarningMessage = "'\(url.lastPathComponent)' is not inside iCloud Drive.\n\nPlease select a folder within your iCloud Drive directory."
+                self.showingICloudWarning = true
+            }
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.job.destination = url.path
             do {
                 let bookmark = try url.bookmarkData(
-                    options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                    options: [.withSecurityScope],
                     includingResourceValuesForKeys: nil,
                     relativeTo: nil
                 )
-                job.destinationBookmark = bookmark
+                self.job.destinationBookmark = bookmark
                 NSLog("[JobEditor] ✅ iCloud Drive folder selected: %@", url.path)
-                NSLog("[JobEditor] ✅ Security-scoped bookmark created - permission will persist")
             } catch {
                 NSLog("[JobEditor] ⚠️ Failed to create bookmark: %@", error.localizedDescription)
-                NSLog("[JobEditor] Permission granted for this session only")
             }
         }
     }
@@ -1439,8 +1475,9 @@ struct JobEditorView: View {
         panel.allowsMultipleSelection = false
         panel.allowedContentTypes = [.data]
 
-        if panel.runModal() == .OK, let url = panel.url {
-            job.sshKeyPath = url.path
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        DispatchQueue.main.async {
+            self.job.sshKeyPath = url.path
         }
     }
 
