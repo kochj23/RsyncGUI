@@ -33,6 +33,7 @@
 		AI1NSIGHTV1EWBLD12345678 /* AIInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AI1NSIGHTV1EWF1LEREF12345 /* AIInsightsView.swift */; };
 		AIBACKENDMGR1BLDFILE1234 /* AIBackendManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIBACKENDMGR1FILEREF1234 /* AIBackendManager.swift */; };
 		D7F6F164F155BC99408EE1C9 /* ExecutionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6078B9C270C3DFB1F180CA3F /* ExecutionHistory.swift */; };
+		DA4CAC4B477003225AE0008D /* NovaAPIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */; };
 		DF2F410F530768F92DF369D8 /* RsyncGUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */; };
 		F141B1DEB3D4853C823634E1 /* JobDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDE33F4C68FAC036C1E4EDE /* JobDetailView.swift */; };
 		F4722847DD83FDB3735896A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A0D38A87F482DE72217C85 /* ContentView.swift */; };
@@ -74,6 +75,7 @@
 		0501948699D7168C7FAFCDDC /* MenuBarManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MenuBarManager.swift; path = RsyncGUI/Services/MenuBarManager.swift; sourceTree = "<group>"; };
 		0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleConfig.swift; path = RsyncGUI/Models/ScheduleConfig.swift; sourceTree = "<group>"; };
 		0D721D714FA57020723CD52D /* ScheduleManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = RsyncGUI/Services/ScheduleManager.swift; sourceTree = "<group>"; };
+		2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NovaAPIServer.swift; path = RsyncGUI/NovaAPIServer.swift; sourceTree = "<absolute>"; };
 		39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncOptions.swift; path = RsyncGUI/Models/RsyncOptions.swift; sourceTree = "<group>"; };
 		41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReportView.swift; path = RsyncGUI/Views/DeltaReportView.swift; sourceTree = "<group>"; };
 		41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncGUIApp.swift; path = RsyncGUI/RsyncGUIApp.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 				C0524EE8D6032F69C5D3B81B /* Info.plist */,
 				RSYNCGU1ENT1TLEM1234567 /* RsyncGUI.entitlements */,
 				6393691BD18D9AC6F3B30133 /* Design */,
+				2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */,
 			);
 			name = RsyncGUI;
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 				W1DGETDATASYNC1BLDFILE12 /* WidgetDataSync.swift in Sources */,
 				445A92C3E85B0445DD3CE0F5 /* AIBackendManager+Enhanced.swift in Sources */,
 				A39615CCF66F3666DDCE7573 /* AIBackendStatusMenu.swift in Sources */,
+				DA4CAC4B477003225AE0008D /* NovaAPIServer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
