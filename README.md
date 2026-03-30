@@ -1,4 +1,4 @@
-# RsyncGUI v1.7.2
+# RsyncGUI v1.7.3
 
 ![Build](https://github.com/kochj23/RsyncGUI/actions/workflows/build.yml/badge.svg)
 
@@ -20,7 +20,7 @@ A modern, open-source alternative to the discontinued [RsyncOSX](https://github.
 
 ## Download
 
-Download the latest release: [RsyncGUI v1.7.2](https://github.com/kochj23/RsyncGUI/releases/latest)
+Download the latest release: [RsyncGUI v1.7.3](https://github.com/kochj23/RsyncGUI/releases/latest)
 
 Or build from source (see below).
 
@@ -37,7 +37,23 @@ If you're coming from RsyncOSX (discontinued), RsyncGUI offers:
 
 ---
 
-## 🆕 What's New in v1.7.2 (March 2026)
+## 🆕 What's New in v1.7.3 (March 2026)
+
+### Bug Fix Release — SMB/USB Destination, Path Checks, Logs
+
+**SMB share → USB drive destination picker — fixed:**
+- The folder browser now shows a "Select" button instead of "Open" and displays a hint message. On macOS 15, clicking "Open" on a directory navigated *into* it rather than selecting it, making it impossible to set an SMB or USB destination without knowing to navigate inside the target folder first.
+
+**"Some checks failed" on valid external/network paths — fixed:**
+- Source path check now uses `isReadableFile` for `/Volumes/` paths. `fileExists` can return `false` on SMB shares and USB drives even when mounted and accessible, causing a false failure.
+- Destination path check no longer fails when the path doesn't exist. rsync creates destination directories — a missing path is expected on first run. The check now only fails if the volume itself is not mounted.
+
+**"Open Logs Folder" button does nothing — fixed:**
+- `~/Library/Application Support/RsyncGUI/Logs/` is now created if it doesn't exist before trying to open it. `NSWorkspace.open()` silently does nothing on a nonexistent URL.
+
+---
+
+## What's New in v1.7.2 (March 2026)
 
 ### Bug Fix Release — Large Jobs, iCloud, and Reliability
 

@@ -187,6 +187,11 @@ struct AdvancedSettings: View {
             return
         }
         let logsURL = appSupport.appendingPathComponent("RsyncGUI/Logs")
+        // Create the directory if it doesn't exist yet — NSWorkspace.open silently
+        // does nothing on a nonexistent URL, which caused the button to appear broken.
+        if !FileManager.default.fileExists(atPath: logsURL.path) {
+            try? FileManager.default.createDirectory(at: logsURL, withIntermediateDirectories: true)
+        }
         NSWorkspace.shared.open(logsURL)
     }
 

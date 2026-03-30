@@ -521,11 +521,17 @@ struct JobEditorView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        // "Select" instead of "Open" avoids the macOS quirk where clicking
+        // "Open" on a directory navigates into it rather than selecting it.
+        // This is especially confusing on SMB shares and USB drives.
+        panel.prompt = "Select"
+        panel.message = "Navigate inside the destination folder, then click Select."
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
+        let selectedPath = url.path
         DispatchQueue.main.async {
             if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
-                self.job.destinations[index].path = url.path
+                self.job.destinations[index].path = selectedPath
             }
         }
     }
@@ -1334,7 +1340,11 @@ struct JobEditorView: View {
 
         // 1. Check source path
         let sourcePath = job.source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
-        let sourceExists = FileManager.default.fileExists(atPath: sourcePath)
+        // Use isReadableFile for /Volumes/ paths (SMB/USB) — fileExists can return
+        // false on network/external volumes even when the path is valid and mounted.
+        let sourceExists = sourcePath.hasPrefix("/Volumes/")
+            ? FileManager.default.isReadableFile(atPath: sourcePath)
+            : FileManager.default.fileExists(atPath: sourcePath)
         checks.append(ConnectionCheck(
             name: "Source Path",
             passed: sourceExists,
@@ -1344,11 +1354,28 @@ struct JobEditorView: View {
         // 2. Check destination path (if local)
         if !job.isRemote {
             let destPath = job.destination.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+            // Destination not existing is not a failure — rsync creates it.
+            // Only fail if the path's parent volume is unreachable.
             let destExists = FileManager.default.fileExists(atPath: destPath)
+            let destReachable: Bool
+            if destExists {
+                destReachable = true
+            } else if destPath.hasPrefix("/Volumes/") {
+                // For external/network volumes, check if the volume root is mounted
+                let components = destPath.split(separator: "/", maxSplits: 3)
+                let volumeRoot = components.count >= 3 ? "/Volumes/\(components[2])" : destPath
+                destReachable = FileManager.default.fileExists(atPath: volumeRoot)
+            } else {
+                destReachable = true // rsync will create local paths
+            }
             checks.append(ConnectionCheck(
                 name: "Destination Path",
-                passed: destExists,
-                message: destExists ? "✅ \(destPath)" : "⚠️  Path not found (will be created): \(destPath)"
+                passed: destReachable,
+                message: destExists
+                    ? "✅ \(destPath)"
+                    : destReachable
+                        ? "⚠️  Path not found (will be created): \(destPath)"
+                        : "❌ Volume not mounted: \(destPath)"
             ))
         }
 
