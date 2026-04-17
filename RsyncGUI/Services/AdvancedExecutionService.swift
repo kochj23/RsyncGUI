@@ -407,9 +407,10 @@ class AdvancedExecutionService {
 
             // Hash the file list
             for info in fileInfos {
-                checksumData.append(info.path.data(using: .utf8)!)
-                checksumData.append(String(info.mtime.timeIntervalSince1970).data(using: .utf8)!)
-                checksumData.append(String(info.size).data(using: .utf8)!)
+                guard let pathData = info.path.data(using: .utf8) else { continue }
+                checksumData.append(pathData)
+                checksumData.append(String(info.mtime.timeIntervalSince1970).data(using: .utf8) ?? Data())
+                checksumData.append(String(info.size).data(using: .utf8) ?? Data())
             }
         }
 

@@ -26,6 +26,18 @@ class NovaAPIServer {
     let port: UInt16 = 37424
     private var listener: NWListener?
     private let startTime = Date()
+
+    /// Local-only anti-CSRF bearer token (not a secret — just prevents drive-by POST from browser JS)
+    private let apiToken: String = {
+        let key = "NovaAPIToken"
+        if let existing = UserDefaults.standard.string(forKey: key), !existing.isEmpty {
+            return existing
+        }
+        let token = UUID().uuidString
+        UserDefaults.standard.set(token, forKey: key)
+        return token
+    }()
+
     private init() {}
 
     func start() {
@@ -56,6 +68,14 @@ class NovaAPIServer {
 
     private func route(_ req: NovaRequest) async -> String {
         if req.method == "OPTIONS" { return http(200, "") }
+
+        // Require bearer token for all POST requests (anti-CSRF)
+        if req.method == "POST" {
+            guard let auth = req.headers["authorization"], auth == "Bearer \(apiToken)" else {
+                return json(401, ["error": "Unauthorized — missing or invalid Bearer token"] as [String: Any])
+            }
+        }
+
         let jm = JobManager.shared
         let hm = ExecutionHistoryManager.shared
 
@@ -67,10 +87,10 @@ class NovaAPIServer {
                 "jobCount": jm.jobs.count,
                 "enabledJobs": jm.jobs.filter { $0.isEnabled }.count,
                 "uptimeSeconds": Int(Date().timeIntervalSince(startTime))
-            ])
+            ] as [String: Any])
 
         case ("GET", "/api/ping"):
-            return json(200, ["pong": true])
+            return json(200, ["pong": "true"] as [String: Any])
 
         case ("GET", "/api/jobs"):
             let jobs = jm.jobs.map { j -> [String: Any] in [
@@ -87,7 +107,7 @@ class NovaAPIServer {
             let idStr = req.path.replacingOccurrences(of: "/api/jobs/", with: "")
             guard let uuid = UUID(uuidString: idStr),
                   let job = jm.jobs.first(where: { $0.id == uuid }) else {
-                return json(404, ["error": "Job not found"])
+                return json(404, ["error": "Job not found"] as [String: Any])
             }
             return json(200, [
                 "id": job.id.uuidString, "name": job.name,
@@ -99,23 +119,23 @@ class NovaAPIServer {
             let idStr = req.path.components(separatedBy: "/").dropLast().last ?? ""
             guard let uuid = UUID(uuidString: idStr),
                   let job = jm.jobs.first(where: { $0.id == uuid }) else {
-                return json(404, ["error": "Job not found"])
+                return json(404, ["error": "Job not found"] as [String: Any])
             }
             Task {
                 _ = try? await jm.executeJob(job, dryRun: false)
             }
-            return json(200, ["status": "started", "job": job.name])
+            return json(200, ["status": "started", "job": job.name] as [String: Any])
 
         case ("POST", _) where req.path.hasSuffix("/dryrun"):
             let idStr = req.path.components(separatedBy: "/").dropLast().last ?? ""
             guard let uuid = UUID(uuidString: idStr),
                   let job = jm.jobs.first(where: { $0.id == uuid }) else {
-                return json(404, ["error": "Job not found"])
+                return json(404, ["error": "Job not found"] as [String: Any])
             }
             Task {
                 _ = try? await jm.executeJob(job, dryRun: true)
             }
-            return json(200, ["status": "dryrun_started", "job": job.name])
+            return json(200, ["status": "dryrun_started", "job": job.name] as [String: Any])
 
         case ("GET", "/api/history"):
             let entries = hm.getAllHistory(limit: 50).map { e -> [String: Any] in [
@@ -130,7 +150,7 @@ class NovaAPIServer {
 
         case ("GET", _) where req.path.hasSuffix("/history"):
             let idStr = req.path.components(separatedBy: "/").dropLast().last ?? ""
-            guard let uuid = UUID(uuidString: idStr) else { return json(400, ["error": "Invalid UUID"]) }
+            guard let uuid = UUID(uuidString: idStr) else { return json(400, ["error": "Invalid UUID"] as [String: Any]) }
             let entries = hm.getHistory(for: uuid).map { e -> [String: Any] in [
                 "id": e.id.uuidString,
                 "startTime": ISO8601DateFormatter().string(from: e.timestamp),
@@ -141,12 +161,12 @@ class NovaAPIServer {
             return jsonArray(200, entries)
 
         default:
-            return json(404, ["error": "Not found: \(req.method) \(req.path)"])
+            return json(404, ["error": "Not found: \(req.method) \(req.path)"] as [String: Any])
         }
     }
 
     private struct NovaRequest {
-        let method: String; let path: String; let body: String
+        let method: String; let path: String; let body: String; let headers: [String: String]
         func bodyJSON() -> [String: Any]? { guard let d = body.data(using: .utf8) else { return nil }; return try? JSONSerialization.jsonObject(with: d) as? [String: Any] }
         init?(_ data: Data) {
             guard let raw = String(data: data, encoding: .utf8), raw.contains("\r\n\r\n") else { return nil }
@@ -155,10 +175,10 @@ class NovaAPIServer {
             var hdrs: [String: String] = [:]; for l in lines.dropFirst() { let kv = l.components(separatedBy: ": "); if kv.count >= 2 { hdrs[kv[0].lowercased()] = kv.dropFirst().joined(separator: ": ") } }
             let rawBody = parts.dropFirst().joined(separator: "\r\n\r\n")
             if let cl = hdrs["content-length"], let n = Int(cl), rawBody.utf8.count < n { return nil }
-            method = tokens[0]; path = tokens[1].components(separatedBy: "?").first ?? tokens[1]; body = rawBody
+            method = tokens[0]; path = tokens[1].components(separatedBy: "?").first ?? tokens[1]; body = rawBody; headers = hdrs
         }
     }
     private func json(_ s: Int, _ d: [String: Any]) -> String { guard let data = try? JSONSerialization.data(withJSONObject: d, options: .prettyPrinted), let body = String(data: data, encoding: .utf8) else { return http(500, "") }; return http(s, body, "application/json") }
     private func jsonArray(_ s: Int, _ a: [[String: Any]]) -> String { guard let data = try? JSONSerialization.data(withJSONObject: a, options: .prettyPrinted), let body = String(data: data, encoding: .utf8) else { return http(500, "") }; return http(s, body, "application/json") }
-    private func http(_ s: Int, _ body: String, _ ct: String = "text/plain") -> String { let st = [200:"OK",201:"Created",400:"Bad Request",404:"Not Found",500:"Internal Server Error"][s] ?? "Unknown"; return "HTTP/1.1 \(s) \(st)\r\nContent-Type: \(ct); charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n\(body)" }
+    private func http(_ s: Int, _ body: String, _ ct: String = "text/plain") -> String { let st = [200:"OK",201:"Created",400:"Bad Request",401:"Unauthorized",404:"Not Found",500:"Internal Server Error"][s] ?? "Unknown"; return "HTTP/1.1 \(s) \(st)\r\nContent-Type: \(ct); charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)" }
 }

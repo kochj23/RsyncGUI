@@ -20,6 +20,7 @@
 //
 
 import Foundation
+import Security
 import SwiftUI
 import Combine
 
@@ -124,7 +125,7 @@ class AIBackendManager: ObservableObject {
     @Published var openWebUIServerURL: String = "http://localhost:3000"
     @Published var pythonPath: String = "/opt/homebrew/bin/python3"
 
-    // Cloud API keys (stored in Keychain in production; placeholders for availability checks)
+    // Cloud API keys (persisted in macOS Keychain)
     @Published var openAIAPIKey: String = ""
     @Published var googleCloudAPIKey: String = ""
     @Published var azureAPIKey: String = ""
@@ -152,6 +153,47 @@ class AIBackendManager: ObservableObject {
         static let aiEnabled = "AIBackendManager_AIEnabled"
     }
 
+    // MARK: - Keychain Helpers
+
+    private let keychainService = "com.digitalnoise.RsyncGUI"
+
+    private func saveToKeychain(key: String, value: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: keychainService
+        ]
+        SecItemDelete(query as CFDictionary)
+        guard !value.isEmpty else { return }
+        var addQuery = query
+        addQuery[kSecValueData as String] = data
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+
+    private func loadFromKeychain(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: keychainService,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    private func deleteFromKeychain(key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: keychainService
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
     // MARK: - Initialization
 
     private init() {
@@ -171,6 +213,13 @@ class AIBackendManager: ObservableObject {
         tinyChatServerURL = userDefaults.string(forKey: Keys.tinyChatServerURL) ?? "http://localhost:8000"
         pythonPath = userDefaults.string(forKey: Keys.pythonPath) ?? "/opt/homebrew/bin/python3"
         aiEnabled = userDefaults.bool(forKey: Keys.aiEnabled)
+
+        // Cloud API keys loaded from macOS Keychain
+        openAIAPIKey = loadFromKeychain(key: "AIBackend_OpenAI_Key") ?? ""
+        googleCloudAPIKey = loadFromKeychain(key: "AIBackend_GoogleCloud_Key") ?? ""
+        azureAPIKey = loadFromKeychain(key: "AIBackend_Azure_Key") ?? ""
+        awsAccessKey = loadFromKeychain(key: "AIBackend_AWS_AccessKey") ?? ""
+        ibmWatsonAPIKey = loadFromKeychain(key: "AIBackend_IBM_Key") ?? ""
     }
 
     func saveSettings() {
@@ -180,6 +229,13 @@ class AIBackendManager: ObservableObject {
         userDefaults.set(tinyChatServerURL, forKey: Keys.tinyChatServerURL)
         userDefaults.set(pythonPath, forKey: Keys.pythonPath)
         userDefaults.set(aiEnabled, forKey: Keys.aiEnabled)
+
+        // Cloud API keys stored in macOS Keychain
+        saveToKeychain(key: "AIBackend_OpenAI_Key", value: openAIAPIKey)
+        saveToKeychain(key: "AIBackend_GoogleCloud_Key", value: googleCloudAPIKey)
+        saveToKeychain(key: "AIBackend_Azure_Key", value: azureAPIKey)
+        saveToKeychain(key: "AIBackend_AWS_AccessKey", value: awsAccessKey)
+        saveToKeychain(key: "AIBackend_IBM_Key", value: ibmWatsonAPIKey)
     }
 
     // MARK: - Backend Availability
@@ -382,14 +438,23 @@ class AIBackendManager: ObservableObject {
         if let systemPrompt = systemPrompt { fullPrompt += "System: \(systemPrompt)\n\n" }
         fullPrompt += "User: \(prompt)\n\nAssistant:"
 
+        // SECURITY: Write prompt to a temporary file instead of interpolating into Python code.
+        // This prevents Python code injection through crafted prompt strings.
+        let promptId = UUID().uuidString
+        let promptFile = FileManager.default.temporaryDirectory.appendingPathComponent("mlx_prompt_\(promptId).txt")
+        try fullPrompt.write(to: promptFile, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: promptFile) }
+
         let script = """
         import mlx_lm
         model, tokenizer = mlx_lm.load("mlx-community/Llama-3.2-1B-Instruct-4bit")
-        response = mlx_lm.generate(model, tokenizer, prompt='''\(fullPrompt.replacingOccurrences(of: "'", with: "\\'"))''', max_tokens=\(maxTokens), temp=\(temperature), verbose=False)
+        with open("\(promptFile.path.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\""))") as f:
+            prompt_text = f.read()
+        response = mlx_lm.generate(model, tokenizer, prompt=prompt_text, max_tokens=\(maxTokens), temp=\(temperature), verbose=False)
         print(response)
         """
 
-        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("mlx_\(UUID().uuidString).py")
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("mlx_\(promptId).py")
         try script.write(to: tempFile, atomically: true, encoding: .utf8)
         defer { try? FileManager.default.removeItem(at: tempFile) }
 
