@@ -140,8 +140,6 @@ class AIBackendManager: ObservableObject {
     @Published var connectionTestResults: [AIBackend: ConnectionTestResult] = [:]
     @Published var usageStats: [AIBackend: UsageStats] = [:]
     @Published var performanceMetrics: [AIBackend: PerformanceMetrics] = [:]
-    @Published var availableOllamaModels: [String] = []
-    @Published var selectedOllamaModel: String = ""
     @Published var availableMLXModels: [String] = []
     @Published var selectedMLXModel: String = ""
     var monitoringTimer: Timer?
@@ -688,7 +686,7 @@ struct AISettingsView: View {
         Form {
             Section("AI Features") {
                 Toggle("Enable AI Assistance", isOn: $manager.aiEnabled)
-                    .onChange(of: manager.aiEnabled) { _ in manager.saveSettings() }
+                    .onChange(of: manager.aiEnabled) { manager.saveSettings() }
 
                 Text("AI can help with anomaly detection, smart scheduling, and exclusion suggestions.")
                     .font(.caption)
@@ -701,7 +699,7 @@ struct AISettingsView: View {
                         Label(backend.rawValue, systemImage: backend.icon).tag(backend)
                     }
                 }
-                .onChange(of: manager.selectedBackend) { _ in
+                .onChange(of: manager.selectedBackend) {
                     manager.saveSettings()
                     Task { await manager.checkBackendAvailability() }
                 }
@@ -758,9 +756,9 @@ struct AISettingsView: View {
             }
             let response = try JSONDecoder().decode(OllamaModelsResponse.self, from: data)
             await MainActor.run {
-                self.availableOllamaModels = response.models.map { $0.name }
-                if self.selectedOllamaModel.isEmpty, let first = self.availableOllamaModels.first {
-                    self.selectedOllamaModel = first
+                self.manager.ollamaModels = response.models.map { $0.name }
+                if self.manager.selectedOllamaModel.isEmpty, let first = self.manager.ollamaModels.first {
+                    self.manager.selectedOllamaModel = first
                 }
             }
         } catch {
@@ -779,9 +777,9 @@ struct AISettingsView: View {
             }
             let response = try JSONDecoder().decode(MLXModelsResponse.self, from: data)
             await MainActor.run {
-                self.availableMLXModels = response.data.map { $0.id }
-                if self.selectedMLXModel.isEmpty, let first = self.availableMLXModels.first {
-                    self.selectedMLXModel = first
+                self.manager.availableMLXModels = response.data.map { $0.id }
+                if self.manager.selectedMLXModel.isEmpty, let first = self.manager.availableMLXModels.first {
+                    self.manager.selectedMLXModel = first
                 }
             }
         } catch {

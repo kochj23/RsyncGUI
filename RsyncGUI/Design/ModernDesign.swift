@@ -361,9 +361,9 @@ struct CircularGauge: View {
         .onAppear {
             animatedValue = value
         }
-        .onChange(of: value) { newValue in
+        .onChange(of: value) {
             withAnimation(.easeInOut(duration: 0.6)) {
-                animatedValue = newValue
+                animatedValue = value
             }
         }
     }
@@ -392,9 +392,9 @@ struct MiniGauge: View {
         .onAppear {
             animatedValue = value
         }
-        .onChange(of: value) { newValue in
+        .onChange(of: value) {
             withAnimation(.easeInOut(duration: 0.6)) {
-                animatedValue = newValue
+                animatedValue = value
             }
         }
     }

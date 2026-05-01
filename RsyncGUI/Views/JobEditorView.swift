@@ -611,8 +611,8 @@ struct JobEditorView: View {
                             TextField("Unlimited", value: $job.options.maxDelete, format: .number)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 100)
-                                .onChange(of: job.options.maxDelete) { newValue in
-                                    if let val = newValue, val < 0 { job.options.maxDelete = nil }
+                                .onChange(of: job.options.maxDelete) {
+                                    if let val = job.options.maxDelete, val < 0 { job.options.maxDelete = nil }
                                 }
                         }
                     }
@@ -678,8 +678,8 @@ struct JobEditorView: View {
                     TextField("Auto", value: $job.options.modifyWindow, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 100)
-                        .onChange(of: job.options.modifyWindow) { newValue in
-                            if let val = newValue, val < 0 { job.options.modifyWindow = nil }
+                        .onChange(of: job.options.modifyWindow) {
+                            if let val = job.options.modifyWindow, val < 0 { job.options.modifyWindow = nil }
                         }
                 }
             }
@@ -799,8 +799,8 @@ struct JobEditorView: View {
                     TextField("Unlimited", value: $job.options.bandwidth, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
-                        .onChange(of: job.options.bandwidth) { newValue in
-                            if let val = newValue, val < 0 { job.options.bandwidth = nil }
+                        .onChange(of: job.options.bandwidth) {
+                            if let val = job.options.bandwidth, val < 0 { job.options.bandwidth = nil }
                         }
                 }
 
@@ -809,8 +809,8 @@ struct JobEditorView: View {
                     TextField("Default", value: $job.options.timeout, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
-                        .onChange(of: job.options.timeout) { newValue in
-                            if let val = newValue, val < 0 { job.options.timeout = nil }
+                        .onChange(of: job.options.timeout) {
+                            if let val = job.options.timeout, val < 0 { job.options.timeout = nil }
                         }
                 }
 
@@ -819,8 +819,8 @@ struct JobEditorView: View {
                     TextField("Auto", value: $job.options.blockSize, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
-                        .onChange(of: job.options.blockSize) { newValue in
-                            if let val = newValue, val < 0 { job.options.blockSize = nil }
+                        .onChange(of: job.options.blockSize) {
+                            if let val = job.options.blockSize, val < 0 { job.options.blockSize = nil }
                         }
                 }
 

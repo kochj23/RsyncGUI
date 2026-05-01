@@ -216,7 +216,7 @@ class AIInsightsService: ObservableObject {
         // Group by type
         let addedByType = Dictionary(grouping: added, by: { $0.type })
         let modifiedByType = Dictionary(grouping: modified, by: { $0.type })
-        let deletedByType = Dictionary(grouping: deleted, by: { $0.type })
+        _ = Dictionary(grouping: deleted, by: { $0.type })
 
         // Added files summary
         for (type, files) in addedByType.sorted(by: { $0.value.count > $1.value.count }) {
@@ -283,8 +283,6 @@ class AIInsightsService: ObservableObject {
         var deletedCount = 0
         var addedCount = 0
         var encryptedExtensions = 0
-        var renamedCount = 0
-
         // Suspicious extensions often used by ransomware
         let ransomwareExtensions = ["encrypted", "locked", "crypto", "crypt", "enc", "pay", "ransom", "wcry", "wncry", "locky", "cerber"]
 

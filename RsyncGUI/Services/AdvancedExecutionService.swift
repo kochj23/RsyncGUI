@@ -287,21 +287,24 @@ class AdvancedExecutionService {
     private func analyzeSourceDirectory(path: String) async throws -> [String] {
         let expandedPath = path.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
         let url = URL(fileURLWithPath: expandedPath)
+        let maxFiles = AdvancedExecutionService.maxParallelFiles
 
+        // Enumerate files synchronously to avoid makeIterator() unavailability in async context.
+        // Yield periodically between batches to avoid starving the cooperative thread pool.
         var files: [String] = []
-        files.reserveCapacity(min(1000, AdvancedExecutionService.maxParallelFiles))
+        files.reserveCapacity(min(1000, maxFiles))
 
+        var batchCount = 0
         if let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey]) {
-            for case let fileURL as URL in enumerator {
-                // Yield periodically to avoid starving the cooperative thread pool
-                if files.count % 5000 == 0 && files.count > 0 {
+            while let obj = enumerator.nextObject() {
+                guard let fileURL = obj as? URL else { continue }
+                batchCount += 1
+                if batchCount % 5000 == 0 {
                     await Task.yield()
                 }
 
-                // Cap file list to prevent OOM on very large directories.
-                // Standard rsync execution handles large trees better than splitting by file list.
-                if files.count >= AdvancedExecutionService.maxParallelFiles {
-                    NSLog("[Parallel] File count hit %d limit — truncating list. Remaining files handled by rsync directly.", AdvancedExecutionService.maxParallelFiles)
+                if files.count >= maxFiles {
+                    NSLog("[Parallel] File count hit %d limit — truncating list. Remaining files handled by rsync directly.", maxFiles)
                     break
                 }
 
@@ -381,7 +384,8 @@ class AdvancedExecutionService {
         if let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]) {
             var fileInfos: [(path: String, mtime: Date, size: Int64)] = []
 
-            for case let fileURL as URL in enumerator {
+            while let obj = enumerator.nextObject() {
+                guard let fileURL = obj as? URL else { continue }
                 // Yield every 5,000 files to avoid blocking the cooperative thread pool
                 if fileCount % 5000 == 0 && fileCount > 0 {
                     await Task.yield()

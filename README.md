@@ -27,6 +27,7 @@ A modern replacement for the discontinued [RsyncOSX](https://github.com/rsyncOSX
 - [Screenshots](#screenshots)
 - [Getting Started](#getting-started)
 - [Build from Source](#build-from-source)
+- [Test Suite](#test-suite)
 - [Nova API Server](#nova-api-server)
 - [Security](#security)
 - [Project Structure](#project-structure)
@@ -150,6 +151,28 @@ Data flow:
   AIInsightsService  --->   Diagnoses errors, detects
   analyzes history          anomalies, scores health,
                             predicts storage needs
+```
+
+### Data Flow Diagram
+
+```mermaid
+graph TD
+    A[SwiftUI Frontend] -->|Create/Edit Job| B[JobManager]
+    B -->|Persist| C[(jobs.json)]
+    B -->|Execute| D[RsyncExecutor]
+    D -->|Build Arguments| E[RsyncOptions.toArguments]
+    E -->|Process.arguments array| F[/usr/bin/rsync]
+    F -->|stdout| G[Progress Parser]
+    G -->|Real-time updates| H[SyncProgressView]
+    F -->|Exit code + stats| I[ExecutionResult]
+    I -->|Save| J[ExecutionHistoryManager]
+    I -->|Push| K[WidgetDataSync]
+    K -->|App Group| L[WidgetKit Extension]
+    I -->|Analyze| M[AIInsightsService]
+    M -->|Health score, anomalies| A
+    B -->|Schedule| N[ScheduleManager]
+    N -->|Generate plist| O[~/Library/LaunchAgents/]
+    P[Nova API Server :37424] -->|HTTP| B
 ```
 
 ---
@@ -322,6 +345,45 @@ xcodebuild -project RsyncGUI.xcodeproj \
 ```
 
 The app builds without sandbox entitlements (`com.apple.security.app-sandbox = false`) for unrestricted file system access.
+
+---
+
+## Test Suite
+
+RsyncGUI includes a comprehensive XCTest suite with **285 tests** across 11 test classes. Run tests with:
+
+```bash
+xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI test -destination 'platform=macOS'
+```
+
+### Test Categories
+
+| Test Class | Tests | Coverage |
+|---|---|---|
+| **RsyncOptionsTests** | 40 | Argument generation for all 100+ rsync flags, archive mode interactions, filter sanitization, Codable roundtrip |
+| **SyncJobTests** | 22 | Job initialization, legacy accessors, sync modes, execution strategy, destination types, Codable roundtrip |
+| **CommandInjectionTests** | 18 | SSH host/user validation, rsync-path sanitization, exclude pattern injection, shell escape correctness |
+| **PathValidationTests** | 20 | Tilde expansion, iCloud Drive validation, SMB/USB volumes, path traversal detection, trailing slash semantics |
+| **ScheduleConfigTests** | 17 | Hourly/daily/weekly/monthly plist generation, RunAtLoad, idle config, XML injection prevention, Codable roundtrip |
+| **DeltaReportTests** | 11 | Report initialization, summary formatting, itemize output parsing, mixed change detection, truncation |
+| **DependencyCheckTests** | 12 | Satisfied/unsatisfied dependencies, missing jobs, multiple dependency chains, parallel file splitting |
+| **ExecutionHistoryTests** | 15 | History entry creation, Codable roundtrip, transfer speed calculations, progress formatting, parallelism config |
+| **ProgressParsingTests** | 30 | Speed parsing (B/KB/MB/GB), time parsing, bytes parsing, final stats extraction, to-check progress lines |
+| **IntegrationTests** | 14 | Rsync binary verification, local-to-local sync with temp dirs, dry run, --delete, --exclude, special characters |
+| **SecurityTests** | 86 | Path traversal prevention, command injection, credential exposure, filter sanitization, script validation, binary resolution |
+
+### Security Test Coverage
+
+The security tests verify:
+- **No command injection** via Process.arguments (no shell interpolation)
+- **SSH key path traversal** blocked (`..` sequences rejected)
+- **SSH host/user validation** rejects shell metacharacters
+- **Filter pattern sanitization** rejects all C0 control characters and DEL
+- **Script validation** blocks inline shell commands (only absolute paths to executables)
+- **Rsync binary resolution** uses hardcoded paths, never UserDefaults
+- **Launchd plist generation** uses PropertyListSerialization (no XML injection)
+- **Output buffer cap** prevents OOM (10 MB limit)
+- **Error messages** do not expose credentials
 
 ---
 
@@ -558,6 +620,7 @@ RsyncGUI/
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.7.4** | May 2026 | Full QE pipeline: 285 tests (11 test classes), Swift 6 concurrency fixes, deprecated API cleanup, 37 warning fixes |
 | **v1.7.3** | March 2026 | SMB/USB destination picker fix, external path validation fix, log folder creation |
 | **v1.7.2** | March 2026 | Large job stability (10 MB output cap), iCloud `.icloud` exclusion, async script execution |
 | **v1.7.1** | March 2026 | Shell injection blocked in pre/post scripts, rsync binary hardcoded, SSH key/host validation |

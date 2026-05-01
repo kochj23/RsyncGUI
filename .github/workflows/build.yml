@@ -1,4 +1,4 @@
-name: Build
+name: Build & Test
 
 on:
   push:
@@ -32,5 +32,20 @@ jobs:
           -scheme "$SCHEME" \
           -destination 'platform=macOS' \
           CODE_SIGNING_ALLOWED=NO \
-          SWIFT_TREAT_WARNINGS_AS_ERRORS=NO \
           | tail -20
+
+    - name: Test
+      run: |
+        XCODEPROJ=$(find . -name "*.xcodeproj" -maxdepth 2 | head -1)
+        SCHEME=$(xcodebuild -list -project "$XCODEPROJ" 2>/dev/null | awk '/Schemes:/{found=1; next} found && NF{print; exit}' | xargs)
+        if [ -z "$SCHEME" ]; then
+          SCHEME=$(basename "$XCODEPROJ" .xcodeproj)
+        fi
+
+        echo "Testing scheme: $SCHEME"
+        xcodebuild test \
+          -project "$XCODEPROJ" \
+          -scheme "$SCHEME" \
+          -destination 'platform=macOS' \
+          CODE_SIGNING_ALLOWED=NO \
+          | tail -50

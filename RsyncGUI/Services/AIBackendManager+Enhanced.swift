@@ -355,7 +355,7 @@ extension AIBackendManager {
     /// Register global keyboard shortcuts for backend switching
     func registerKeyboardShortcuts() {
         // ⌘1-⌘9 for quick backend switching
-        let shortcuts: [(Int, AIBackend)] = [
+        let _shortcuts: [(Int, AIBackend)] = [
             (1, .ollama),
             (2, .openAI),
             (3, .mlx),
@@ -366,6 +366,7 @@ extension AIBackendManager {
             (8, .tinyChat),
             (9, .openWebUI)
         ]
+        _ = _shortcuts
 
         // Note: Actual implementation would use NSEvent.addLocalMonitorForEvents
         // This is a placeholder for the concept

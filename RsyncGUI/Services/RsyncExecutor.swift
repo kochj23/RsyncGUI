@@ -510,8 +510,67 @@ class RsyncExecutor: ObservableObject {
 
     // MARK: - Command Execution
 
+    /// Thread-safe container for data accumulated during rsync process execution.
+    /// Marked @unchecked Sendable because all access is serialized through the internal NSLock.
+    private final class ProcessDataCollector: @unchecked Sendable {
+        private let lock = NSLock()
+        private var _outputData = Data()
+        private var _errorData = Data()
+        private var _isTerminating = false
+        private var _outputTruncated = false
+        let handlerGroup = DispatchGroup()
+
+        var isTerminating: Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            return _isTerminating
+        }
+
+        func setTerminating() {
+            lock.lock()
+            _isTerminating = true
+            lock.unlock()
+        }
+
+        /// Returns true if the handler should proceed (not terminating), and enters the group.
+        func enterIfNotTerminating() -> Bool {
+            lock.lock()
+            let ok = !_isTerminating
+            if ok { handlerGroup.enter() }
+            lock.unlock()
+            return ok
+        }
+
+        func appendOutput(_ data: Data) {
+            lock.lock()
+            if _outputData.count < 10 * 1024 * 1024 {
+                _outputData.append(data)
+            } else if !_outputTruncated {
+                _outputTruncated = true
+                let notice = Data("\n Output truncated at 10 MB. Full output available in system log (Console.app).\n".utf8)
+                _outputData.append(notice)
+                NSLog("[RsyncExecutor] Output cap reached (10 MB) — truncating display output")
+            }
+            lock.unlock()
+        }
+
+        func appendError(_ data: Data) {
+            lock.lock()
+            _errorData.append(data)
+            lock.unlock()
+        }
+
+        func finalData() -> (output: Data, error: Data) {
+            lock.lock()
+            let out = _outputData
+            let err = _errorData
+            lock.unlock()
+            return (out, err)
+        }
+    }
+
     private func executeCommand(_ command: [String], result: ExecutionResult) async throws -> ExecutionResult {
-        var mutableResult = result
+        let initialResult = result
 
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
@@ -526,77 +585,34 @@ class RsyncExecutor: ObservableObject {
             process.standardOutput = outputPipe
             process.standardError = errorPipe
 
-            // Thread-safe data accumulation and termination signaling
-            let dataLock = NSLock()
-            var outputData = Data()
-            var errorData = Data()
-            var isTerminating = false
-            var outputTruncated = false
-
-            // Track active handlers to prevent race conditions
-            let handlerGroup = DispatchGroup()
+            let collector = ProcessDataCollector()
 
             // Read output asynchronously
             outputPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
-                // Check if we're terminating before processing
-                dataLock.lock()
-                let shouldProcess = !isTerminating
-                if shouldProcess {
-                    handlerGroup.enter()
-                }
-                dataLock.unlock()
+                guard collector.enterIfNotTerminating() else { return }
+                defer { collector.handlerGroup.leave() }
 
-                guard shouldProcess else { return }
-                defer { handlerGroup.leave() }
-
-                guard let self = self else { return }
+                guard self != nil else { return }
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
 
-                // Make a defensive copy of the data for thread safety
                 let dataCopy = Data(data)
-
-                // Thread-safe append with output cap to prevent OOM on large jobs
-                dataLock.lock()
-                if outputData.count < RsyncExecutor.maxOutputBytes {
-                    outputData.append(dataCopy)
-                } else if !outputTruncated {
-                    outputTruncated = true
-                    let notice = Data("\n⚠️ Output truncated at 10 MB. Full output available in system log (Console.app).\n".utf8)
-                    outputData.append(notice)
-                    NSLog("[RsyncExecutor] Output cap reached (10 MB) — truncating display output")
-                }
-                dataLock.unlock()
+                collector.appendOutput(dataCopy)
 
                 if let output = String(data: dataCopy, encoding: .utf8) {
-                    // String(data:encoding:) already returns an owned String
-                    self.parseProgress(from: output)
+                    self?.parseProgress(from: output)
                 }
             }
 
             errorPipe.fileHandleForReading.readabilityHandler = { [weak self] handle in
-                // Check if we're terminating before processing
-                dataLock.lock()
-                let shouldProcess = !isTerminating
-                if shouldProcess {
-                    handlerGroup.enter()
-                }
-                dataLock.unlock()
+                guard collector.enterIfNotTerminating() else { return }
+                defer { collector.handlerGroup.leave() }
 
-                guard shouldProcess else { return }
-                defer { handlerGroup.leave() }
-
-                guard let self = self else { return }
+                guard self != nil else { return }
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
 
-                // Make a defensive copy
-                let dataCopy = Data(data)
-
-                // Thread-safe append
-                dataLock.lock()
-                errorData.append(dataCopy)
-                dataLock.unlock()
+                collector.appendError(Data(data))
             }
 
             process.terminationHandler = { [weak self] process in
@@ -605,45 +621,33 @@ class RsyncExecutor: ObservableObject {
                     return
                 }
 
-                // Signal handlers to stop accepting new data
-                dataLock.lock()
-                isTerminating = true
-                dataLock.unlock()
+                collector.setTerminating()
 
-                // Nil out handlers first to prevent new callbacks from being dispatched,
-                // then wait for any already in-flight handler invocations to complete.
                 outputPipe.fileHandleForReading.readabilityHandler = nil
                 errorPipe.fileHandleForReading.readabilityHandler = nil
 
-                // Wait for any in-progress handlers to complete (with timeout)
-                _ = handlerGroup.wait(timeout: .now() + 2.0)
+                _ = collector.handlerGroup.wait(timeout: .now() + 2.0)
 
+                var mutableResult = initialResult
                 mutableResult.endTime = Date()
 
-                // Thread-safe read of accumulated data
-                dataLock.lock()
-                let finalOutputData = outputData
-                let finalErrorData = errorData
-                dataLock.unlock()
+                let finalData = collector.finalData()
 
-                if let output = String(data: finalOutputData, encoding: .utf8) {
+                if let output = String(data: finalData.output, encoding: .utf8) {
                     mutableResult.output = output
 
-                    // Parse final statistics
                     let stats = self.parseFinalStats(from: output)
                     mutableResult.filesTransferred = stats.filesTransferred
                     mutableResult.bytesTransferred = stats.bytesTransferred
                 }
 
-                if let errorOutput = String(data: finalErrorData, encoding: .utf8), !errorOutput.isEmpty {
+                if let errorOutput = String(data: finalData.error, encoding: .utf8), !errorOutput.isEmpty {
                     mutableResult.errors.append(errorOutput)
                 }
 
-                // Determine status
                 if process.terminationStatus == 0 {
                     mutableResult.status = .success
                 } else if process.terminationStatus == 23 {
-                    // rsync exit code 23 = partial transfer (some files/attrs not transferred)
                     mutableResult.status = .partialSuccess
                 } else if process.terminationReason == .exit {
                     mutableResult.status = .failed

@@ -131,7 +131,7 @@ struct JobDetailView: View {
 
                     Spacer()
 
-                    if let keyPath = job.sshKeyPath {
+                    if job.sshKeyPath != nil {
                         HStack(spacing: 4) {
                             Image(systemName: "key.fill")
                                 .foregroundColor(ModernColors.purple)
