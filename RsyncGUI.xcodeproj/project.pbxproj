@@ -56,6 +56,10 @@
 		TEST1PROGPARSE1BLDFILE123 /* ProgressParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */; };
 		TEST1INTEGRAT1BLDFILE1234 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */; };
 		TEST1SECURITY1BLDFILE1234 /* SecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */; };
+		TEST1FRAMETST1BLDFILE1234 /* FrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */; };
+		TEST1FUNCFLOW1BLDFILE1234 /* FunctionalFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */; };
+		TEST1WIDGETDT1BLDFILE1234 /* WidgetDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */; };
+		TEST1NOVAAPI1BLDFILE12345 /* NovaAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +147,10 @@
 		TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressParsingTests.swift; sourceTree = "<group>"; };
 		TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
 		TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityTests.swift; sourceTree = "<group>"; };
+		TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameTests.swift; sourceTree = "<group>"; };
+		TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalFlowTests.swift; sourceTree = "<group>"; };
+		TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataTests.swift; sourceTree = "<group>"; };
+		TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovaAPITests.swift; sourceTree = "<group>"; };
 		TEST1BUNDLE1PRODUCT123456 /* RsyncGUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RsyncGUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -324,6 +332,10 @@
 				TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */,
 				TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */,
 				TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */,
+				TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */,
+				TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */,
+				TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */,
+				TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */,
 			);
 			path = RsyncGUITests;
 			sourceTree = "<group>";
@@ -519,6 +531,10 @@
 				TEST1PROGPARSE1BLDFILE123 /* ProgressParsingTests.swift in Sources */,
 				TEST1INTEGRAT1BLDFILE1234 /* IntegrationTests.swift in Sources */,
 				TEST1SECURITY1BLDFILE1234 /* SecurityTests.swift in Sources */,
+				TEST1FRAMETST1BLDFILE1234 /* FrameTests.swift in Sources */,
+				TEST1FUNCFLOW1BLDFILE1234 /* FunctionalFlowTests.swift in Sources */,
+				TEST1WIDGETDT1BLDFILE1234 /* WidgetDataTests.swift in Sources */,
+				TEST1NOVAAPI1BLDFILE12345 /* NovaAPITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
