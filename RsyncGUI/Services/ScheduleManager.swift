@@ -80,41 +80,49 @@ class ScheduleManager {
 
     // MARK: - Launchd Integration
 
+    /// Returns the launchd GUI domain target string for the current user.
+    private var launchdDomain: String {
+        "gui/\(getuid())"
+    }
+
     private func loadSchedule(plistURL: URL) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-        task.arguments = ["load", plistURL.path]
+        task.arguments = ["bootstrap", launchdDomain, plistURL.path]
 
         do {
             try task.run()
             task.waitUntilExit()
 
             if task.terminationStatus == 0 {
-                print("✅ Loaded schedule into launchd")
+                NSLog("[ScheduleManager] Loaded schedule into launchd via bootstrap")
             } else {
-                print("⚠️  launchctl load returned status: \(task.terminationStatus)")
+                NSLog("[ScheduleManager] launchctl bootstrap returned status: %d", task.terminationStatus)
             }
         } catch {
-            print("❌ Failed to load schedule: \(error)")
+            NSLog("[ScheduleManager] Failed to load schedule: %@", error.localizedDescription)
         }
     }
 
     private func unloadSchedule(plistURL: URL) {
+        // Extract the service label from the plist filename (without .plist extension)
+        let serviceLabel = plistURL.deletingPathExtension().lastPathComponent
+
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-        task.arguments = ["unload", plistURL.path]
+        task.arguments = ["bootout", "\(launchdDomain)/\(serviceLabel)"]
 
         do {
             try task.run()
             task.waitUntilExit()
 
             if task.terminationStatus == 0 {
-                print("✅ Unloaded schedule from launchd")
+                NSLog("[ScheduleManager] Unloaded schedule from launchd via bootout")
             } else {
-                print("⚠️  launchctl unload returned status: \(task.terminationStatus)")
+                NSLog("[ScheduleManager] launchctl bootout returned status: %d", task.terminationStatus)
             }
         } catch {
-            print("❌ Failed to unload schedule: \(error)")
+            NSLog("[ScheduleManager] Failed to unload schedule: %@", error.localizedDescription)
         }
     }
 
@@ -126,8 +134,16 @@ class ScheduleManager {
         "'" + arg.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
+    /// Resolves the rsync binary from a fixed set of known locations.
+    /// Mirrors RsyncExecutor.resolveRsyncPath() — never reads from UserDefaults
+    /// to prevent binary substitution attacks via preferences tampering.
+    private func resolveRsyncPath() -> String {
+        let candidates = ["/opt/homebrew/bin/rsync", "/usr/local/bin/rsync", "/usr/bin/rsync"]
+        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) } ?? "/usr/bin/rsync"
+    }
+
     private func buildRsyncCommand(for job: SyncJob) -> String {
-        let rsyncPath = UserDefaults.standard.string(forKey: "defaultRsyncPath") ?? "/usr/bin/rsync"
+        let rsyncPath = resolveRsyncPath()
         var args = [rsyncPath]
 
         // Add options

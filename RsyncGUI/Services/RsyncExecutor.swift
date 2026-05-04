@@ -20,6 +20,11 @@ class RsyncExecutor: ObservableObject {
     private var process: Process?
     private var progressUpdateSubject = PassthroughSubject<RsyncProgress, Never>()
 
+    /// Timestamp of the last UI progress update. Used to debounce high-frequency
+    /// rsync output so the UI refreshes at most once every 250ms.
+    private var lastProgressUpdateTime: CFAbsoluteTime = 0
+    private let progressUpdateInterval: CFAbsoluteTime = 0.250 // 250ms
+
     var progressPublisher: AnyPublisher<RsyncProgress, Never> {
         progressUpdateSubject.eraseToAnyPublisher()
     }
@@ -740,6 +745,12 @@ class RsyncExecutor: ObservableObject {
             speed: speed,
             timeRemaining: timeRemaining
         )
+
+        // Debounce: only push UI updates at most once every 250ms to avoid
+        // overwhelming the main thread during verbose rsync output.
+        let now = CFAbsoluteTimeGetCurrent()
+        guard now - lastProgressUpdateTime >= progressUpdateInterval else { return }
+        lastProgressUpdateTime = now
 
         Task { @MainActor [weak self] in
             guard let self = self else { return }
