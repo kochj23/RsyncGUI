@@ -7,8 +7,8 @@ A professional macOS GUI for rsync with real-time progress, AI-powered insights,
 ![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange.svg)
 ![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-Native-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Version](https://img.shields.io/badge/version-1.7.3-purple)
-![Tests](https://img.shields.io/badge/tests-379%20passing-brightgreen)
+![Version](https://img.shields.io/badge/version-1.7.4-purple)
+![Tests](https://img.shields.io/badge/tests-403%20passing-brightgreen)
 
 ---
 
@@ -41,6 +41,8 @@ graph TD
         CV[ContentView] --> JL[JobListView]
         CV --> JD[JobDetailView]
         CV --> JE[JobEditorView]
+        JE -->|"Browse / iCloud / type path"| SDP["SyncJob.setDestinationPath(id:path:)"]
+        SDP -->|"member-wise Equatable change"| JE
         CV --> SP[SyncProgressView]
         CV --> AI[AIInsightsView]
         CV --> HT[JobHistoryTabView]
@@ -77,6 +79,7 @@ graph TD
     end
 
     UI --> Services
+    JE -->|"Save: addJob / updateJob → saveJobs()"| JM
     JM --> JOBS
     RE --> HIST
     RE --> DR
@@ -132,6 +135,35 @@ sequenceDiagram
     JM->>WK: Sync latest stats via App Group
     JM-->>UI: Job complete (success/failure)
 ```
+
+---
+
+## Fixes in 1.7.4
+
+**Destination path editing (issue #4).** Browsing to a destination and clicking
+**Select**, or typing a destination path by hand, could appear to do nothing —
+the Destination Path would not populate or would not be saved.
+
+Root cause: `SyncDestination` overrode equality (`==`) to compare only its `id`.
+SwiftUI relies on `Equatable` for change detection, so editing the `path` of an
+existing destination (unchanged `id`) was seen as "no change" and the view never
+refreshed — the edit looked lost. Three earlier attempts patched the picker
+plumbing but left this id-only equality in place, which is why it kept
+regressing.
+
+The fix:
+
+- Removed the custom `==` so Swift synthesizes correct **member-wise** equality —
+  a path change is now a real change that SwiftUI observes.
+- Extracted the path-setting logic into a pure, unit-tested helper,
+  `SyncJob.setDestinationPath(id:path:)`, that the editor calls for Browse,
+  iCloud, and manual entry. The behavior is now covered by a regression suite
+  (`DestinationEditingTests`) spanning unit, integration, functional, security,
+  performance, retry, and frame categories — including a test that locks in the
+  equality fix so this cannot silently regress again.
+
+A related destination-picker fix already shipped in **1.7.3**, so updating from
+**1.6.0** resolves the reported behavior.
 
 ---
 
@@ -239,7 +271,7 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -configuration Release b
 xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -destination 'platform=macOS' test
 ```
 
-379 tests across 15 test classes:
+403 tests across 16 test classes:
 
 | Test Class | Tests | Category |
 |------------|------:|----------|
@@ -258,6 +290,7 @@ xcodebuild -project RsyncGUI.xcodeproj -scheme RsyncGUI -destination 'platform=m
 | ExecutionHistoryTests | 17 | Unit -- history entries, transfer speed calculation, Codable |
 | IntegrationTests | 15 | Integration -- rsync binary verification, local sync with temp dirs, dry run, delete, exclude |
 | DependencyCheckTests | 15 | Unit -- satisfied/unsatisfied dependencies, missing jobs, parallel file splitting |
+| DestinationEditingTests | 25 | Unit / Integration / Functional / Security / Performance / Retry / Frame -- destination path editing (issue #4) and member-wise Equatable regression lock |
 
 ---
 

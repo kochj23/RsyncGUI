@@ -88,9 +88,12 @@ struct SyncDestination: Identifiable, Codable, Equatable {
         self.isEnabled = true
     }
 
-    static func == (lhs: SyncDestination, rhs: SyncDestination) -> Bool {
-        lhs.id == rhs.id
-    }
+    // NOTE: Equatable is synthesized member-wise on purpose. A previous custom
+    // `==` compared only `.id`, which lied to SwiftUI's change detection: editing
+    // `.path` on an existing destination (same id) looked like "no change", so the
+    // view never refreshed and edits appeared lost (issue #4). Member-wise equality
+    // means a path change is a real change. Identity lookups still use `.id ==`
+    // / `firstIndex(where:)`, so nothing depends on id-only equality.
 }
 
 /// Represents a complete rsync synchronization job
@@ -272,6 +275,18 @@ struct SyncJob: Identifiable, Codable {
         self.totalRuns = 0
         self.successfulRuns = 0
         self.failedRuns = 0
+    }
+
+    /// Set the path of the destination matching `id`. Unknown id is a no-op.
+    ///
+    /// Extracted as a pure, unit-testable mutation so the path-setting logic that
+    /// kept regressing (issue #4) is exercised by tests, not only buried in the UI.
+    /// Because `SyncDestination` is member-wise Equatable, assigning a new path here
+    /// registers as a real change that SwiftUI will observe.
+    mutating func setDestinationPath(id: UUID, path: String) {
+        if let index = destinations.firstIndex(where: { $0.id == id }) {
+            destinations[index].path = path
+        }
     }
 
     /// Get iCloud Drive path

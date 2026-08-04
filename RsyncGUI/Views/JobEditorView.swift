@@ -530,9 +530,7 @@ struct JobEditorView: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         let selectedPath = url.path
         DispatchQueue.main.async {
-            if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
-                self.job.destinations[index].path = selectedPath
-            }
+            self.job.setDestinationPath(id: destinationId, path: selectedPath)
         }
     }
 
@@ -564,19 +562,22 @@ struct JobEditorView: View {
         }
 
         DispatchQueue.main.async {
-            if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
-                self.job.destinations[index].path = url.path
-                do {
-                    let bookmark = try url.bookmarkData(
-                        options: [.withSecurityScope],
-                        includingResourceValuesForKeys: nil,
-                        relativeTo: nil
-                    )
+            // Set the path through the shared helper so the (tested) path-setting
+            // logic is identical to every other destination edit.
+            self.job.setDestinationPath(id: destinationId, path: url.path)
+            do {
+                let bookmark = try url.bookmarkData(
+                    options: [.withSecurityScope],
+                    includingResourceValuesForKeys: nil,
+                    relativeTo: nil
+                )
+                // A bookmark failure must not lose the path we just set above.
+                if let index = self.job.destinations.firstIndex(where: { $0.id == destinationId }) {
                     self.job.destinations[index].bookmark = bookmark
-                    NSLog("[JobEditor] ✅ iCloud Drive destination set: %@", url.path)
-                } catch {
-                    NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
                 }
+                NSLog("[JobEditor] ✅ iCloud Drive destination set: %@", url.path)
+            } catch {
+                NSLog("[JobEditor] Failed to create bookmark: %@", error.localizedDescription)
             }
         }
     }

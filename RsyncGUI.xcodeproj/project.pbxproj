@@ -49,6 +49,7 @@
 		TEST1SCHEDCFG1BLDFILE1234 /* ScheduleConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */; };
 		TEST1CMDINJECT1BLDFILE123 /* CommandInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */; };
 		TEST1SYNCJOB1BLDFILE12345 /* SyncJobTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */; };
+		TEST1DESTEDIT1BLDFILE1234 /* DestinationEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */; };
 		TEST1PATHVAL1BLDFILE12345 /* PathValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */; };
 		TEST1DELTARPT1BLDFILE1234 /* DeltaReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */; };
 		TEST1DEPCHECK1BLDFILE1234 /* DependencyCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */; };
@@ -140,6 +141,7 @@
 		TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleConfigTests.swift; sourceTree = "<group>"; };
 		TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandInjectionTests.swift; sourceTree = "<group>"; };
 		TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobTests.swift; sourceTree = "<group>"; };
+		TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationEditingTests.swift; sourceTree = "<group>"; };
 		TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathValidationTests.swift; sourceTree = "<group>"; };
 		TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaReportTests.swift; sourceTree = "<group>"; };
 		TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyCheckTests.swift; sourceTree = "<group>"; };
@@ -325,6 +327,7 @@
 				TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */,
 				TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */,
 				TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */,
+				TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */,
 				TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */,
 				TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */,
 				TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */,
@@ -524,6 +527,7 @@
 				TEST1SCHEDCFG1BLDFILE1234 /* ScheduleConfigTests.swift in Sources */,
 				TEST1CMDINJECT1BLDFILE123 /* CommandInjectionTests.swift in Sources */,
 				TEST1SYNCJOB1BLDFILE12345 /* SyncJobTests.swift in Sources */,
+				TEST1DESTEDIT1BLDFILE1234 /* DestinationEditingTests.swift in Sources */,
 				TEST1PATHVAL1BLDFILE12345 /* PathValidationTests.swift in Sources */,
 				TEST1DELTARPT1BLDFILE1234 /* DeltaReportTests.swift in Sources */,
 				TEST1DEPCHECK1BLDFILE1234 /* DependencyCheckTests.swift in Sources */,
@@ -729,7 +733,7 @@
 				CODE_SIGN_ENTITLEMENTS = "RsyncGUI Widget/RsyncGUI_Widget.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RsyncGUI Widget/Info.plist";
@@ -741,7 +745,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.7.3;
+				MARKETING_VERSION = 1.7.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -760,7 +764,7 @@
 				CODE_SIGN_ENTITLEMENTS = "RsyncGUI Widget/RsyncGUI_Widget.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 18;
+				CURRENT_PROJECT_VERSION = 19;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RsyncGUI Widget/Info.plist";
@@ -772,7 +776,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.7.3;
+				MARKETING_VERSION = 1.7.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
