@@ -32,6 +32,7 @@
 		AI1NSIGHT5SERV1CEBLD01234 /* AIInsightsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AI1NSIGHT5SERV1CEF1LEREF1 /* AIInsightsService.swift */; };
 		AI1NSIGHTV1EWBLD12345678 /* AIInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AI1NSIGHTV1EWF1LEREF12345 /* AIInsightsView.swift */; };
 		AIBACKENDMGR1BLDFILE1234 /* AIBackendManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIBACKENDMGR1FILEREF1234 /* AIBackendManager.swift */; };
+		D3BAA9CF67D89D0E88613C7D /* CommandBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5031762659B84C5717A6268 /* CommandBuilderTests.swift */; };
 		D7F6F164F155BC99408EE1C9 /* ExecutionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6078B9C270C3DFB1F180CA3F /* ExecutionHistory.swift */; };
 		DA4CAC4B477003225AE0008D /* NovaAPIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */; };
 		DF2F410F530768F92DF369D8 /* RsyncGUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */; };
@@ -39,44 +40,44 @@
 		F4722847DD83FDB3735896A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A0D38A87F482DE72217C85 /* ContentView.swift */; };
 		JHTV234567890BCDE12345678 /* JobHistoryTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = JHTVF123456789ABCDEF1234 /* JobHistoryTabView.swift */; };
 		PARALL1SM1BLDFILE12345678 /* ParallelismConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = PARALL1SM1FILEREF12345678 /* ParallelismConfig.swift */; };
+		TEST1CMDINJECT1BLDFILE123 /* CommandInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */; };
+		TEST1DELTARPT1BLDFILE1234 /* DeltaReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */; };
+		TEST1DEPCHECK1BLDFILE1234 /* DependencyCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */; };
+		TEST1DESTEDIT1BLDFILE1234 /* DestinationEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */; };
+		TEST1EXECHIST1BLDFILE1234 /* ExecutionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1EXECHIST1FILEREF1234 /* ExecutionHistoryTests.swift */; };
+		TEST1FRAMETST1BLDFILE1234 /* FrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */; };
+		TEST1FUNCFLOW1BLDFILE1234 /* FunctionalFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */; };
+		TEST1INTEGRAT1BLDFILE1234 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */; };
+		TEST1NOVAAPI1BLDFILE12345 /* NovaAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */; };
+		TEST1PATHVAL1BLDFILE12345 /* PathValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */; };
+		TEST1PROGPARSE1BLDFILE123 /* ProgressParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */; };
+		TEST1RSYNCOPT1BLDFILE1234 /* RsyncOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1RSYNCOPT1FILEREF1234 /* RsyncOptionsTests.swift */; };
+		TEST1SCHEDCFG1BLDFILE1234 /* ScheduleConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */; };
+		TEST1SECURITY1BLDFILE1234 /* SecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */; };
+		TEST1SYNCJOB1BLDFILE12345 /* SyncJobTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */; };
+		TEST1WIDGETDT1BLDFILE1234 /* WidgetDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */; };
 		W1DGET1APPEX1EMB12345678 /* RsyncGUI Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = W1DGET1APPEX1PRD12345678 /* RsyncGUI Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W1DGET1ASSETS1BLD1234567 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 474C574974A0174A24BE137E /* Assets.xcassets */; };
 		W1DGET1DATA1BLDF12345678 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1DGET1DATA1FILE12345678 /* WidgetData.swift */; };
 		W1DGET1MAINSRC1BLD123456 /* RsyncGUIWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1DGET1MAINSRC1FILE123456 /* RsyncGUIWidget.swift */; };
 		W1DGET1SHARED1BLD1234567 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1DGET1SHARED1FILE1234567 /* SharedDataManager.swift */; };
 		W1DGETDATASYNC1BLDFILE12 /* WidgetDataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1DGETDATASYNC1FILEREF12 /* WidgetDataSync.swift */; };
-		TEST1RSYNCOPT1BLDFILE1234 /* RsyncOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1RSYNCOPT1FILEREF1234 /* RsyncOptionsTests.swift */; };
-		TEST1SCHEDCFG1BLDFILE1234 /* ScheduleConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */; };
-		TEST1CMDINJECT1BLDFILE123 /* CommandInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */; };
-		TEST1SYNCJOB1BLDFILE12345 /* SyncJobTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */; };
-		TEST1DESTEDIT1BLDFILE1234 /* DestinationEditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */; };
-		TEST1PATHVAL1BLDFILE12345 /* PathValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */; };
-		TEST1DELTARPT1BLDFILE1234 /* DeltaReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */; };
-		TEST1DEPCHECK1BLDFILE1234 /* DependencyCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */; };
-		TEST1EXECHIST1BLDFILE1234 /* ExecutionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1EXECHIST1FILEREF1234 /* ExecutionHistoryTests.swift */; };
-		TEST1PROGPARSE1BLDFILE123 /* ProgressParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */; };
-		TEST1INTEGRAT1BLDFILE1234 /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */; };
-		TEST1SECURITY1BLDFILE1234 /* SecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */; };
-		TEST1FRAMETST1BLDFILE1234 /* FrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */; };
-		TEST1FUNCFLOW1BLDFILE1234 /* FunctionalFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */; };
-		TEST1WIDGETDT1BLDFILE1234 /* WidgetDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */; };
-		TEST1NOVAAPI1BLDFILE12345 /* NovaAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		W1DGET1PROXY1CONTAINER12 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7E36AB7EAB6EF6BF0006B836 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = W1DGET1TARGET1NATIVE12345;
-			remoteInfo = "RsyncGUI Widget";
-		};
 		TEST1PROXY1CONTAINER12345 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7E36AB7EAB6EF6BF0006B836 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C22F3AD2D0714F91840F3A65;
 			remoteInfo = RsyncGUI;
+		};
+		W1DGET1PROXY1CONTAINER12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7E36AB7EAB6EF6BF0006B836 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = W1DGET1TARGET1NATIVE12345;
+			remoteInfo = "RsyncGUI Widget";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -98,7 +99,7 @@
 		0501948699D7168C7FAFCDDC /* MenuBarManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MenuBarManager.swift; path = RsyncGUI/Services/MenuBarManager.swift; sourceTree = "<group>"; };
 		0C90BB2EF7F2CE663C9C178A /* ScheduleConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleConfig.swift; path = RsyncGUI/Models/ScheduleConfig.swift; sourceTree = "<group>"; };
 		0D721D714FA57020723CD52D /* ScheduleManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScheduleManager.swift; path = RsyncGUI/Services/ScheduleManager.swift; sourceTree = "<group>"; };
-		2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NovaAPIServer.swift; path = RsyncGUI/NovaAPIServer.swift; sourceTree = "<absolute>"; };
+		2D6711935BB89A06E2AABCA7 /* NovaAPIServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NovaAPIServer.swift; path = RsyncGUI/NovaAPIServer.swift; sourceTree = "<group>"; };
 		39336941D1E7E9FE128A0BC9 /* RsyncOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncOptions.swift; path = RsyncGUI/Models/RsyncOptions.swift; sourceTree = "<group>"; };
 		41893A1D4E512F8F7C9BAC87 /* DeltaReportView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeltaReportView.swift; path = RsyncGUI/Views/DeltaReportView.swift; sourceTree = "<group>"; };
 		41FD66F960D7C498CB704D71 /* RsyncGUIApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RsyncGUIApp.swift; path = RsyncGUI/RsyncGUIApp.swift; sourceTree = "<group>"; };
@@ -114,6 +115,7 @@
 		7983F3BBEEF19FF95292426B /* JobManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobManager.swift; path = RsyncGUI/Services/JobManager.swift; sourceTree = "<group>"; };
 		7C1BDDADDD297E7F8CAF104D /* TestProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestProgressView.swift; path = RsyncGUI/Views/TestProgressView.swift; sourceTree = "<group>"; };
 		8D615CBF19C8524C0C7FE9FD /* JobEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobEditorView.swift; path = RsyncGUI/Views/JobEditorView.swift; sourceTree = "<group>"; };
+		A5031762659B84C5717A6268 /* CommandBuilderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommandBuilderTests.swift; sourceTree = "<group>"; };
 		A65F21CD34865F6C33A60947 /* AIBackendManager+Enhanced.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "AIBackendManager+Enhanced.swift"; path = "RsyncGUI/Services/AIBackendManager+Enhanced.swift"; sourceTree = "<group>"; };
 		AI1NSIGHT5SERV1CEF1LEREF1 /* AIInsightsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AIInsightsService.swift; path = RsyncGUI/Services/AIInsightsService.swift; sourceTree = "<group>"; };
 		AI1NSIGHTV1EWF1LEREF12345 /* AIInsightsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AIInsightsView.swift; path = RsyncGUI/Views/AIInsightsView.swift; sourceTree = "<group>"; };
@@ -130,6 +132,23 @@
 		JHTVF123456789ABCDEF1234 /* JobHistoryTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobHistoryTabView.swift; path = RsyncGUI/Views/JobHistoryTabView.swift; sourceTree = "<group>"; };
 		PARALL1SM1FILEREF12345678 /* ParallelismConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ParallelismConfig.swift; path = RsyncGUI/Models/ParallelismConfig.swift; sourceTree = "<group>"; };
 		RSYNCGU1ENT1TLEM1234567 /* RsyncGUI.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = RsyncGUI.entitlements; path = RsyncGUI/RsyncGUI.entitlements; sourceTree = "<group>"; };
+		TEST1BUNDLE1PRODUCT123456 /* RsyncGUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RsyncGUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandInjectionTests.swift; sourceTree = "<group>"; };
+		TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaReportTests.swift; sourceTree = "<group>"; };
+		TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyCheckTests.swift; sourceTree = "<group>"; };
+		TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationEditingTests.swift; sourceTree = "<group>"; };
+		TEST1EXECHIST1FILEREF1234 /* ExecutionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutionHistoryTests.swift; sourceTree = "<group>"; };
+		TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameTests.swift; sourceTree = "<group>"; };
+		TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalFlowTests.swift; sourceTree = "<group>"; };
+		TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
+		TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovaAPITests.swift; sourceTree = "<group>"; };
+		TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathValidationTests.swift; sourceTree = "<group>"; };
+		TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressParsingTests.swift; sourceTree = "<group>"; };
+		TEST1RSYNCOPT1FILEREF1234 /* RsyncOptionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsyncOptionsTests.swift; sourceTree = "<group>"; };
+		TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleConfigTests.swift; sourceTree = "<group>"; };
+		TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityTests.swift; sourceTree = "<group>"; };
+		TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobTests.swift; sourceTree = "<group>"; };
+		TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataTests.swift; sourceTree = "<group>"; };
 		W1DGET1APPEX1PRD12345678 /* RsyncGUI Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "RsyncGUI Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		W1DGET1DATA1FILE12345678 /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
 		W1DGET1ENTITLEMENTS123456 /* RsyncGUI_Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RsyncGUI_Widget.entitlements; sourceTree = "<group>"; };
@@ -137,23 +156,6 @@
 		W1DGET1MAINSRC1FILE123456 /* RsyncGUIWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsyncGUIWidget.swift; sourceTree = "<group>"; };
 		W1DGET1SHARED1FILE1234567 /* SharedDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataManager.swift; sourceTree = "<group>"; };
 		W1DGETDATASYNC1FILEREF12 /* WidgetDataSync.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDataSync.swift; path = RsyncGUI/Services/WidgetDataSync.swift; sourceTree = "<group>"; };
-		TEST1RSYNCOPT1FILEREF1234 /* RsyncOptionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsyncOptionsTests.swift; sourceTree = "<group>"; };
-		TEST1SCHEDCFG1FILEREF1234 /* ScheduleConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleConfigTests.swift; sourceTree = "<group>"; };
-		TEST1CMDINJECT1FILEREF123 /* CommandInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandInjectionTests.swift; sourceTree = "<group>"; };
-		TEST1SYNCJOB1FILEREF12345 /* SyncJobTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncJobTests.swift; sourceTree = "<group>"; };
-		TEST1DESTEDIT1FILEREF1234 /* DestinationEditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationEditingTests.swift; sourceTree = "<group>"; };
-		TEST1PATHVAL1FILEREF12345 /* PathValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathValidationTests.swift; sourceTree = "<group>"; };
-		TEST1DELTARPT1FILEREF1234 /* DeltaReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaReportTests.swift; sourceTree = "<group>"; };
-		TEST1DEPCHECK1FILEREF1234 /* DependencyCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyCheckTests.swift; sourceTree = "<group>"; };
-		TEST1EXECHIST1FILEREF1234 /* ExecutionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutionHistoryTests.swift; sourceTree = "<group>"; };
-		TEST1PROGPARSE1FILEREF123 /* ProgressParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressParsingTests.swift; sourceTree = "<group>"; };
-		TEST1INTEGRAT1FILEREF1234 /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
-		TEST1SECURITY1FILEREF1234 /* SecurityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityTests.swift; sourceTree = "<group>"; };
-		TEST1FRAMETST1FILEREF1234 /* FrameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameTests.swift; sourceTree = "<group>"; };
-		TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionalFlowTests.swift; sourceTree = "<group>"; };
-		TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataTests.swift; sourceTree = "<group>"; };
-		TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovaAPITests.swift; sourceTree = "<group>"; };
-		TEST1BUNDLE1PRODUCT123456 /* RsyncGUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RsyncGUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,14 +167,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		W1DGET1FRMWRK1PHASE123456 /* Frameworks */ = {
+		TEST1FRMWRK1PHASE12345678 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		TEST1FRMWRK1PHASE12345678 /* Frameworks */ = {
+		W1DGET1FRMWRK1PHASE123456 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -308,18 +310,6 @@
 			name = "OS X";
 			sourceTree = "<group>";
 		};
-		W1DGET1GROUP1FOLDER123456 /* RsyncGUI Widget */ = {
-			isa = PBXGroup;
-			children = (
-				W1DGET1MAINSRC1FILE123456 /* RsyncGUIWidget.swift */,
-				W1DGET1DATA1FILE12345678 /* WidgetData.swift */,
-				W1DGET1SHARED1FILE1234567 /* SharedDataManager.swift */,
-				W1DGET1INFO1PLIST1234567 /* Info.plist */,
-				W1DGET1ENTITLEMENTS123456 /* RsyncGUI_Widget.entitlements */,
-			);
-			path = "RsyncGUI Widget";
-			sourceTree = "<group>";
-		};
 		TEST1GROUP1FOLDER12345678 /* RsyncGUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -339,8 +329,21 @@
 				TEST1FUNCFLOW1FILEREF1234 /* FunctionalFlowTests.swift */,
 				TEST1WIDGETDT1FILEREF1234 /* WidgetDataTests.swift */,
 				TEST1NOVAAPI1FILEREF12345 /* NovaAPITests.swift */,
+				A5031762659B84C5717A6268 /* CommandBuilderTests.swift */,
 			);
 			path = RsyncGUITests;
+			sourceTree = "<group>";
+		};
+		W1DGET1GROUP1FOLDER123456 /* RsyncGUI Widget */ = {
+			isa = PBXGroup;
+			children = (
+				W1DGET1MAINSRC1FILE123456 /* RsyncGUIWidget.swift */,
+				W1DGET1DATA1FILE12345678 /* WidgetData.swift */,
+				W1DGET1SHARED1FILE1234567 /* SharedDataManager.swift */,
+				W1DGET1INFO1PLIST1234567 /* Info.plist */,
+				W1DGET1ENTITLEMENTS123456 /* RsyncGUI_Widget.entitlements */,
+			);
+			path = "RsyncGUI Widget";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -365,23 +368,6 @@
 			productReference = F5106288DF8535D0CCC0EB4E /* RsyncGUI.app */;
 			productType = "com.apple.product-type.application";
 		};
-		W1DGET1TARGET1NATIVE12345 /* RsyncGUI Widget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = W1DGET1CFGLIST123456789 /* Build configuration list for PBXNativeTarget "RsyncGUI Widget" */;
-			buildPhases = (
-				W1DGET1SOURCES1PHASE12345 /* Sources */,
-				W1DGET1FRMWRK1PHASE123456 /* Frameworks */,
-				W1DGET1RESOURCES1PHASE12 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "RsyncGUI Widget";
-			productName = "RsyncGUI Widget";
-			productReference = W1DGET1APPEX1PRD12345678 /* RsyncGUI Widget.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		TEST1TARGET1NATIVE12345678 /* RsyncGUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = TEST1CFGLIST1234567890123 /* Build configuration list for PBXNativeTarget "RsyncGUITests" */;
@@ -400,6 +386,23 @@
 			productReference = TEST1BUNDLE1PRODUCT123456 /* RsyncGUITests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		W1DGET1TARGET1NATIVE12345 /* RsyncGUI Widget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = W1DGET1CFGLIST123456789 /* Build configuration list for PBXNativeTarget "RsyncGUI Widget" */;
+			buildPhases = (
+				W1DGET1SOURCES1PHASE12345 /* Sources */,
+				W1DGET1FRMWRK1PHASE123456 /* Frameworks */,
+				W1DGET1RESOURCES1PHASE12 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "RsyncGUI Widget";
+			productName = "RsyncGUI Widget";
+			productReference = W1DGET1APPEX1PRD12345678 /* RsyncGUI Widget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -413,12 +416,12 @@
 					C22F3AD2D0714F91840F3A65 = {
 						CreatedOnToolsVersion = 16.0;
 					};
-					W1DGET1TARGET1NATIVE12345 = {
-						CreatedOnToolsVersion = 16.0;
-					};
 					TEST1TARGET1NATIVE12345678 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = C22F3AD2D0714F91840F3A65;
+					};
+					W1DGET1TARGET1NATIVE12345 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -453,18 +456,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		TEST1RESOURCES1PHASE12345 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		W1DGET1RESOURCES1PHASE12 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				W1DGET1ASSETS1BLD1234567 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		TEST1RESOURCES1PHASE12345 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -509,16 +512,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		W1DGET1SOURCES1PHASE12345 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				W1DGET1MAINSRC1BLD123456 /* RsyncGUIWidget.swift in Sources */,
-				W1DGET1DATA1BLDF12345678 /* WidgetData.swift in Sources */,
-				W1DGET1SHARED1BLD1234567 /* SharedDataManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		TEST1SOURCES1PHASE1234567 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -539,21 +532,32 @@
 				TEST1FUNCFLOW1BLDFILE1234 /* FunctionalFlowTests.swift in Sources */,
 				TEST1WIDGETDT1BLDFILE1234 /* WidgetDataTests.swift in Sources */,
 				TEST1NOVAAPI1BLDFILE12345 /* NovaAPITests.swift in Sources */,
+				D3BAA9CF67D89D0E88613C7D /* CommandBuilderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		W1DGET1SOURCES1PHASE12345 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				W1DGET1MAINSRC1BLD123456 /* RsyncGUIWidget.swift in Sources */,
+				W1DGET1DATA1BLDF12345678 /* WidgetData.swift in Sources */,
+				W1DGET1SHARED1BLD1234567 /* SharedDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		W1DGET1DEPENDENCY12345678 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = W1DGET1TARGET1NATIVE12345 /* RsyncGUI Widget */;
-			targetProxy = W1DGET1PROXY1CONTAINER12 /* PBXContainerItemProxy */;
-		};
 		TEST1DEPENDENCY1234567890 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C22F3AD2D0714F91840F3A65 /* RsyncGUI */;
 			targetProxy = TEST1PROXY1CONTAINER12345 /* PBXContainerItemProxy */;
+		};
+		W1DGET1DEPENDENCY12345678 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = W1DGET1TARGET1NATIVE12345 /* RsyncGUI Widget */;
+			targetProxy = W1DGET1PROXY1CONTAINER12 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -725,6 +729,48 @@
 			};
 			name = Release;
 		};
+		TEST1DEBUG1CONFIG123456789 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RsyncGUI.app/Contents/MacOS/RsyncGUI";
+			};
+			name = Debug;
+		};
+		TEST1RELEASE1CONFIG12345 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RsyncGUI.app/Contents/MacOS/RsyncGUI";
+			};
+			name = Release;
+		};
 		W1DGET1DEBUG1CONFIG12345 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -787,48 +833,6 @@
 			};
 			name = Release;
 		};
-		TEST1DEBUG1CONFIG123456789 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RsyncGUI.app/Contents/MacOS/RsyncGUI";
-			};
-			name = Debug;
-		};
-		TEST1RELEASE1CONFIG12345 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.jordankoch.rsyncgui.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RsyncGUI.app/Contents/MacOS/RsyncGUI";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -850,20 +854,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		W1DGET1CFGLIST123456789 /* Build configuration list for PBXNativeTarget "RsyncGUI Widget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				W1DGET1DEBUG1CONFIG12345 /* Debug */,
-				W1DGET1RELEASE1CONFIG123 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		TEST1CFGLIST1234567890123 /* Build configuration list for PBXNativeTarget "RsyncGUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				TEST1DEBUG1CONFIG123456789 /* Debug */,
 				TEST1RELEASE1CONFIG12345 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		W1DGET1CFGLIST123456789 /* Build configuration list for PBXNativeTarget "RsyncGUI Widget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				W1DGET1DEBUG1CONFIG12345 /* Debug */,
+				W1DGET1RELEASE1CONFIG123 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
