@@ -169,9 +169,31 @@ A related destination-picker fix already shipped in **1.7.3**, so updating from
 
 ## Installation
 
-1. Download the latest DMG from [Releases](https://github.com/kochj23/RsyncGUI/releases/latest)
-2. Open the DMG and drag RsyncGUI.app to `/Applications`
-3. No sandbox -- full file system access for unrestricted rsync operation
+### From DMG (recommended for most users)
+
+1. Download the latest `.dmg` from [Releases](https://github.com/kochj23/RsyncGUI/releases/latest).
+2. Open it and drag **RsyncGUI** into your **Applications** folder.
+3. Launch it from Applications. No sandbox — full file system access for unrestricted rsync operation.
+
+> **See "RsyncGUI can't be opened because the developer cannot be verified"?**
+> That means you have a build that isn't yet Developer-ID-signed **and** notarized. To open it anyway:
+> - **macOS 14 and earlier:** Control-click (right-click) the app → **Open** → **Open**.
+> - **macOS 15 (Sequoia) / 26 and later:** double-click it, dismiss the dialog, then open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**.
+> - Or from Terminal: `xattr -dr com.apple.quarantine "/Applications/RsyncGUI.app"`
+>
+> **Notarized releases open with no prompt at all** — maintainers, see [RELEASE.md](RELEASE.md).
+
+### From Source
+
+Requires **Xcode 16 or later**. RsyncGUI is pure Swift with no third-party package dependencies, so there
+is nothing extra to install:
+
+```bash
+git clone git@github.com:kochj23/RsyncGUI.git
+cd RsyncGUI
+open RsyncGUI.xcodeproj
+# Build & run: Cmd+R
+```
 
 ## Requirements
 
