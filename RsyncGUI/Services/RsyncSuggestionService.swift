@@ -183,17 +183,34 @@ private func extractRsyncLine(from text: String) -> String? {
         cleaned = cleaned.replacingOccurrences(of: fence, with: "\n")
     }
     for rawLine in cleaned.split(whereSeparator: { $0 == "\n" || $0 == "\r" }) {
-        var line = rawLine.trimmingCharacters(in: .whitespaces)
+        let line = rawLine.trimmingCharacters(in: .whitespaces)
         guard !line.isEmpty else { continue }
-        // Unwrap a single matching pair of surrounding backticks (inline code span).
-        if line.count >= 2, line.hasPrefix("`"), line.hasSuffix("`") {
-            line = String(line.dropFirst().dropLast()).trimmingCharacters(in: .whitespaces)
+
+        // (a) Inline single-backtick code span, e.g. "Use `rsync -a /a/ /b/`.".
+        //     Splitting on backticks, ONLY the odd-indexed segments are inside a
+        //     matched pair; return the first such span that starts with rsync. A
+        //     bare command with a stray backtick (index 0 is outside a span) does
+        //     not match here and falls through to (b), where the tokenizer rejects
+        //     the backtick as a substitution attempt.
+        if line.contains("`") {
+            let segments = line.split(separator: "`", omittingEmptySubsequences: false)
+            var idx = 1
+            while idx < segments.count {
+                let span = segments[idx].trimmingCharacters(in: .whitespaces)
+                let firstToken = span.split(separator: " ").first.map(String.init) ?? ""
+                if firstToken == "rsync" || firstToken.hasSuffix("/rsync") {
+                    return span
+                }
+                idx += 2
+            }
         }
-        if line.hasPrefix("$ ") { line = String(line.dropFirst(2)) }
-        // First meaningful token must be rsync.
-        let firstToken = line.split(separator: " ").first.map(String.init) ?? ""
+
+        // (b) A bare command line beginning with rsync (optionally after a "$ " prompt).
+        var bare = line
+        if bare.hasPrefix("$ ") { bare = String(bare.dropFirst(2)) }
+        let firstToken = bare.split(separator: " ").first.map(String.init) ?? ""
         if firstToken == "rsync" || firstToken.hasSuffix("/rsync") {
-            return line
+            return bare
         }
     }
     return nil
