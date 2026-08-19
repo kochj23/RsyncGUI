@@ -29,8 +29,13 @@ struct SettingsView: View {
                 .tabItem {
                     Label("Advanced", systemImage: "slider.horizontal.3")
                 }
+
+            LLMSettingsView()
+                .tabItem {
+                    Label("AI Assist", systemImage: "sparkles")
+                }
         }
-        .frame(width: 600, height: 400)
+        .frame(width: 600, height: 460)
     }
 }
 
