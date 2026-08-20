@@ -23,6 +23,8 @@ A professional macOS GUI for rsync with real-time progress, AI-powered insights,
 | SSH remote sync | Public key authentication with Keychain credential storage, connection testing, and key path validation |
 | iCloud Drive sync | One-click iCloud destination setup with automatic `.icloud` placeholder exclusion |
 | AI insights (10 features) | Error diagnosis, change summary, anomaly detection, smart scheduling, storage prediction, exclusion suggestions, NLP job creation, health scoring, recovery assistant, sensitive file detection |
+| Multi-model load balancing | Spread AI work across every enabled, healthy model (local Ollama + MLX, frontier OpenRouter, optional Nova Gateway) with a least-busy policy and health-gated failover. Three independent toggles; Nova is never required |
+| Describe-it-in-English rsync | Type your intent in plain English and a balanced LLM proposes a concrete rsync command. It is shown for review and pre-fills the builder — it is never auto-executed |
 | Desktop widget | WidgetKit extension (Small / Medium / Large) showing health score, last sync, next sync, and recent activity |
 | Menu bar integration | Status bar icon with quick job access and window toggle |
 | Pre/post sync scripts | Run custom scripts with environment variables (JOB_NAME, JOB_STATUS, FILES_TRANSFERRED); only absolute paths accepted |
@@ -134,6 +136,62 @@ sequenceDiagram
     AI-->>JM: AI insights (errors, suggestions)
     JM->>WK: Sync latest stats via App Group
     JM-->>UI: Job complete (success/failure)
+```
+
+---
+
+## Multi-Model Load Balancing & Describe-it-in-English rsync
+
+RsyncGUI ships the shared multi-model LLM load balancer. AI work (including the
+natural-language rsync assistant) is spread across every **enabled, healthy** model
+using a least-busy policy — the single-user version of how Nova's gateway balances
+load. Three independent toggles compose the pool, and each backend is health-gated
+so an unreachable one is simply skipped:
+
+- **All local** — every discovered Ollama model (`/api/tags`) plus locally-installed MLX models.
+- **All frontier** — OpenRouter models (bring-your-own-key, stored in the macOS Keychain).
+- **Nova Gateway** — *optional* OpenAI-compatible backend at `http://127.0.0.1:18792`
+  (health on `/v1/models`). A failed health check just marks it unavailable; everything
+  else keeps working.
+
+> Nova is **never** a hard requirement. With zero Nova the feature works on local
+> models and/or an OpenRouter key alone. There is no dependency on Nova, PostgreSQL,
+> or the gateway.
+
+### Describe it in English
+
+The Job Editor's **Basic** tab has a "Describe it in English (AI)" field. Type an
+intent — for example *"mirror Photos to the NAS, skip video files, delete extras on
+the destination"* — and the balanced LLM returns a concrete rsync command. It is
+surfaced for **review** and, on an explicit click, pre-fills the command builder.
+
+**Safety:** rsync is destructive (`--delete`), so the generated command is **never
+run automatically**. A pure, network-free validator (`parseRsyncSuggestion`) extracts
+*only* a valid rsync invocation and rejects everything else — shell chaining
+(`;` `&&` `|`), command substitution (`` ` `` `$()`), redirection (`>` `<`), non-rsync
+programs (`rm`, `sudo`, `cp`), and any program-executing rsync flag (`-e`, `--rsh`,
+`--rsync-path`) via a strict flag allow-list. If no backend is enabled the feature
+disables itself with a clear reason rather than failing.
+
+```mermaid
+graph TD
+    U["User intent (plain English)"] --> PB["RsyncPromptBuilder<br/>(pure, network-free)"]
+    PB --> LB["LLMLoadBalancerService"]
+
+    subgraph Pool["Enabled + health-gated pool"]
+        OL["Ollama (local)"]
+        MLX["MLX (local)"]
+        OR["OpenRouter (frontier)"]
+        NG["Nova Gateway (optional)"]
+    end
+
+    LB -->|"LoadBalancer.next()<br/>least-busy"| Pool
+    Pool -->|"raw LLM text"| PV["parseRsyncSuggestion()<br/>strict validator / sanitizer"]
+    PV -->|"rejected: injection / non-rsync"| X["Discarded, nothing shown"]
+    PV -->|"clean rsync only"| RC["RsyncCommand"]
+    RC --> RV["Review card (read-only)"]
+    RV -->|"explicit Apply"| CB["Command builder pre-filled"]
+    CB -.->|"user starts the job themselves"| RUN["rsync runs"]
 ```
 
 ---

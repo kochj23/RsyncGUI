@@ -161,6 +161,8 @@ struct JobEditorView: View {
                 Toggle("Enabled", isOn: $job.isEnabled)
             }
 
+            RsyncAssistSection(job: $job)
+
             FormSection(title: "Sources (\(job.sources.count))") {
                 ForEach(job.sources.indices, id: \.self) { index in
                     HStack {
